@@ -10,6 +10,16 @@ class Controller_Tasklist extends Controller_Template {
         $view = $this->template->content = View::factory('tasklist/index');
         $view->tasks = array();
         $view->pager = '';
+
+        // get the content
+        $tasks = ORM::factory('task')
+             ->order_by('priority','asc')
+             ->order_by('due','asc')
+             ->limit(1)
+             ->find_all()
+        ;
+        //print_r($tasks[0]);
+        //die;
     }
 
     /**
@@ -38,7 +48,7 @@ class Controller_Tasklist extends Controller_Template {
 
         // create pagination object
         $pagination = Pagination::factory(array(
-            'current_page'   => array('source' => 'query_string', 'key' => 'p'),
+            'current_page'   => array('source' => 'query_string', 'key' => 'p', 'output' => 'hash'),
             'total_items'    => $count,
             'items_per_page' => $per_page,
         ));

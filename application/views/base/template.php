@@ -30,6 +30,9 @@ if (isset($title)) {
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
+<script type="text/javascript" src="/js/hash.js"></script>
+<script type="text/javascript" src="/js/workbox.js"></script>
+<script type="text/javascript" src="/js/debug.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
 
 </body>

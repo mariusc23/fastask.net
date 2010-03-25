@@ -115,6 +115,8 @@ class Controller_Task extends Controller {
             $this->request->status = 500;
             return ;
         }
+        $task = new Model_Task($id);
+        $task->text = Model_Task::format_description($task->text);
         $this->request->response = json_encode(array(
             'text' => $task->text,
         ));
@@ -145,11 +147,12 @@ class Controller_Task extends Controller {
             return ;
         }
         $task->due = Model_Task::format_due_in($_POST['due']);
-
         if (!$task->save($id)) {
             $this->request->status = 500;
             return ;
         }
+        // reload the task
+        $task = new Model_Task($id);
         $task->due = Model_Task::format_due_out($task->due);
         $this->request->response = json_encode(array(
             'due' => $task->due,
