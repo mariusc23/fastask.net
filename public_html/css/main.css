@@ -82,6 +82,22 @@ body {
 #content {
     width: 100%;
 }
+.nojs {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -300px;
+    margin-top: -50px;
+    padding-top: 25px;
+    text-align: center;
+    width: 600px;
+    height: 50px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    background: #f5fcf2;
+}
 
 /*****************************************************************************/
 /*
@@ -93,14 +109,14 @@ body {
     top: 1em;
     left: 50%;
     margin-left: -300px;
+    height: 300px;
+    width: 600px;
+    overflow: hidden;
     -moz-box-shadow: 1px 1px 12px #000;
     -webkit-box-shadow: 1px 1px 12px #000;
     -moz-border-radius: 16px;
     -webkit-border-radius: 16px;
-    height: 300px;
-    width: 600px;
     background: #f5fcf2;
-    overflow: hidden;
 }
 
 .task-box .title {
@@ -114,10 +130,11 @@ body {
 .task-table {
     width: 100%;
     margin: 0 auto;
+    overflow: hidden;
 }
 .task-table .row {
     clear: both;
-    height: 2.6em;
+    height: 30px;
 }
 .task-table .row .td {
     float: left;
@@ -298,9 +315,6 @@ ul.menu .user a
 }
 .tasklist2 td:first-child a:hover {
     background: url('img/move2.png') no-repeat center;
-}
-.noPad {
-    text-decoration: none !important;
 }
 
 .btnSave, .btnDiscard {

@@ -14,6 +14,9 @@ if (isset($title)) {
 </head>
 <body class="<?php print $model . '-' . $action; ?>">
 <div id="content" role="main">
+<div class="nojs">
+    You must enable javascript to use Tasklist.
+</div>
 <?php print $content ?>
 </div><!-- /#content -->
 
