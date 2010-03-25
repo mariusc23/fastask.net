@@ -1,0 +1,427 @@
+/*****************************************************************************/
+/*
+/* Common
+/*
+/*****************************************************************************/
+body {
+    font-family: Verdana, Helvetica, Arial, Tahoma, sans-serif;
+    font-size: 12px;
+    padding: 0; margin: 0;
+    line-height: 2em;
+    background: #d6d6d6 url('img/bg-gradient.jpg') repeat-x;
+}
+.frt {
+    float: right;
+}
+.flt {
+    float: left;
+}
+.sh {
+    display: none;
+}
+.cl {
+    clear: both;
+}
+.center {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+.hide {
+    display: none;
+}
+
+/*****************************************************************************/
+/*
+/* Pager
+/*
+/*****************************************************************************/
+.pager {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    list-style: none;
+    padding: 0.5em 0 0 0;
+    text-align: center;
+}
+.pager li {
+    display: inline;
+    list-style: none;
+}
+.pager a, .pager span {
+    text-align: center;
+    display: inline-block;
+    padding: 0 0.5em;
+    margin: 0;
+    text-decoration: none;
+    color: #000;
+    outline: 0;
+}
+.pager a:hover
+, .pager .current {
+    color: #812;
+}
+
+/*****************************************************************************/
+/*
+/* Footer
+/*
+/*****************************************************************************/
+#footer {
+    position: fixed;
+    bottom: 0;
+    text-align: center;
+    width: 100%;
+}
+
+/*****************************************************************************/
+/*
+/* Content
+/*
+/*****************************************************************************/
+#content {
+    width: 100%;
+}
+
+/*****************************************************************************/
+/*
+/* Task box
+/*
+/*****************************************************************************/
+.task-box {
+    position: fixed;
+    top: 1em;
+    left: 50%;
+    margin-left: -300px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    height: 300px;
+    width: 600px;
+    background: #f5fcf2;
+    overflow: hidden;
+}
+
+.task-box .title {
+    text-align: center;
+    font-family: Georgia, freeserif, serif;
+    font-size: 26px;
+    font-weight: normal;
+}
+
+/* task table */
+.task-table {
+    width: 100%;
+    margin: 0 auto;
+}
+.task-table .row {
+    clear: both;
+    height: 2.6em;
+}
+.task-table .row .td {
+    float: left;
+    padding: 0.3em 0.5em;
+    height: 1.4em;
+    margin: 0;
+    overflow: hidden;
+}
+.task-table a {
+    text-decoration: none;
+    color: #00f;
+}
+.task-table .row:hover .sh {
+    display: block;
+}
+.task-table .td span {
+    display: block;
+    height: 2em;
+    overflow: hidden;
+}
+.task-table .s {
+    width: 1em;
+    padding: 0;
+    margin: 0;
+}
+.task-table .md {
+    padding: 0;
+    margin: 0.35em 0.1em;
+}
+.task-table .p {
+    width: 0.8em;
+    height: 2em;
+}
+.task-table .pri_1 {
+    background: url('img/high.png') no-repeat center 0.8em;
+}
+.task-table .pri_2 {
+    background: url('img/med.png') no-repeat center 0.8em;
+}
+.task-table .text {
+    width: 399px;
+}
+.task-table .text span {
+    padding: 0 0.2em;
+    width: 399px;
+}
+.done .text span {
+    text-decoration: line-through;
+}
+.task-table .row:hover .text {
+}
+.task-table .row:hover .text span {
+    background: #d5dcd2;
+    height: auto;
+    position: absolute;
+    overflow: visible;
+    z-index: 100;
+}
+.loadbar .text span {
+    background: url('img/loadbar.gif') no-repeat right;
+}
+.row:hover.loadbar .text span {
+    background: #d5dcd2 url('img/loadbar.gif') no-repeat right;
+}
+.task-table .due {
+    width: 4em;
+    text-align: right;
+}
+.task-table .followers {
+    width: 3.5em;
+    text-align: center;
+}
+.task-table .del {
+    width: 1em;
+}
+.task-table .del-link {
+    height: 2em;
+    width: 6px;
+    text-indent: -9999px;
+    background: url('img/delete.png') no-repeat center;
+}
+.task-table .row:hover {
+    background-color: #d5dcd2;
+}
+.task-table .row.notme {
+    background-color: #e5ece2;
+}
+
+
+/* navigation */
+ul.menu {
+    display: block;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+ul.menu li {
+    display: block;
+    list-style: none;
+    float: left;
+}
+ul.menu a {
+    display: block;
+    text-align: center;
+    padding: 0.5em 0;
+    margin: 0 0.5em;
+    width: 10em;
+    background: #e8e8e8;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius-bottomleft: 16px;
+    -moz-border-radius-bottomright: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+    -webkit-border-bottom-right-radius: 16px;
+    text-decoration: none;
+    color: #000;
+}
+ul.menu a:hover
+, ul.menu .active a {
+    background: #fff;
+}
+ul.menu li.first a {
+    margin-left: 0;
+}
+ul.menu .user {
+    margin-left: 8em;
+}
+ul.menu .user a
+, ul.menu .log a {
+    width: 9.8em;
+    font-size: 1.3em;
+    padding: 0.38em 0;
+}
+
+/* sidebar, content-right */
+#content_right {
+    padding-top: 1em;
+    margin-right: 3em;
+    float: right;
+    width: 300px;
+}
+
+.planner
+, .trash_tasks
+, .archive {
+    width: 324px;
+}
+.trash_tasks {
+    background: #f5ebeb;
+}
+.planner {
+    background: #f5f5f5;
+}
+.archive {
+    background: #edf3f5;
+}
+.trash_tasks .title
+, .planner .title
+, .archive .title {
+    margin: 0.3em 0;
+}
+.tasklist2 {
+    width: 100%;
+}
+.tasklist2 .options {
+    width: 2em;
+}
+.tasklist2 td:last-child  {
+    display: block;
+    height: 2em; overflow: hidden;
+}
+.tasklist2 td:first-child a {
+    padding: 0 0.3em;
+}
+.tasklist2 td:first-child a {
+    text-indent: -9999px;
+    background: url('img/move.png') no-repeat center;
+}
+.tasklist2 td:first-child a:hover {
+    background: url('img/move2.png') no-repeat center;
+}
+.noPad {
+    text-decoration: none !important;
+}
+
+.btnSave, .btnDiscard {
+    padding: 0 0.5em;
+    text-decoration: none;
+}
+.task-table input[type="text"] {
+    width: 95%;
+    border: 1px solid #d2e8c8;
+}
+
+.editable .success {
+    float: right;
+    text-decoration: none !important;
+    z-index: 1;
+    top: -3em;
+}
+
+
+.work_box {
+    position: relative;
+    background: #f5fcf2;
+    padding: 1em;
+    margin-bottom: 1em;
+    width: 300px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+}
+.work_box textarea {
+    width: 290px;
+    border: 1px solid #d2e8c8;
+}
+.work_box label {
+    display: block;
+    padding: 0.3em;
+}
+.work_box input[type="text"] {
+    width: 9em;
+    border: 1px solid #d2e8c8;
+}
+.work_box select {
+    width: 9em;
+
+}
+.work_box tr:last-child td {
+    padding-top: 1em;
+    text-align: center;
+}
+.work_box input[type="submit"] {
+    background: url('img/submit.png') no-repeat top left;
+    border: 0;
+    text-indent: -9999px;
+    cursor: pointer;
+    width: 134px;
+    height: 29px;
+}
+.work_box input[type="submit"]:hover {
+    background: url('img/submit2.png') no-repeat top left;
+}
+.work_box .priority span {
+    cursor: pointer;
+    border: 1px solid #f5fcf2;
+    padding: 0 0.3em;
+}
+.work_box .priority span.s {
+    border-color: #d2e8c8;
+}
+.work_box .priority img {
+    position: relative;
+    top: 0.15em;
+}
+
+.loading {
+    display: none;
+    width: 100%;
+    background: url('img/wait2.gif') no-repeat center;
+    opacity: 0.5;
+    filter:alpha(opacity=50);
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    position: absolute;
+    top: 0;
+    padding: 1em 0;
+    right: 0;
+}
+.cancel_edit {
+    display: block;
+    float: right;
+    text-decoration: none;
+    margin-top: 0.1em;
+    margin-right: 4em;
+}
+.cancel_edit.hide {
+    display: none;
+}
+
+.spin {
+    width: 15px;
+    height: 15px;
+    background: url('img/spin.gif');
+    display: inline-block;
+    margin-left: -18px;
+}
+
+/* jqModal styling */
+.jqmWindow {
+    display: none;
+    position: fixed;
+    top: 17%;
+    left: 50%;
+    margin-left: -300px;
+    width: 600px;
+    background: #eee;
+    color: #333;
+    border: 1px solid black;
+    padding: 12px;
+}
+
+.jqmOverlay {
+    background: #000;
+}
+

@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 //-- Environment setup --------------------------------------------------------
+require_once('config/config.php');
 
 /**
  * Set the default time zone.
@@ -49,7 +50,11 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
  * - boolean  profile     enable or disable internal profiling               TRUE
  * - boolean  caching     enable or disable internal caching                 FALSE
  */
-Kohana::init(array('base_url' => '/kohana/'));
+//Kohana::init(array('base_url' => '/kohana/'));
+Kohana::init(array(
+    'base_url' => '/',
+    'index_file' => '',
+));
 
 /**
  * Attach the file write to logging. Multiple writers are supported.
@@ -65,12 +70,12 @@ Kohana::$config->attach(new Kohana_Config_File);
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
 Kohana::modules(array(
-	// 'auth'       => MODPATH.'auth',       // Basic authentication
+	'auth'       => MODPATH.'auth',       // Basic authentication
 	// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
-	// 'database'   => MODPATH.'database',   // Database access
+	'database'   => MODPATH.'database',   // Database access
 	// 'image'      => MODPATH.'image',      // Image manipulation
-	// 'orm'        => MODPATH.'orm',        // Object Relationship Mapping
-	// 'pagination' => MODPATH.'pagination', // Paging of results
+	'orm'        => MODPATH.'orm',        // Object Relationship Mapping
+	'pagination' => MODPATH.'pagination', // Paging of results
 	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
 	));
 
@@ -78,11 +83,27 @@ Kohana::modules(array(
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-Route::set('default', '(<controller>(/<action>(/<id>)))')
-	->defaults(array(
-		'controller' => 'welcome',
-		'action'     => 'index',
-	));
+Route::set('default', '(tasklist(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'tasklist',
+        'action'     => 'index',
+    ));
+
+Route::set('task', '(task(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'task',
+        'action'     => 'index',
+     ));
+
+
+/**
+ * 404 page
+ */
+Route::set('catch-all', '<uri>', array('uri' => '.+'))
+    ->defaults(array(
+        'controller' => 'errors',
+        'action' => '404'
+));
 
 /**
  * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].

@@ -31,6 +31,6 @@ return array(
             'minifier' => array('Minify_Packer', 'minify')
         ))
     ),//*/
-    'js' => array('//js/main.js'),
-    'css' => array('//css/reset.css', '//css/main.css', '//css/print.css'),
+    'js' => array('//js/jquery.min.js', '//js/jqModal.js', '//js/jquery.history.js', '//js/main.js'),
+    'css' => array('//css/main.css'),
 );
