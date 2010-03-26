@@ -16,6 +16,7 @@ var
         'follower_remove': '/task/share/',
     }
     , USERS_URL = '/user/l/'
+    , GROUPS_URL = '/group/l/'
     , TASKLIST_URL = '/tasklist/t/1/?n='
     , TASKLIST_TIMEOUT = 5000
     , REFRESH_TIMEOUT = 120000
@@ -38,7 +39,16 @@ var
     , FOLLOWERS_TEMPLATE = $('<ul></ul>')
     , FOLLOWER_TEMPLATE = $('<li><input class="" type="checkbox" \
             name="follower" value=""/> <a href="#"></a></li>')
+    , GROUPS_TEMPLATE = $('<ul></ul>')
+    , GROUP_TEMPLATE = $('<li><a href="#"></a></li>')
+    , TASK_GROUP_TEMPLATE = $('<a href="#" class="g"></a>')
     , EDITABLE_BLANK = $('<span class="editable"></span>')
+    , DEFAULT_TITLES_PLAIN = [
+        'my tasks',
+    ]
+    , DEFAULT_TITLES = [
+        '<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0] + '</a>',
+    ]
 /*-------------- VARIABLES --------------*/
     , hash_last = ''
     , tasks_per_page
@@ -50,6 +60,7 @@ var
         'main': false,
     }
     , t_page = get_url_param('p', INITIAL_URL)
+    , t_group = get_url_param('g', INITIAL_URL)
 ;
 
 /*****************************************************************************/
@@ -173,6 +184,7 @@ function dispatch_response(type, task_box, t_row, target,
             });
             break;
         case 'text':
+            update_groups(response.groups);
         case 'due':
             finish_edit(task_box, target, response[type]);
             break;
@@ -324,11 +336,13 @@ function reset_timeout(elem) {
  * Fetching tasklist
  */
 function get_tasklist() {
-    var task_box = MAIN;
+    var   task_box = MAIN
+        , group = parseInt(get_url_param('g'));
     clear_timeout(task_box);
+
     $.ajax({
         type: 'GET',
-        url: TASKLIST_URL + tasks_per_page + '&p=' + t_page,
+        url: TASKLIST_URL + tasks_per_page + '&p=' + t_page + '&g=' + t_group,
         dataType: 'json',
         beforeSend: function() {
             return set_loading(task_box);
@@ -341,20 +355,40 @@ function get_tasklist() {
         success: function(response, textStatus, request) {
             if (request.status == 200) {
                 // build tasklist from json
+                if (group && !isNaN(group)) {
+                    $('.title', task_box)
+                        .html('<a href="#p=1">' + response.tasks[0].group.name
+                            + '</a>')
+                        .addClass('group');
+                    ;
+                } else {
+                    $('.title', task_box).html(DEFAULT_TITLES[0]);
+                }
+                update_groups(response.groups);
+
                 task_box.children('.task-table').html('');
                 var task;
                 for (var i in response.tasks) {
                     json_task = response.tasks[i]
                     html_task = ROW_TEMPLATE.clone();
                     if (json_task.status) {
-                        html_task.children('.s')
+                        html_task.children('.s').children('input')
                             .attr('checked', 'checked');
                         html_task.addClass('done');
                     }
                     html_task.children('.p')
                         .addClass('pri_' + json_task.priority);
+                    if (json_task.group) {
+                        TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+                            + json_task.group.id)
+                            .html(json_task.group.name)
+                            .prependTo(html_task.children('.text')
+                                .children('.editable')
+                            );
+                        json_task.text = ': ' + json_task.text;
+                    }
                     html_task.children('.text').children('.editable')
-                        .html(json_task.text);
+                        .append(json_task.text);
                     html_task.children('.due').children('.editable')
                         .html(json_task.due);
                     var html_followers = FOLLOWERS_TEMPLATE.clone();
@@ -390,12 +424,6 @@ function get_tasklist() {
 /*
 /*****************************************************************************/
 $('.editable').live('click', replace_html);
-$('.editable a').live('click', function (e) {
-    if (!e.ctrlKey) {
-        window.location.href = $(this).attr('href');
-        return false;
-    }
-});
 
 /* enter/escape actions inside form */
 $('form.inplace input').live('keydown', function(e) {
@@ -501,6 +529,70 @@ function build_editable_html(buffer) {
 }
 /* end of code for editable tasks */
 
+
+/*****************************************************************************/
+/*
+/* GROUP MANAGEMENT
+/*
+/*****************************************************************************/
+$('.editable a').live('click', function (e) {
+    if ($(this).hasClass('g')) {
+        var id = $(this).attr('href').substr(3);
+        url_update_hash('g', id, true);
+        return false;
+    } else if (!e.ctrlKey) {
+        window.location.href = $(this).attr('href');
+        return false;
+    }
+});
+
+$('.title a', MAIN).live('click', function () {
+    url_update_hash('p', 1, true);
+    return false;
+});
+
+/**
+ * Gets and builds the list of groups in JSON
+ */
+function get_groups() {
+    $.ajax({
+        type: 'GET',
+        url: GROUPS_URL,
+        dataType: 'json',
+        error: function (response, text_status, error) {
+            alert('Error getting groups.')
+            return false;
+        },
+        success: function(response, textStatus, request) {
+            update_groups(response.groups);
+        }
+    });
+}
+
+function update_groups(groups) {
+    var html_g;
+    template = GROUPS_TEMPLATE.clone().html('');
+    if (t_group) {
+        html_g = GROUP_TEMPLATE.clone();
+        html_g.children('a')
+            .attr('href', '#p=1')
+            .html(DEFAULT_TITLES_PLAIN[0]);
+        template.append(html_g);
+    }
+    for (var i in groups) {
+        if (t_group && t_group == groups[i].id) {
+            continue;
+        }
+        html_g = GROUP_TEMPLATE.clone();
+        html_g.children('a')
+            .attr('href', '#g=' + groups[i].id)
+            .html(groups[i].name);
+        template.append(html_g);
+    }
+    template.appendTo($('.groups', MAIN));
+}
+
+
 /*****************************************************************************/
 /*
 /* FOLLOWER MANAGEMENT
@@ -600,7 +692,7 @@ function resize() {
         return false;
     }
     $('.task-table', MAIN).height(tasks_per_page * TASK_TABLE_ROW_HEIGHT);
-    get_tasklist();
+    if (!hash_last) get_tasklist();
 }
 $(window).resize(resize);
 
@@ -609,11 +701,13 @@ $(document).ready(function() {
      * Init
      */
     get_users();
+    get_groups();
 
     $('#content').html('\
     <div class="task-box" id="main"> \
         <div class="loading"></div> \
-        <h1 class="title">my tasks</h1> \
+        <div class="groups"><h1 class="title"><a href="#p=1">my tasks</a>\
+            </h1></div> \
         <div class="task-table" cellspacing="0"> \
         </div> \
         <!-- pager? --> \

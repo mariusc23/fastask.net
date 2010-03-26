@@ -1,6 +1,6 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 class Controller_User extends Controller {
-    private $user = true;//Auth::instance()->get_user();
+    private $user = null;
 
     /**
      * Lists users id and nickname in JSON format
@@ -25,5 +25,9 @@ class Controller_User extends Controller {
         }
 
         $this->request->response = json_encode($json);
+    }
+
+    public function before() {
+        $this->user = new Model_User(1);//Auth::instance()->get_user();
     }
 }

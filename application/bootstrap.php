@@ -54,7 +54,6 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 Kohana::init(array(
     'base_url' => '/',
     'index_file' => '',
-    'caching' => TRUE,
 ));
 
 /**
@@ -99,6 +98,12 @@ Route::set('task', '(task(/<action>(/<id>)))')
 Route::set('user', '(user(/<action>(/<id>)))')
     ->defaults(array(
         'controller' => 'user',
+        'action'     => 'index',
+     ));
+
+Route::set('group', '(group(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'group',
         'action'     => 'index',
      ));
 

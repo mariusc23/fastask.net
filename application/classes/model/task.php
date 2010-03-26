@@ -2,18 +2,36 @@
 class Model_Task extends ORM {
     protected $_belongs_to = array('user' => array('model' => 'user', 'foreign_key' => 'user_id'));
     protected $_has_many = array('followers' => array('model' => 'user', 'through' => 'follow_task')
-                               , /*'groups' => array('model' => 'group', 'foreign_key' => 'group_id')*/);
+                               , 'groups' => array('model' => 'group', 'through' => 'task_group'));
 
-
-    public function __construct($id = NULL) {
-        parent::__construct($id);
-        $this->_object['due'] = self::format_due_out($this->_object['due']);
-        $this->_object['text'] = self::format_description($this->_object['text']);
+    public static function format_task(&$task, $user) {
+        $task->due = self::format_due_out($task->due);
+        $task->text = self::format_text_out($task, $user);
     }
 
-    public static function format_description($data) {
+    public static function format_text_out($task, $user) {
+        $data = $task->text;
+        // nofollow links
+        $data = mb_ereg_replace('[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]',
+            '<a href="\\0" rel="nofollow">\\0</a>', $data);
+
+        // unescape single quotes
         $data = mb_ereg_replace("\\\'", "'", $data);
-        return ereg_replace("[[:alpha:]]+://[^<>[:space:]]+[[:alnum:]/]","<a href=\"\\0\" rel=\"nofollow\">\\0</a>", $data);
+        return $data;
+    }
+
+    public static function get_group($task, $user) {
+        $groups = $task->groups
+            ->where('user_id', '=', $user->id)
+            ->find_all()
+            ;
+        // assume only one group
+        foreach ($groups as $group) {
+            return array(
+                'id' => $group->id,
+                'name' => $group->name,
+            );
+        }
     }
 
     public static function format_due_out($date) {

@@ -31,6 +31,11 @@ body {
     display: none;
 }
 
+a, a:visited {
+    color: #00f;
+    outline: none;
+}
+
 /*****************************************************************************/
 /*
 /* Pager
@@ -120,9 +125,51 @@ body {
 
 .task-box .title {
     text-align: center;
+    margin: 0.5em auto;
+    width: 140px;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
+}
+
+.task-box .groups:hover .title {
+    -moz-border-radius-topleft: 16px;
+    -moz-border-radius-topright: 16px;
+    -webkit-border-top-left-radius: 16px;
+    -webkit-border-top-right-radius: 16px;
+    background: #eee;
+}
+
+.task-box .groups {
+    position: relative;
+}
+.task-box .groups:hover ul {
+    display: block;
+}
+.task-box .groups ul {
+    display: none;
+    list-style: none;
+    width: 140px;
+    list-style: none;
+    line-height: 30px;
+    margin: 0 0 0 -70px;
+    padding: 0.5em 0;
+    top: 100%; left: 50%;
+    position: absolute;
+    background: #eee;
+    z-index: 10;
+    -moz-border-radius-bottomleft: 16px;
+    -moz-border-radius-bottomright: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+    -webkit-border-bottom-right-radius: 16px;
+}
+.task-box .groups ul a {
+    line-height: 1.8em;
+    display: block;
+    list-style: none;
+    padding: 0 1em;
+    margin: 0.5em 0;
+    text-decoration: none;
 }
 
 /* task table */
@@ -152,6 +199,12 @@ body {
     height: 2em;
     overflow: hidden;
 }
+.editable .success {
+    float: right;
+    text-decoration: none !important;
+    z-index: 1;
+    top: -3em;
+}
 .task-table .td.followers span {
     display: inline;
 }
@@ -180,6 +233,9 @@ body {
 .task-table .text span {
     padding: 0 0.2em;
     width: 399px;
+}
+.task-table .text .g {
+    color: #c12;
 }
 .done .text span {
     text-decoration: line-through;
@@ -347,14 +403,6 @@ ul.menu .user a
     width: 95%;
     border: 1px solid #d2e8c8;
 }
-
-.editable .success {
-    float: right;
-    text-decoration: none !important;
-    z-index: 1;
-    top: -3em;
-}
-
 
 .work_box {
     position: relative;

@@ -8,10 +8,14 @@ function on_hash_change(hash) {
     }
 
     hash_last = hash;
-    var page = parseInt(get_url_param('p', window.location.href));
+    var   page = parseInt(get_url_param('p', window.location.href))
+        , group = parseInt(get_url_param('g', window.location.href))
+    ;
     if (isNaN(page)) page = 1;
-    if (page != t_page) {
+    if (isNaN(group)) group = 0;
+    if (page != t_page || group != t_group) {
         t_page = page;
+        t_group = group;
         get_tasklist();
     }
 }
@@ -22,6 +26,9 @@ function on_hash_change(hash) {
  * Uses constant HASH_SEPARATOR
  */
 function get_url_param(name, url) {
+    if (!url || undefined === url) {
+        url = window.location.href;
+    }
     name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
     var regexS = '[\\#;]' + name + '=([^' + HASH_SEPARATOR + ']*)';
     var regex = new RegExp(regexS);
@@ -33,11 +40,32 @@ function get_url_param(name, url) {
 }
 
 /**
-    * Updates the hash
-    * TODO: Add handling for multiple params in hash,
-    * separated by HASH_SEPARATOR
-    * Only param is page, for now
-    */
-function url_update_hash(param, val) {
-    window.location.href = INITIAL_URL_NOHASH  + '#' + param + '=' + val;
+ * Updates the hash
+ */
+function url_update_hash(param, val, erase) {
+    var   new_hash = ''
+        , initial = hash_last
+        , params_values = []
+        , params = {}
+        , param_value
+    ;
+    if (erase) {
+        initial = '';
+    }
+    // split url into params
+    if (initial) {
+        params_values = initial.split(';');
+        for (var i in params_values) {
+            param_value = params_values[i].split('=');
+            params[param_value[0]] = param_value[1];
+        }
+    }
+    // update value
+    params[param] = val;
+    // collapse params to string
+    for (var i in params) {
+        if (!params[i]) continue;
+        new_hash += ';' + i + '=' + params[i];
+    }
+    window.location.href = INITIAL_URL_NOHASH  + '#' + new_hash.substr(1);
 }
