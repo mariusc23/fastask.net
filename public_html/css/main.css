@@ -114,6 +114,11 @@ a, a:visited {
     background: #f5fcf2;
 }
 
+.task-box .notasks {
+    text-align: center;
+    padding: 2em 0;
+}
+
 .task-box .title {
     text-align: center;
     margin: 0.5em auto;

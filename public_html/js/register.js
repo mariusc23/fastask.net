@@ -26,7 +26,7 @@ function passwordStrength(password) {
     var score = 0;
 
     //if password shorter than 6
-    if (password.length < 6) return score;
+    if (password.length() < 6) return score;
     score++;
 
     //if password has both lower and uppercase characters
@@ -64,6 +64,7 @@ $(document).ready(function() {
 
 
     in_password.keyup(function () {
+        if (in_password.val().length() <= 0) return ;
         var score = passwordStrength(in_password.val());
         if (score == 0) {
             in_password

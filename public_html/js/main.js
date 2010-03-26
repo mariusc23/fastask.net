@@ -22,6 +22,9 @@ var
     , REFRESH_TIMEOUT = 120000
     , MAIN
     , LOADING_ROW_CLASS = 'loadbar'
+    , DEFAULT_NO_TASKS = $('<div class="notasks"> \
+        No tasks are available. Create one using the box to the right. \
+        </div>')
     , ROW_TEMPLATE = $('<div class="row "> \
         <div class="td s"> \
             <input type="checkbox" class="md sh" name="status" /> \
@@ -253,9 +256,9 @@ function update_row(type, task_box, target) {
         beforeSend: function() {
             set_loading_row(t_row);
         },
-        error: function (response, textStatus, request) {
+        error: function (response, textStatus, error) {
             dispatch_error(type, task_box, t_row, target,
-                response, textStatus, request, t_data);
+                response, textStatus, error, t_data);
             unset_loading_row(t_row);
             return false;
         },
@@ -349,22 +352,19 @@ function get_tasklist() {
         },
         error: function (response, text_status, error) {
             unset_loading(task_box);
-            task_error_ajax(response, text_status, error);
+            if (response.status == 404) {
+                DEFAULT_NO_TASKS.insertAfter($('.groups', task_box));
+                return ;
+            }
+
             return false;
         },
         success: function(response, textStatus, request) {
             if (request.status == 200) {
                 // build tasklist from json
-                if (group && !isNaN(group)) {
-                    $('.title', task_box)
-                        .html('<a href="#p=1">' + response.tasks[0].group.name
-                            + '</a>')
-                        .addClass('group');
-                    ;
-                } else {
-                    $('.title', task_box).html(DEFAULT_TITLES[0]);
-                }
                 update_groups(response.groups);
+                // remove no tasks message if exists
+                $('.notasks', task_box).remove();
 
                 task_box.children('.task-table').html('');
                 var task;
@@ -570,23 +570,29 @@ function get_groups() {
 }
 
 function update_groups(groups) {
-    var html_g;
+    var html_g, url_g;
     template = GROUPS_TEMPLATE.clone().html('');
-    if (t_group) {
-        html_g = GROUP_TEMPLATE.clone();
-        html_g.children('a')
-            .attr('href', '#p=1')
-            .html(DEFAULT_TITLES_PLAIN[0]);
-        template.append(html_g);
-    }
     for (var i in groups) {
+        url_g = '#g=' + groups[i].id;
+        title_g = groups[i].name;
         if (t_group && t_group == groups[i].id) {
-            continue;
+            $('.title', MAIN)
+                .html('<a href="#p=1">' + groups[i].name
+                    + '</a>');
+            ;
+            url_g = '#p=1';
+            title_g = DEFAULT_TITLES_PLAIN[0];
+        } else if (!t_group) {
+            $('.title', MAIN)
+                .html('<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0]
+                    + '</a>');
+            ;
         }
         html_g = GROUP_TEMPLATE.clone();
         html_g.children('a')
-            .attr('href', '#g=' + groups[i].id)
-            .html(groups[i].name);
+            .attr('href', url_g)
+            .html(title_g)
+        ;
         template.append(html_g);
     }
     template.appendTo($('.groups', MAIN));

@@ -129,7 +129,7 @@ class Controller_User extends Controller_Template {
                 Auth::instance()->login($post['username'], $post['password']);
  
                 // show their account
-                Request::instance()->redirect($this->referer);
+                Request::instance()->redirect('/');
             } else {
                 // show the registration errors
                 $view->errors = $post->errors('register');

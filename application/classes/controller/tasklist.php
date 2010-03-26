@@ -46,6 +46,13 @@ class Controller_Tasklist extends Controller_Template {
         $tasks = $this->get_tasks($_GET, $pagination);
 
         $json = array('tasks' => array());
+
+        if (!isset($tasks[0])) {
+            $this->request->status = 404;
+            $this->request->response = json_encode($json);
+            return ;
+        }
+
         $columns = $tasks[0]->list_columns();
         foreach ($tasks as $task) {
             $json_task = array();

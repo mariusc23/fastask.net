@@ -6,7 +6,7 @@
 <?php if (isset($errors)): ?>
     <ul>
     <?php foreach ($errors as $error): ?>
-        <li><?php print ucfirst($error); ?></li>';
+        <li><?php print ucfirst($error); ?></li>
     <?php endforeach; ?>
     </ul>
 <?php endif; ?>
@@ -17,10 +17,10 @@
     print Form::input('email', '', array('maxlength' => 255, 'id' => "email"));
 ?></label>
 <label for="password"><span>Password:</span> <?php
-    print Form::input('password', '', array('maxlength' => 50, 'id' => "password"));
+    print Form::password('password', '', array('maxlength' => 50, 'id' => "password"));
 ?></label>
 <label for="password_confirm"><span>Password again:</span> <?php
-    print Form::input('password_confirm', '', array('maxlength' => 50, 'id' => "password_confirm"));
+    print Form::password('password_confirm', '', array('maxlength' => 50, 'id' => "password_confirm"));
 ?></label>
 
 <?php
