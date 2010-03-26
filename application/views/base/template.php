@@ -10,7 +10,13 @@ if (isset($title)) {
 <head>
 <title><?php print $title; ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<?php if ($model == 'user' && $action == 'login'): ?>
+<link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
+<?php elseif ($model == 'user' && $action == 'register'): ?>
+<link type="text/css" href="<?php print Url::site('min/f=css/register.css'); ?>" rel="stylesheet" media="screen" />
+<?php else: ?>
 <link type="text/css" href="<?php print Url::site('min/?g=css'); ?>" rel="stylesheet" media="screen" />
+<?php endif; ?>
 </head>
 <body class="<?php print $model . '-' . $action; ?>">
 <div id="content" role="main">
@@ -20,21 +26,20 @@ if (isset($title)) {
 <?php print $content ?>
 </div><!-- /#content -->
 
-<div id="footer" role="contentinfo">
-<div id="footer-inner">
-&copy; 2009 - <?php print date('Y'); ?> <a href="/"><?php print SITE_NAME; ?></a>. <a href="http://craciunoiu.net">Contact us for feedback or any concerns.</a>
-</div><!-- /#footer-inner -->
-</div><!-- /#footer -->
-
 <!--<script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>-->
 <script type="text/javascript" src="/js/jquery.min.js"></script>
+<?php if ($model == 'tasklist' && $action == 'index'): ?>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
 <script type="text/javascript" src="/js/hash.js"></script>
 <script type="text/javascript" src="/js/workbox.js"></script>
 <script type="text/javascript" src="/js/debug.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
-
+<?php elseif ($model == 'user' && $action == 'login'): ?>
+<script type="text/javascript" src="/js/login.js"></script>
+<?php elseif ($model == 'user' && $action == 'register'): ?>
+<script type="text/javascript" src="/js/register.js"></script>
+<?php endif; ?>
 </body>
 </html>
 

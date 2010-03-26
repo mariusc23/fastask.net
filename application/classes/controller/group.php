@@ -5,7 +5,7 @@ class Controller_Group extends Controller {
 
     public function __construct(Request $request) {
         parent::__construct($request);
-        $this->user = new Model_User(1);//Auth::instance()->get_user();
+        $this->user = Auth::instance()->get_user();
     }
 
     public function my_json_groups() {

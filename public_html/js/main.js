@@ -1,7 +1,7 @@
 var
 /*-------------- CONSTANTS --------------*/
       TASK_TABLE_ROW_HEIGHT = 30
-    , FOOTER_SPACE = 70
+    , FOOTER_SPACE = 10
     , TASK_TABLE_MINUS = 100
     , INITIAL_URL = window.location.href
     , INITIAL_URL_NOHASH = INITIAL_URL.substr(0, window.location.href.indexOf('#'))
@@ -630,7 +630,7 @@ function get_users() {
                     .val(response.users[i].id)
                     .attr('class', 'u' + response.users[i].id)
                 ;
-                html_f.children('a').html(response.users[i].nick);
+                html_f.children('a').html(response.users[i].username);
                 FOLLOWERS_TEMPLATE.append(html_f);
             }
         }

@@ -4,40 +4,13 @@ class Controller_Tasklist extends Controller_Template {
     private $user = null;
 
     /**
-     * Index action, lists tasks
+     * Index action
      */
     public function action_index() {
         // get the content
         $view = $this->template->content = View::factory('tasklist/index');
         $view->tasks = array();
         $view->pager = '';
-
-        // get the content
-        /*
-        $tasks = ORM::factory('task')
-             ->order_by('priority','asc')
-             ->order_by('due','asc')
-             ->limit(1)
-             ->offset(100)
-             ->find_all()
-        ;
-        $columns = $tasks[0]->list_columns();
-        print '<pre>';
-        foreach ($columns as $k => $v) {
-            print "$k -> {$tasks[0]->$k}\n";
-        }
-        print "user -> {$tasks[0]->user->nick}\n";
-        print "followers -> \n";
-        $columns = $tasks[0]->user->list_columns();
-        foreach ($tasks[0]->followers->find_all() as $follower) {
-            foreach ($columns as $k => $v) {
-                print "    $k -> {$follower->$k}\n";
-            }
-        }
-        //print_r($tasks[0]->followers);
-        print '</pre>';
-        die;
-        */
     }
 
     /**
@@ -86,7 +59,7 @@ class Controller_Tasklist extends Controller_Template {
             foreach ($task->followers->find_all() as $follower) {
                 $json_task['followers'][] = array(
                     'id' => $follower->id,
-                    'nick' => $follower->nick,
+                    'username' => $follower->username,
                 );
             }
 
@@ -224,7 +197,10 @@ class Controller_Tasklist extends Controller_Template {
 
     public function before() {
         parent::before();
-        $this->user = new Model_User(1);//Auth::instance()->get_user();
+        $this->user = Auth::instance()->get_user();
+        if (!$this->user) {
+            Request::instance()->redirect('user/login');
+        }
         $this->template->user = $this->user;
         $this->template->model = 'tasklist';
         $this->template->action = Request::instance()->action;

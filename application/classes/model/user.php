@@ -3,6 +3,7 @@ class Model_User extends Model_Auth_User {
     protected $_has_many = array(
         'tasks' => array('model' => 'task', 'foreign_key' => 'user_id'),
         'groups' => array('model' => 'group', 'foreign_key' => 'user_id'),
+        'roles' => array('model' => 'role', 'through' => 'roles_users'),
     );
 
     public function validate_create(& $array) {

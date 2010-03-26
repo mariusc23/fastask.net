@@ -1,22 +1,30 @@
+
+<div class="register" style="display: none">
 <h1>Register</h1>
 
-<p>Registration is disabled at the moment. Please contact us at <a href="http://craciunoiu.net">our website</a> if you are interested in contributing.</p>
+<?php print Form::open('user/register', array('class' => 'register')); ?>
+<?php if (isset($errors)): ?>
+    <ul>
+    <?php foreach ($errors as $error): ?>
+        <li><?php print ucfirst($error); ?></li>';
+    <?php endforeach; ?>
+    </ul>
+<?php endif; ?>
+<label for="username"><span>Username:</span> <?php
+    print Form::input('username', '', array('maxlength' => 50, 'id' => "username"));
+?></label>
+<label for="email"><span>Email:</span> <?php
+    print Form::input('email', '', array('maxlength' => 255, 'id' => "email"));
+?></label>
+<label for="password"><span>Password:</span> <?php
+    print Form::input('password', '', array('maxlength' => 50, 'id' => "password"));
+?></label>
+<label for="password_confirm"><span>Password again:</span> <?php
+    print Form::input('password_confirm', '', array('maxlength' => 50, 'id' => "password_confirm"));
+?></label>
+
 <?php
-return ;
-
-print Form::open('user/register', array('class'=>'login'));
-if (isset($errors)) {
-    print '<ul>';
-    foreach ($errors as $error) {
-        print '<li>' . ucfirst($error) . '</li>';
-    }
-}
-print '</ul>';
-print '<label for="username"><span>Username:</span> ' . Form::input('username') . '</label>';
-print '<label for="email"><span>Email:</span> ' . Form::input('email') . '</label>';
-print '<label for="password"><span>Password:</span> ' . Form::password('password', '', array('maxlength' => 30)) . '</label>';
-print '<label for="password_confirm"><span>Confirm password:</span> ' . Form::password('password_confirm', '', array('maxlength' => 30)) . '</label>';
-
-print Form::submit('login', 'Log in');
-
-print Form::close();
+    print Form::submit('register', 'Register');
+    print Form::close();
+?>
+</div>

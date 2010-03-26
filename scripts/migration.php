@@ -59,7 +59,7 @@ $statement->execute();
 $rows = $statement->fetchAll();
 
 /* migrate users */
-$statement = $db_2_link->prepare("INSERT IGNORE INTO users(id, nick, pass, name_f, name_l, email, created, lastmodified)
+$statement = $db_2_link->prepare("INSERT IGNORE INTO users(id, username, pass, name_f, name_l, email, created, lastmodified)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
 $count = 0;

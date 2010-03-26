@@ -289,6 +289,6 @@ class Controller_Task extends Controller {
     }
 
     public function before() {
-        $this->user = new Model_User(1);//Auth::instance()->get_user();
+        $this->user = Auth::instance()->get_user();
     }
 }

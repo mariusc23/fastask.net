@@ -1,3 +1,4 @@
+<div class="login" style="display: none">
 <?php if (isset($user)): ?>
 <h1><?php print $user->username; ?></h1>
 <ul>
@@ -22,3 +23,4 @@ print Form::submit('login', 'Log in');
 print Form::close();
 ?>
 <?php endif; ?>
+</div>
