@@ -12,14 +12,31 @@ class Controller_Tasklist extends Controller_Template {
         $view->pager = '';
 
         // get the content
+        /*
         $tasks = ORM::factory('task')
              ->order_by('priority','asc')
              ->order_by('due','asc')
              ->limit(1)
+             ->offset(100)
              ->find_all()
         ;
-        //print_r($tasks[0]);
-        //die;
+        $columns = $tasks[0]->list_columns();
+        print '<pre>';
+        foreach ($columns as $k => $v) {
+            print "$k -> {$tasks[0]->$k}\n";
+        }
+        print "user -> {$tasks[0]->user->nick}\n";
+        print "followers -> \n";
+        $columns = $tasks[0]->user->list_columns();
+        foreach ($tasks[0]->followers->find_all() as $follower) {
+            foreach ($columns as $k => $v) {
+                print "    $k -> {$follower->$k}\n";
+            }
+        }
+        //print_r($tasks[0]->followers);
+        print '</pre>';
+        die;
+        */
     }
 
     /**
@@ -44,7 +61,25 @@ class Controller_Tasklist extends Controller_Template {
         }
 
         // count items
-        $count = DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')->execute('default')->get('count');
+        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('yesterday 00:00'));
+        $count = DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
+            ->distinct(true)
+            ->join('follow_task')
+               ->on('follow_task.follower_id', '=', 'tasks.user_id')
+               ->on('follow_task.task_id', '=', 'tasks.id')
+            ->where('trash', '=', 0)
+            ->where('follower_id', '=', 1)
+            ->and_where_open()
+                ->where('status','=',0)
+                ->or_where_open()
+                    ->where('status','=','1')
+                    ->where('lastmodified', '>', $yesterday)
+                ->or_where_close()
+            ->and_where_close()
+            ->order_by('status','asc')
+            ->order_by('priority','asc')
+            ->order_by('due','asc')
+            ->execute('default')->get('count');
 
         // create pagination object
         $pagination = Pagination::factory(array(
@@ -53,15 +88,30 @@ class Controller_Tasklist extends Controller_Template {
             'items_per_page' => $per_page,
         ));
 
-        // get the content
+        // my tasks are:
+        // created by me AND followed by me
         $tasks = ORM::factory('task')
-             ->order_by('priority','asc')
-             ->order_by('due','asc')
-             ->limit($pagination->items_per_page)
-             ->offset($pagination->offset)
-             ->find_all()
+            ->distinct(true)
+            ->join('follow_task')
+               ->on('follow_task.follower_id', '=', 'tasks.user_id')
+               ->on('follow_task.task_id', '=', 'tasks.id')
+            ->where('trash', '=', 0)
+            ->where('follower_id', '=', 1)
+            ->where('due', '>', DATE_PLANNED)
+            ->and_where_open()
+                ->where('status','=',0)
+                ->or_where_open()
+                    ->where('status','=','1')
+                    ->where('lastmodified', '>', $yesterday)
+                ->or_where_close()
+            ->and_where_close()
+            ->order_by('status','asc')
+            ->order_by('priority','asc')
+            ->order_by('due','asc')
+            ->limit($pagination->items_per_page)
+            ->offset($pagination->offset)
+            ->find_all()
         ;
-
         $json = array('tasks' => array());
         $columns = $tasks[0]->list_columns();
         foreach ($tasks as $task) {
@@ -69,6 +119,14 @@ class Controller_Tasklist extends Controller_Template {
 
             foreach ($columns as $k => $v) {
                 $json_task[$k] = $task->$k;
+            }
+
+            $json_task['followers'] = array();
+            foreach ($task->followers->find_all() as $follower) {
+                $json_task['followers'][] = array(
+                    'id' => $follower->id,
+                    'nick' => $follower->nick,
+                );
             }
 
             $json['tasks'][] = $json_task;

@@ -12,7 +12,10 @@ var
         'delete': '/task/d/',
         'text': '/task/text/',
         'due': '/task/due/',
+        'follower_add': '/task/share/',
+        'follower_remove': '/task/share/',
     }
+    , USERS_URL = '/user/l/'
     , TASKLIST_URL = '/tasklist/t/1/?n='
     , TASKLIST_TIMEOUT = 5000
     , REFRESH_TIMEOUT = 120000
@@ -20,18 +23,21 @@ var
     , LOADING_ROW_CLASS = 'loadbar'
     , ROW_TEMPLATE = $('<div class="row "> \
         <div class="td s"> \
-            <input type="checkbox" class="md sh" name="status"> \
+            <input type="checkbox" class="md sh" name="status" /> \
         </div> \
         <div class="td p"> </div> \
         <div class="td text"><span class="editable"></span></div> \
         <div class="td due"><span class="editable"></span></div> \
-        <div class="td followers"><span></span></div> \
+        <div class="td followers"></div> \
         <div class="td del"> \
             <a href="#" class="sh del-link"> </a> \
             <input type="hidden" value="" name="task_id"> \
             <input type="hidden" value="" name="user_id"> \
         </div> \
         </div>')
+    , FOLLOWERS_TEMPLATE = $('<ul></ul>')
+    , FOLLOWER_TEMPLATE = $('<li><input class="" type="checkbox" \
+            name="follower" value=""/> <a href="#"></a></li>')
     , EDITABLE_BLANK = $('<span class="editable"></span>')
 /*-------------- VARIABLES --------------*/
     , hash_last = ''
@@ -57,15 +63,13 @@ var
  */
 $('.p', MAIN).live('click', function() {
     update_row('priority', MAIN, $(this));
-    return false;
 });
 
 /**
  * Changing task status
  */
-$('.s', MAIN).live('click', function() {
+$('.s input', MAIN).live('click', function() {
     update_row('status', MAIN, $(this));
-    return false;
 });
 
 /**
@@ -105,6 +109,16 @@ function extract_data(type, t_row, target) {
             data.send = {};
             data.send[type] = new_text;
             break;
+        case 'follower_add':
+            data.method = 'POST';
+            data.send = {'u': target.val()};
+            break;
+        case 'follower_remove':
+            data.method = 'POST';
+            data.send = {
+                'u': target.val(), 'r': 1
+            };
+            break;
         default:
             return false;
     }
@@ -126,7 +140,8 @@ function extract_data(type, t_row, target) {
 function dispatch_response(type, task_box, t_row, target,
             response, textStatus, request, t_data) {
     if (request.status != 200) {
-        task_error_response(response);
+        dispatch_error(type, task_box, t_row, target,
+            response, textStatus, request, t_data);
         return false;
     }
     if (type != 'text') {
@@ -160,8 +175,46 @@ function dispatch_response(type, task_box, t_row, target,
         case 'text':
         case 'due':
             finish_edit(task_box, target, response[type]);
-
+            break;
+        case 'follower_add':
+        case 'follower_remove':
+            break;
     }
+    return true;
+}
+
+/**
+ * Handles errors
+ */
+function dispatch_error(type, task_box, t_row, target,
+    response, textStatus, request, t_data) {
+    switch (type) {
+        case 'priority':
+            break;
+        case 'status':
+            if (!t_row.hasClass('done')) {
+                t_row.removeClass('done');
+                target.attr('checked', '');
+            } else {
+                t_row.addClass('done');
+                target.attr('checked', 'checked');
+            }
+            break;
+        case 'delete':
+            break;
+        case 'text':
+        case 'due':
+            break;
+        case 'follower_add':
+        case 'follower_remove':
+            if (target.is(':checked')) {
+                target.attr('checked', '');
+            } else {
+                target.attr('checked', 'checked');
+            }
+            break;
+    }
+    return true;
 }
 
 /**
@@ -188,12 +241,13 @@ function update_row(type, task_box, target) {
         beforeSend: function() {
             set_loading_row(t_row);
         },
-        error: function (response, text_status, error) {
+        error: function (response, textStatus, request) {
+            dispatch_error(type, task_box, t_row, target,
+                response, textStatus, request, t_data);
             unset_loading_row(t_row);
-            task_error_ajax(response, text_status, error);
             return false;
         },
-        success: function(response, textStatus, request){
+        success: function(response, textStatus, request) {
             dispatch_response(type, task_box, t_row, target,
                 response, textStatus, request, t_data);
             unset_loading_row(t_row);
@@ -284,7 +338,7 @@ function get_tasklist() {
             task_error_ajax(response, text_status, error);
             return false;
         },
-        success: function(response, textStatus, request){
+        success: function(response, textStatus, request) {
             if (request.status == 200) {
                 // build tasklist from json
                 task_box.children('.task-table').html('');
@@ -303,6 +357,12 @@ function get_tasklist() {
                         .html(json_task.text);
                     html_task.children('.due').children('.editable')
                         .html(json_task.due);
+                    var html_followers = FOLLOWERS_TEMPLATE.clone();
+                    for (var i in json_task.followers) {
+                        html_followers.find('input.u' +
+                            json_task.followers[i].id).attr('checked', 'checked');
+                    }
+                    html_followers.appendTo(html_task.children('.followers'));
                     html_task.children('.del')
                         .children('input[name="task_id"]').val(json_task.id)
                         .end()
@@ -441,6 +501,49 @@ function build_editable_html(buffer) {
 }
 /* end of code for editable tasks */
 
+/*****************************************************************************/
+/*
+/* FOLLOWER MANAGEMENT
+/*
+/*****************************************************************************/
+/**
+ * Share with someone else
+ */
+$('.followers input', MAIN).live('click', function() {
+    if ($(this).is(':checked')) {
+        update_row('follower_remove', MAIN, $(this));
+    } else {
+        update_row('follower_add', MAIN, $(this));
+    }
+});
+
+/**
+ * Gets and builds the list of users in JSON
+ */
+function get_users() {
+    $.ajax({
+        type: 'GET',
+        url: USERS_URL,
+        dataType: 'json',
+        error: function (response, text_status, error) {
+            alert('Error getting users.')
+            return false;
+        },
+        success: function(response, textStatus, request) {
+            var html_f;
+            FOLLOWERS_TEMPLATE.html('');
+            for (var i in response.users) {
+                html_f = FOLLOWER_TEMPLATE.clone();
+                html_f.children('input')
+                    .val(response.users[i].id)
+                    .attr('class', 'u' + response.users[i].id)
+                ;
+                html_f.children('a').html(response.users[i].nick);
+                FOLLOWERS_TEMPLATE.append(html_f);
+            }
+        }
+    });
+}
 
 /*****************************************************************************/
 /*
@@ -505,6 +608,8 @@ $(document).ready(function() {
     /**
      * Init
      */
+    get_users();
+
     $('#content').html('\
     <div class="task-box" id="main"> \
         <div class="loading"></div> \

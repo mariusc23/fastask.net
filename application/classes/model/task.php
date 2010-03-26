@@ -2,7 +2,7 @@
 class Model_Task extends ORM {
     protected $_belongs_to = array('user' => array('model' => 'user', 'foreign_key' => 'user_id'));
     protected $_has_many = array('followers' => array('model' => 'user', 'through' => 'follow_task')
-                               , 'groups' => array('model' => 'group', 'foreign_key' => 'group_id'));
+                               , /*'groups' => array('model' => 'group', 'foreign_key' => 'group_id')*/);
 
 
     public function __construct($id = NULL) {
@@ -41,9 +41,9 @@ class Model_Task extends ORM {
         }
         // $highest = $i;
         if ($i > 5) {
-            $difference = "plan";
+            $difference = 'plan';
         } elseif ($i > 4) {
-            $difference = "months";
+            $difference = 'mos';
             if ($t_unix_date < $t_now) {
                 $difference .= ' ago';
             }
@@ -61,7 +61,7 @@ class Model_Task extends ORM {
         } elseif ($i > 1) {
             $difference .= $span2[$i];
         } elseif ($i > 1) {
-            $difference = 'minutes';
+            $difference = 'mins';
             if ($t_unix_date < $t_now) {
                 $difference .= ' ago';
             }

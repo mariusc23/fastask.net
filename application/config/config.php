@@ -20,3 +20,6 @@ $PERIODS_NAMES   = array('seconds', 'minutes', 'hours', 'days', 'months', 'years
 $PERIODS         = array('s', 'm', 'h', 'd', 'mo', 'yr', 'decade');
 $LENGTHS         = array('60','60','24','30','12','10');
 define('LENGTHS_COUNT', 6);
+
+// planning
+define('DATE_PLANNED', '1985-00-00 00:00:00');

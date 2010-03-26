@@ -4,6 +4,69 @@ class Controller_Task extends Controller {
     private $user = true;//Auth::instance()->get_user();
 
     /**
+     * adds or removes a follower to a task
+     */
+    public function action_share() {
+        $id = $this->request->param('id');
+        $task = new Model_Task($id);
+        $this->request->headers['Content-Type'] = 'application/json';
+
+        // error if not found
+        if (!$task->loaded()) {
+            $this->request->status = 404;
+            return ;
+        }
+
+        if (!$_POST || !isset($_POST['u']) || !intval($_POST['u'])) {
+            $this->request->status = 400;
+            return ;
+        }
+        $u_id = intval($_POST['u']);
+
+        $user = ORM::factory('user')->where('id', '=', $u_id)->find();
+
+        // if not found
+        if (!$user->loaded()) {
+            $this->request->status = 404;
+            return ;
+        }
+
+        // already has the follower, bad request
+        // adding a user
+        if (isset($_POST['r']) && $_POST['r']) {
+            if ($task->has('followers', $user)) {
+                $this->request->status = 400;
+                return ;
+            }
+
+            if (!$task->add('followers', $user)) {
+                $this->request->status = 500;
+                return ;
+            }
+        } else {
+        // removing a user
+            if (!$task->has('followers', $user)) {
+                $this->request->status = 400;
+                return ;
+            }
+
+            $count = DB::select(DB::expr('COUNT(follower_id) AS count'))->from('follow_task')
+                ->where('task_id', '=', $id)
+                ->execute('default')->get('count');
+
+            if ($count <= 1) {
+                $this->request->status = 400;
+                return ;
+            }
+            if (!$task->remove('followers', $user)) {
+                $this->request->status = 500;
+                return ;
+            }
+        }
+        $this->request->response = '{}';
+    }
+
+    /**
      * updates priority
      */
     public function action_pri() {
@@ -106,7 +169,7 @@ class Controller_Task extends Controller {
         }
 
         if (!isset($_POST['text'])) {
-            $this->request->status = 500;
+            $this->request->status = 400;
             return ;
         }
         $task->text = $_POST['text'];
@@ -143,7 +206,7 @@ class Controller_Task extends Controller {
         }
 
         if (!isset($_POST['due'])) {
-            $this->request->status = 500;
+            $this->request->status = 400;
             return ;
         }
         $task->due = Model_Task::format_due_in($_POST['due']);

@@ -54,6 +54,7 @@ ini_set('unserialize_callback_func', 'spl_autoload_call');
 Kohana::init(array(
     'base_url' => '/',
     'index_file' => '',
+    'caching' => TRUE,
 ));
 
 /**
@@ -95,6 +96,11 @@ Route::set('task', '(task(/<action>(/<id>)))')
         'action'     => 'index',
      ));
 
+Route::set('user', '(user(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'user',
+        'action'     => 'index',
+     ));
 
 /**
  * 404 page
