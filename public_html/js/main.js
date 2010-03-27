@@ -1,7 +1,6 @@
 var
 /*-------------- CONSTANTS --------------*/
       TASK_TABLE_ROW_HEIGHT = 30
-    , FOOTER_SPACE = 0
     , TASK_TABLE_MINUS = 100
     , INITIAL_URL = window.location.href
     , INITIAL_URL_NOHASH = INITIAL_URL.substr(0, window.location.href.indexOf('#'))
@@ -685,7 +684,6 @@ $('body').keydown(function(e) {
  */
 function resize() {
     var t_height = 0, reload = false;
-    $('#main').height($(window).height() - FOOTER_SPACE);
     tasks_per_page = parseInt(
         ($('#main').height() - TASK_TABLE_MINUS)
         / TASK_TABLE_ROW_HEIGHT

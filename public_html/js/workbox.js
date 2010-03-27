@@ -12,17 +12,17 @@ var
       WORK_BOX = $('\
     <div class="work-box"> \
     <h1 id="wb" class="title">work box</h1> \
-    <div class="due-icon"></div> \
-    <div class="share-icon"></div> \
     <form action="/task/add" method="POST"> \
         <label class="text">Task: <br /> \
             <textarea rows="5" cols="10" name="text"></textarea> \
         </label> \
         <label class="due">Date: <br/> \
             <input type="text" name="due" value="today" /> \
+            <span class="due-icon"></span> \
         </label> \
         <div class="share label">Sharing: <br/> \
             <span class="input"></span> \
+            <span class="share-icon"></span> \
         </div> \
         <div class="priority label"><span>Priority:</span> \
             <input type="hidden" name="priority" value="3" /> \
@@ -50,9 +50,9 @@ WORK_BOX.prependTo('#content');
  * Handles moving up and down on the suggestion list
  * and tab + enter.
  */
-function autocomplete_keydown(e, obj, class) {
+function autocomplete_keydown(e, obj, box_class) {
     var text = obj.val()
-        , suggest_box = $('.' + class)
+        , suggest_box = $('.' + box_class)
         , results = false, active = -1
         , new_text
     ;
@@ -93,18 +93,18 @@ function autocomplete_keydown(e, obj, class) {
 /**
  * Handles doing the lookup and filling in suggestions.
  */
-function autocomplete_keyup(e, obj, class, the_url) {
+function autocomplete_keyup(e, obj, box_class, the_url) {
     if (preventKeyUp) return false;
 
     var   text = obj.val()
-        , suggest_box = $('.' + class)
+        , suggest_box = $('.' + box_class)
     ;
     if (text.length > 20) {
         return false;
     }
 
-    if (text == workbox_text[class]) return false;
-    workbox_text[class] = text;
+    if (text == workbox_text[box_class]) return false;
+    workbox_text[box_class] = text;
     if (text.indexOf(':') >= 0) {
         return false;
     }
@@ -157,11 +157,11 @@ function autocomplete_keyup(e, obj, class, the_url) {
 $('.autocomplete li').live('mousedown', function() {
     var e = {'keyCode': 13}
         , obj = $('.work-box textarea')
-        , class = 'groups_auto'
+        , box_class = 'groups_auto'
     ;
     $(this).siblings().removeClass('active');
     $(this).addClass('active');
-    autocomplete_keydown(e, obj, class);
+    autocomplete_keydown(e, obj, box_class);
     obj.focus();
 });
 
@@ -234,12 +234,12 @@ $('.work-box .share li input').live('mousedown', function () {
 $('.work-box textarea')
 
     .keydown(function(e) {
-    preventKeyUp = !autocomplete_keydown(e, $(this), 'groups_auto', false);
+    preventKeyUp = !autocomplete_keydown(e, $(this), 'groups_auto');
     return !preventKeyUp;
 })
 
     .keyup(function(e) {
-    return autocomplete_keyup(e, $(this), 'groups_auto', GROUPS_AUTOCOMPLETE_URL, false);
+    return autocomplete_keyup(e, $(this), 'groups_auto', GROUPS_AUTOCOMPLETE_URL);
 })
 
     .focus(function(e) {

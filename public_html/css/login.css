@@ -79,6 +79,7 @@ a {
     width: 140px;
     text-align: center;
     top: 120px;
+    left: 0;
     height: 37px;
     -moz-border-radius-bottomleft: 16px;
     -webkit-border-bottom-left-radius: 16px;
