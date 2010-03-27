@@ -11,8 +11,9 @@ var
 /*-------------- CONSTANTS --------------*/
       WORK_BOX = $('\
     <div class="work-box"> \
-    <div class="loading"></div> \
     <h1 id="wb" class="title">work box</h1> \
+    <div class="due-icon"></div> \
+    <div class="share-icon"></div> \
     <form action="/task/add" method="POST"> \
         <label class="text">Task: <br /> \
             <textarea rows="5" cols="10" name="text"></textarea> \
@@ -23,12 +24,13 @@ var
         <div class="share label">Sharing: <br/> \
             <span class="input"></span> \
         </div> \
-        <div class="priority label"><span>Priority</span>: \
+        <div class="priority label"><span>Priority:</span> \
             <input type="hidden" name="priority" value="3" /> \
-            <span class="p"><img src="/css/img/high.png" alt="1" /> High</span> \
-            <span class="p"><img src="css/img/med.png" alt="2" /> Medium</span> \
+            <span class="p p-1"><span class="img hi" alt="1"></span> High</span> \
+            <span class="p p-2"><span class="img me" alt="1"></span> Medium</span> \
         </div> \
-        <input type="submit" name="add" value="Add task" /> \
+        <input type="submit" name="add" title="Add task" value="Add task" /> \
+        <input type="submit" name="plan" title="Plan task" value="Plan task" /> \
         <a class="clear" href="#">clear</a> \
     </form> \
     </div><!-- work_box -->')

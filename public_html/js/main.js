@@ -28,15 +28,15 @@ var
         <div class="td s"> \
             <input type="checkbox" class="md sh" name="status" /> \
         </div> \
-        <div class="td p"> </div> \
+        <div class="td p"><a href="#" title="change priority"></a></div> \
         <div class="td text"><span class="editable"></span></div> \
         <div class="td due"><span class="editable"></span></div> \
-        <div class="td followers"></div> \
         <div class="td del"> \
             <a href="#" class="sh del-link"> </a> \
             <input type="hidden" value="" name="task_id"> \
             <input type="hidden" value="" name="user_id"> \
         </div> \
+        <div class="td followers"><a href="#" title="sharing"></a></div> \
         </div>')
     , FOLLOWERS_TEMPLATE = $('<ul></ul>')
     , FOLLOWER_TEMPLATE = $('<li><label><input class="" type="checkbox" \
@@ -711,8 +711,19 @@ $(document).ready(function() {
     $('#content').html('\
     <div class="task-box" id="main"> \
         <div class="loading"></div> \
+        <div class="tabs"> \
+            <div class="icon my-tasks" title="my and only my tasks"><a href="#t=1"></a></div> \
+            <div class="icon assignments" title="assignments from others"><a href="#t=2"></a></div> \
+            <div class="icon command" title="command center"><a href="#t=3"></a></div> \
+            <div class="icon archive" title="self-esteem box (archive)"><a href="#t=4"></a></div> \
+        </div> \
         <div class="groups"><h1 class="title"><a href="#p=1">my tasks</a>\
             </h1></div> \
+        <div class="search"> \
+            <input type="text" name="search" value="" title="Search as you type" /> \
+            <span class="search-s info" style="display: none">Searching...</span> \
+            <div class="icon" title="search"><a href="#s=1"></a></div> \
+        </div> \
         <div class="task-table" cellspacing="0"> \
         </div> \
         <!-- pager? --> \

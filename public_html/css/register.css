@@ -172,6 +172,10 @@ span.on.s-5 {
     background-position: -184px 0;
 }
 
+.strength {
+    color: #949393;
+}
+
 #account {
     background: #eee;
     line-height: 1.25em;
