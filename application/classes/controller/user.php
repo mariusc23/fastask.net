@@ -54,6 +54,11 @@ class Controller_User extends Controller_Template {
             $json_user['username'] = $user->username;
             if ($user->id == $this->user->id) {
                 $json_user['current'] = 1;
+                $json_user['name'] = $user->name;
+                $json_user['email'] = $user->email;
+                $json_user['logins'] = $user->email;
+                /* TODO: use proper timezone */
+                $json_user['last_login'] = $user->last_login;
             }
 
             $json['users'][] = $json_user;

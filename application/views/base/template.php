@@ -31,9 +31,11 @@ if (isset($title)) {
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
+<script type="text/javascript" src="/js/debug.js"></script>
 <script type="text/javascript" src="/js/hash.js"></script>
 <script type="text/javascript" src="/js/workbox.js"></script>
-<script type="text/javascript" src="/js/debug.js"></script>
+<script type="text/javascript" src="/js/profile.js"></script>
+<script type="text/javascript" src="/js/planner.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
 <?php elseif ($model == 'user' && $action == 'login'): ?>
 <script type="text/javascript" src="/js/login.js"></script>

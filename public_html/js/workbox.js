@@ -3,9 +3,13 @@
 /* Work box JS
 /*
 /*****************************************************************************/
+/**
+ * Called from main.js at end of setup
+ */
+function init_workbox() {
 var
 /*-------------- CONSTANTS --------------*/
-      TEMPLATE_WORK_BOX = '\
+      WORK_BOX = $('\
     <div class="work-box"> \
     <div class="loading"></div> \
     <h1 id="wb" class="title">work box</h1> \
@@ -16,9 +20,9 @@ var
         <label class="due">Date: <br/> \
             <input type="text" name="due" value="today" /> \
         </label> \
-        <label class="share">Sharing: <br/> \
-            <input type="text" name="share" readonly="readonly" value="" /> \
-        </label> \
+        <div class="share label">Sharing: <br/> \
+            <span class="input"></span> \
+        </div> \
         <div class="priority label"><span>Priority</span>: \
             <input type="hidden" name="priority" value="3" /> \
             <span class="p"><img src="/css/img/high.png" alt="1" /> High</span> \
@@ -27,7 +31,7 @@ var
         <input type="submit" name="add" value="Add task" /> \
         <a class="clear" href="#">clear</a> \
     </form> \
-    </div><!-- work_box -->'
+    </div><!-- work_box -->')
     , SPINWHEEL = $('<div class="spin"></div>')
     , GROUPS_AUTOCOMPLETE_URL = '/group/f/'
 /*-------------- VARIABLES --------------*/
@@ -37,6 +41,8 @@ var
     , autocomplete_timeout = false
     , preventKeyUp = false
 ;
+
+WORK_BOX.prependTo('#content');
 
 /**
  * Handles moving up and down on the suggestion list
@@ -179,108 +185,125 @@ $('.work-box input[type="submit"]').live('click', function () {
     return false;
 });
 
-
-$('.work-box .share input[type="checkbox"]').live('click', function () {
-    if (!$(this).is(':checked') &&
-        $(this).parents('ul').find(':checked').length <= 0) {
-        return false;
-    }
-    var   s_obj = $('.share input[name="share"]')
-        , s_text = s_obj.val()
-        , new_text = $(this).next().text()
+function manage_share(the_input) {
+    var   s_obj = $('.share .input')
+        , s_text = s_obj.text()
+        , new_text = the_input.next().html()
         , this_in_regex = new RegExp('([ ]|^)' + new_text + '([ ]|$)')
         , this_in = this_in_regex.exec(s_text)
     ;
-    if ($(this).is(':checked')) {
+
+    if (the_input.is(':checked') &&
+        the_input.parents('ul').find(':checked').length <= 1) {
+        the_input.attr('checked', '');
+    }
+
+    if (!the_input.is(':checked')) {
         if (this_in == null) {
-            s_obj.val(s_text + ' ' + new_text);
+            s_obj.text(s_text + ' ' + new_text);
         }
     } else {
-        s_obj.val(s_text.replace(this_in_regex, ''));
+        s_obj.text(s_text.replace(this_in_regex, ' '));
     }
+}
+
+$('.work-box .share li').live('mousedown', function (e) {
+    var the_input = $(this).find('input');
+    if (!the_input.is(':checked') &&
+        the_input.parents('ul').find(':checked').length <= 1) {
+        the_input.attr('checked', '');
+    }
+
+    return false;
+});
+
+$('.work-box .share li span').live('mousedown', function () {
+    var the_input = $(this).prev();
+    manage_share(the_input);
+    return false;
+});
+
+$('.work-box .share li input').live('mousedown', function () {
+    var the_input = $(this);
+    manage_share(the_input);
+    return false;
+});
+
+$('.work-box textarea')
+
+    .keydown(function(e) {
+    preventKeyUp = !autocomplete_keydown(e, $(this), 'groups_auto', false);
+    return !preventKeyUp;
+})
+
+    .keyup(function(e) {
+    return autocomplete_keyup(e, $(this), 'groups_auto', GROUPS_AUTOCOMPLETE_URL, false);
+})
+
+    .focus(function(e) {
+    if ($('.work-box .groups_auto').children().length > 0) {
+        $('.work-box .groups_auto').show();
+    }
+})
+    .blur(function(e) {
+    $('.work-box .groups_auto').hide();
 });
 
 /**
- * Called from main.js at end of setup
- */
-function init_workbox() {
-    $('.work-box textarea')
-
-        .keydown(function(e) {
-        preventKeyUp = !autocomplete_keydown(e, $(this), 'groups_auto', false);
-        return !preventKeyUp;
-    })
-
-        .keyup(function(e) {
-        return autocomplete_keyup(e, $(this), 'groups_auto', GROUPS_AUTOCOMPLETE_URL, false);
-    })
-
-        .focus(function(e) {
-        if ($('.work-box .groups_auto').children().length > 0) {
-            $('.work-box .groups_auto').show();
-        }
-    })
-        .blur(function(e) {
-        $('.work-box .groups_auto').hide();
-    });
-
-    /**
-    * priority update on image
-    */
-    $('.work-box .priority .p').click(function() {
-        if ($(this).hasClass('s')) {
-            $(this).parents('.priority').find('input').val('3');
-            $(this).removeClass('s');
-        }
-        else {
-            $(this).parents('.priority').find('.p')
-                .removeClass('s');
-            $(this).parents('.priority').find('input')
-                .val($(this).find('img').attr('alt'));
-            $(this)
-                .addClass('s');
-        }
-        return false;
-    });
-
-
-    /**
-     * Clears the workbox
-     */
-    function clear_workbox() {
-        var WORK_BOX = $('.work-box');
-        $('textarea', WORK_BOX)[0].value = '';
-        $('input[name="due"]', WORK_BOX).val('today');
-        $('input[name="share"]', WORK_BOX).val(CURRENT_USER.name);
-        $('.priority input', WORK_BOX).val('3');
-        $('.priority .p', WORK_BOX).removeClass('s');
+* priority update on image
+*/
+$('.work-box .priority .p').click(function() {
+    if ($(this).hasClass('s')) {
+        $(this).parents('.priority').find('input').val('3');
+        $(this).removeClass('s');
     }
-
-    $('.work-box .clear').live('click', function () {
-        clear_workbox();
-        return false;
-    });
-
-    $('.work-box label:first').append('<ul class="groups_auto autocomplete hide"></ul>');
-
-    // add list of users to share
-    var share_with = FOLLOWERS_TEMPLATE.clone(),
-        current_user = share_with
-            .find('input.u' + CURRENT_USER.id).attr('checked', 'checked')
-            .parent().parent()
-            .prependTo(share_with);
-    $('.work-box .share input[name="share"]')
-        .val(current_user.find('span').text());
-
-    share_with
-        .appendTo('.work-box .share');
+    else {
+        $(this).parents('.priority').find('.p')
+            .removeClass('s');
+        $(this).parents('.priority').find('input')
+            .val($(this).find('img').attr('alt'));
+        $(this)
+            .addClass('s');
+    }
+    return false;
+});
 
 
-    $('.work-box')
-        .append(SPINWHEEL);
-    SPINWHEEL.hide();
-
+/**
+    * Clears the workbox
+    */
+function clear_workbox() {
+    var WORK_BOX = $('.work-box');
+    $('textarea', WORK_BOX)[0].value = '';
+    $('input[name="due"]', WORK_BOX).val('today');
+    $('.share .input', WORK_BOX).val(CURRENT_USER.name);
+    $('.priority input', WORK_BOX).val('3');
+    $('.priority .p', WORK_BOX).removeClass('s');
 }
+
+$('.work-box .clear').live('click', function () {
+    clear_workbox();
+    return false;
+});
+
+$('.work-box label:first').append('<ul class="groups_auto autocomplete hide"></ul>');
+
+// add list of users to share
+var share_with = FOLLOWERS_TEMPLATE.clone(),
+    current_user = share_with
+        .find('input.u' + CURRENT_USER.id).attr('checked', 'checked')
+        .parent().parent()
+        .prependTo(share_with);
+$('.work-box .share .input')
+    .text(current_user.find('span').text());
+
+share_with
+    .appendTo('.work-box .share');
+
+
+$('.work-box')
+    .append(SPINWHEEL);
+SPINWHEEL.hide();
 
 /**
  * From http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
@@ -315,3 +338,5 @@ function setCaretPosition(ctrl, pos){
 String.prototype.trim = function() {
     return this.replace(/^\s+|\s+$/g,"");
 }
+
+} // end init_workbox

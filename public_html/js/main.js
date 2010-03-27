@@ -1,7 +1,7 @@
 var
 /*-------------- CONSTANTS --------------*/
       TASK_TABLE_ROW_HEIGHT = 30
-    , FOOTER_SPACE = 10
+    , FOOTER_SPACE = 0
     , TASK_TABLE_MINUS = 100
     , INITIAL_URL = window.location.href
     , INITIAL_URL_NOHASH = INITIAL_URL.substr(0, window.location.href.indexOf('#'))
@@ -708,7 +708,7 @@ $(document).ready(function() {
      */
     get_users();
 
-    $('#content').html(TEMPLATE_WORK_BOX + '\
+    $('#content').html('\
     <div class="task-box" id="main"> \
         <div class="loading"></div> \
         <div class="groups"><h1 class="title"><a href="#p=1">my tasks</a>\
@@ -717,12 +717,15 @@ $(document).ready(function() {
         </div> \
         <!-- pager? --> \
     </div><!-- /.task-box -->');
-    resize();
     tasklist_refresh_timeout = setInterval(get_tasklist, REFRESH_TIMEOUT);
 
     // Initialize history plugin.
     // The callback is called at once by present location.hash.
     $.historyInit(on_hash_change, INITIAL_URL);
     $('.error_dialog').jqm();
-    init_workbox()
+    init_profile();
+    init_planner();
+    init_workbox();
+
+    resize();
 });

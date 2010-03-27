@@ -106,6 +106,14 @@ a, a:visited {
     right: 0;
 }
 
+.spin {
+    width: 15px;
+    height: 15px;
+    background: url('img/spin.gif');
+    display: inline-block;
+    margin-left: -18px;
+}
+
 /*****************************************************************************/
 /*
 /* Task box
@@ -113,7 +121,7 @@ a, a:visited {
 /*****************************************************************************/
 .task-box {
     position: fixed;
-    top: 10px;
+    top: 0;
     left: 50%;
     margin-left: -300px;
     height: 300px;
@@ -333,7 +341,6 @@ a, a:visited {
     height: 300px;
     min-height: 300px;
     padding: 1em;
-    margin-bottom: 1em;
     width: 300px;
     -moz-box-shadow: 1px 1px 12px #000;
     -webkit-box-shadow: 1px 1px 12px #000;
@@ -377,12 +384,16 @@ a, a:visited {
 .work-box .share ul {
     list-style: none;
     position: absolute;
-    top: 38px;
+    top: 33px;
     display: none;
     background: #fff;
     width: 125px;
     padding: 0;
     border: 1px solid #ccc;
+}
+.work-box .share li span {
+    display: inline-block;
+    width: 90px;
 }
 .work-box .share li:hover,
 .work-box .share li.active {
@@ -426,25 +437,70 @@ a, a:visited {
     background: url('img/submit2.png') no-repeat top left;
 }
 
-.cancel_edit {
-    display: block;
-    float: right;
-    text-decoration: none;
-    margin-top: 0.1em;
-    margin-right: 4em;
-}
-.cancel_edit.hide {
-    display: none;
+/*****************************************************************************/
+/*
+/* Profile box
+/*
+/*****************************************************************************/
+.profile-box {
+    position: fixed;
+    top: 340px;
+    left: 50%;
+    margin-left: 315px;
+    height: 250px;
+    min-height: 250px;
+    padding: 1em;
+    width: 300px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius-topleft: 16px;
+    -moz-border-radius-topright: 16px;
+    -webkit-border-top-left-radius: 16px;
+    -webkit-border-top-right-radius: 16px;
+    background: #f5fcf2;
 }
 
-.spin {
-    width: 15px;
-    height: 15px;
-    background: url('img/spin.gif');
+.profile-box .title {
+    text-align: center;
+    margin: 16px auto 0 auto;
+    padding-bottom: 0.3em;
+    font-family: Georgia, freeserif, serif;
+    font-size: 26px;
+    font-weight: normal;
+}
+.profile-box label {
+    cursor: pointer;
     display: inline-block;
-    margin-left: -18px;
+    padding: 0.3em;
 }
 
+
+/*****************************************************************************/
+/*
+/* Profile box
+/*
+/*****************************************************************************/
+.planner-box {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    margin-left: -635px;
+    height: 100%;
+    padding: 1em;
+    width: 300px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    background: #f5fcf2;
+}
+
+.planner-box .title {
+    text-align: center;
+    margin: 16px auto 0 auto;
+    padding-bottom: 0.3em;
+    font-family: Georgia, freeserif, serif;
+    font-size: 26px;
+    font-weight: normal;
+}
 
 .planner
 , .trash_tasks
