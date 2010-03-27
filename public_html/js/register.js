@@ -15,7 +15,7 @@ function isValidUsername(in_test) {
         return false;
     }
 
-    var pattern = new RegExp(/^([a-z]{3,50})$/i);
+    var pattern = new RegExp(/^([a-z0-9\-_]{3,50})$/i);
     return pattern.test(in_test);
 }
 
@@ -26,7 +26,7 @@ function passwordStrength(password) {
     var score = 0;
 
     //if password shorter than 6
-    if (password.length() < 6) return score;
+    if (password.length < 6) return score;
     score++;
 
     //if password has both lower and uppercase characters
@@ -51,10 +51,11 @@ $(document).ready(function() {
         , in_password = $('input[name="password"]')
         , in_password_confirm = $('input[name="password_confirm"]')
         , password_indication = {
-            'colors'   : ['#fff', '#aaa', '#666'],
-            'text'     : ['Weak', 'Medium', 'Strong'],
-            'strength' : [0, 0, 1, 1, 2, 2, 2],
+            'text'     : ['Very Weak', 'Weak', 'Better',
+                'Medium', 'Strong', 'Strongest'],
+            'strength' : [0, 1, 2, 3, 4, 5],
         }
+        , PASS_CONFIRM_INIT = ''
     ;
     /**
      * Init
@@ -64,33 +65,43 @@ $(document).ready(function() {
 
 
     in_password.keyup(function () {
-        if (in_password.val().length() <= 0) return ;
-        var score = passwordStrength(in_password.val());
-        if (score == 0) {
-            in_password
-                .removeClass()
-                .addClass('invalid');
-        } else {
-            in_password
-                .removeClass()
+            var score = passwordStrength(in_password.val());
+        if (in_password.val().length <= 0) return ;
+        handle_validation(in_password, function () {
+            return score !== 0;
+        });
+        in_password.parents('label').next().find('.info')
+            .html(password_indication['text'][
+                password_indication['strength'][score]
+            ]);
+        for (i = 0; i < 6; i++) {
+            $('.s-' + i).removeClass('on');
         }
-        in_password.css('background', password_indication['colors'][
-            password_indication['strength'][score]
-        ]);
-        in_password.prev().html(password_indication['text'][
-            password_indication['strength'][score]
-        ]);
+
+        in_password_confirm.keyup();
+
+        if (score <= 0) return;
+        for (i = 0; i < 6; i++) {
+            if (i > score) break;
+            $('.s-' + i).addClass('on');
+        }
     });
 
     in_password_confirm.keyup(function () {
-        var pass = in_password_confirm.val()
-        if (pass !== in_password.val()) {
-            in_password_confirm
-                .removeClass()
-                .addClass('invalid');
+        if (!PASS_CONFIRM_INIT) {
+            PASS_CONFIRM_INIT = in_password_confirm.parents('label')
+                .find('.info').html();
+        }
+        handle_validation(in_password_confirm, function () {
+            var pass = in_password_confirm.val();
+            return pass === in_password.val();
+        });
+        if (in_password_confirm.hasClass('valid')) {
+            in_password_confirm.parents('label').find('.info')
+                .html('Bingo!');
         } else {
-            in_password_confirm
-                .removeClass();
+            in_password_confirm.parents('label').find('.info')
+                .html(PASS_CONFIRM_INIT);
         }
     });
 
@@ -98,31 +109,34 @@ $(document).ready(function() {
      * Validates email
      */
     in_email.keyup(function () {
-        if (!isValidEmail(in_email.val())) {
-            in_email
-                .removeClass()
-                .addClass('invalid');
-        } else {
-            in_email
-                .removeClass()
-                .addClass('valid');
-        }
+        handle_validation(in_email, isValidEmail);
     })
 
     /**
      * Validates username
      */
     in_username.keyup(function () {
-        if (!isValidUsername(in_username.val())) {
-            in_username
+        handle_validation(in_username, isValidUsername);
+    })
+
+    function handle_validation(elem, func) {
+        if (!func(elem.val())) {
+            elem
                 .removeClass()
                 .addClass('invalid');
+            elem.parents('label').find('.icon')
+                .removeClass('valid')
+                .addClass('invalid');
         } else {
-            in_username
+            elem
                 .removeClass()
                 .addClass('valid');
+            elem.parents('label').find('.icon')
+                .removeClass('invalid')
+                .addClass('valid');
         }
-    })
+    }
+
     /**
      * Checks username is available
      */

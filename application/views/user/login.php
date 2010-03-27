@@ -5,7 +5,6 @@
     <li><a href="<?php echo Url::site('user/logout') ?>">Log out</a></li>
 </ul>
 <?php else: ?>
-<h1>Log in</h1>
 <?php
 print Form::open(Url::site('user/login', 'https'), array('class'=>'login'));
 if (isset($errors)) {
@@ -15,10 +14,15 @@ if (isset($errors)) {
     }
 }
 print '</ul>';
-print '<label for="username"><span>Username:</span> ' . Form::input('username') . '</label>';
-print '<label for="password"><span>Password:</span> ' . Form::password('password', '', array('maxlength' => 30)) . '</label>';
-
-print Form::submit('login', 'Log in');
+print '<label for="username" id="user"><span>Username:</span> '
+    . Form::input('username', '', array('id' => 'username')) . '</label>';
+print '<label for="password" id="pass"><span>Password:</span> '
+    . Form::password('password', '', array('id' => 'password', 'maxlength' => 30)) . '
+        <br/><a href="/user/reset" id="forgot">Forgot password?</a></label>';
+?>
+<a id="noaccount" href="/user/register/">Don't have an account?<br/>Sign up for one!</a>
+<?php
+print Form::submit('login', 'log in');
 
 print Form::close();
 ?>

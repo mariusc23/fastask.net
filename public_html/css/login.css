@@ -30,23 +30,71 @@ body {
 }
 
 div.login {
-    background: #fff;
-    height: 176px; width: 400px;
+    background: #f5fcf2;
+    height: 170px; width: 280px;
     position: absolute; left: 50%; top: 50%;
-    margin-top: -88px;
-    margin-left: -200px;
-}
-h1 {
-    padding: 0.5em 0 1em 0;
-    margin: 0;
+    margin-top: -85px;
+    margin-left: -140px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
 }
 
-label {
+#user, #pass {
     display: block;
-    padding: 0.3em;
+    cursor: pointer;
+    padding: 0 25px;
+}
+#user {
+    padding: 0 25px 15px;
+    margin-top: 25px;
 }
 input[type="text"]
 , input[type="password"]{
-    width: 40%;
+    width: 65%;
     border: 1px solid #d2e8c8;
+}
+
+a {
+    color: #8f8f8f;
+    text-decoration: none;
+    position: relative;
+    top: -5px;
+    margin-left: 20px;
+    font-size: 80%;
+}
+
+#forgot {
+    color: #949393;
+}
+
+#noaccount {
+    background: #eee;
+    line-height: 1.25em;
+    display: block;
+    position: absolute;
+    margin: 0;
+    padding: 13px 15px 0;
+    width: 140px;
+    text-align: center;
+    top: 120px;
+    height: 37px;
+    -moz-border-radius-bottomleft: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+}
+
+input[type="submit"] {
+    font-size: 180%;
+    cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #d2e8c8;
+    border: 0;
+    height: 50px;
+    width: 116px;
+    -moz-border-radius-bottomright: 16px;
+    -webkit-border-bottom-right-radius: 16px;
+    font-family: Georgia, "Times New Roman", Times, freeserif, serif;
 }

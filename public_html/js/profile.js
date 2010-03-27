@@ -13,7 +13,7 @@ var
       PROFILE_BOX = $('\
     <div class="profile-box"> \
     <div class="loading"></div> \
-    <h1 class="title">profile</h1> \
+    <h1 class="title"> <a href="/user/logout">log out</a></h1> \
     <form action="/task/add" method="POST"> \
         <label class="name">Name: <br /> \
             <input type="text" name="name" value="" /> \
@@ -37,7 +37,7 @@ var
 /*-------------- VARIABLES --------------*/
 ;
 
-PROFILE_BOX.children('.title').html(CURRENT_USER.username);
+PROFILE_BOX.children('.title').prepend(CURRENT_USER.username);
 PROFILE_BOX.find('input[name="name"]').val(CURRENT_USER.name);
 PROFILE_BOX.find('input[name="email"]').val(CURRENT_USER.email);
 PROFILE_BOX.appendTo('#content');

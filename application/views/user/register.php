@@ -10,21 +10,43 @@
     <?php endforeach; ?>
     </ul>
 <?php endif; ?>
-<label for="username"><span>Username:</span> <?php
+<label for="username"><span class="label">Username:</span> <?php
     print Form::input('username', '', array('maxlength' => 50, 'id' => "username"));
-?></label>
-<label for="email"><span>Email:</span> <?php
+?>
+    <span class="icon"></span><span class="info">Letters &amp; numbers</span>
+</label>
+<label for="email"><span class="label">Email:</span> <?php
     print Form::input('email', '', array('maxlength' => 255, 'id' => "email"));
-?></label>
-<label for="password"><span>Password:</span> <?php
+?>
+    <span class="icon"></span><span class="info">For reminders</span>
+</label>
+<label for="password"><span class="label">Password:</span> <?php
     print Form::password('password', '', array('maxlength' => 50, 'id' => "password"));
-?></label>
-<label for="password_confirm"><span>Password again:</span> <?php
+?>
+    <span class="icon"></span><span class="info">Case sensitive *</span>
+</label>
+<label class="strength"><span class="label">Strength:</span>
+<span class="indicator">
+    <span class="s s-1"></span>
+    <span class="s s-2"></span>
+    <span class="s s-3"></span>
+    <span class="s s-4"></span>
+    <span class="s s-5"></span>
+</span>
+    <span class="info">Very Weak</span>
+</label>
+<label for="password_confirm"><span class="label">Password again:</span> <?php
     print Form::password('password_confirm', '', array('maxlength' => 50, 'id' => "password_confirm"));
-?></label>
+?>
+    <span class="icon"></span><span class="info">Don't copy &amp; paste</span>
+</label>
 
 <?php
-    print Form::submit('register', 'Register');
+    print Form::submit('register', 'sign up');
     print Form::close();
 ?>
+
+<a id="account" href="/user/login/">Already have an account? Log in!<br/>
+    * Password must be at least 6 characters.</a>
+
 </div>
