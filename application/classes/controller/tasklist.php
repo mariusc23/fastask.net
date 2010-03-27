@@ -19,6 +19,13 @@ class Controller_Tasklist extends Controller_Template {
     public function action_t() {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
+
+        // must be logged in
+        if (!$this->user) {
+            $this->request->status = 403;
+            return ;
+        }
+
         $id = $this->request->param('id');
 
         if (!$id) {
@@ -70,17 +77,11 @@ class Controller_Tasklist extends Controller_Template {
                 );
             }
 
-            $json_task['group'] = null;
-            $groups = $task->groups
-                ->where('user_id', '=', $this->user->id)
-                ->find_all();
-            // only expecting one group atm
-            foreach ($groups as $group) {
+            if ($task->group_id > 0) {
                 $json_task['group'] = array(
-                    'id' => $group->id,
-                    'name' => $group->name,
+                    'id' => $task->group->id,
+                    'name' => $task->group->name,
                 );
-                break;
             }
 
             $json['tasks'][] = $json_task;
@@ -106,8 +107,6 @@ class Controller_Tasklist extends Controller_Template {
                 ->join('follow_task')
                     ->on('follow_task.follower_id', '=', 'tasks.user_id')
                     ->on('follow_task.task_id', '=', 'tasks.id')
-                ->join('task_group')
-                    ->on('task_group.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
                 ->where('due', '>', DATE_PLANNED)
@@ -154,8 +153,6 @@ class Controller_Tasklist extends Controller_Template {
                 ->join('follow_task')
                     ->on('follow_task.follower_id', '=', 'tasks.user_id')
                     ->on('follow_task.task_id', '=', 'tasks.id')
-                ->join('task_group')
-                    ->on('task_group.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
                 ->where('due', '>', DATE_PLANNED)

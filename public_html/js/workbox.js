@@ -1,115 +1,169 @@
 /*****************************************************************************/
 /*
-/* Common
+/* Work box JS
 /*
 /*****************************************************************************/
-
 var
 /*-------------- CONSTANTS --------------*/
-      WORK_BOX_CLASS = 'work_box'
-    , WORK_BOX_TITLE = $('.' + WORK_BOX_CLASS + ' .title').html()
-    , USER_ID = $('.menu .user a').attr('rel')
-    , USER_NAME = $('.menu .user a').text()
-    , SAVE_TASK_URL = $('#ajax_save_task').text()
-    , LOAD_TASK_URL = $('#ajax_load_tasklist').text()
-    , TASK_DEFAULT_REMIND = $('.' + WORK_BOX_CLASS + ' input[name="remind"]').val()
-    , TASK_DEFAULT_DUE    = $('.' + WORK_BOX_CLASS + ' input[name="due"]')   .val()
+      TEMPLATE_WORK_BOX = '\
+    <div class="work-box"> \
+    <div class="loading"></div> \
+    <h1 id="wb" class="title">work box</h1> \
+    <form action="/task/add" method="POST"> \
+        <label class="text">Task: <br /> \
+            <textarea rows="5" cols="10" name="text"></textarea> \
+        </label> \
+        <label class="due">Date: <br/> \
+            <input type="text" name="due" value="today" /> \
+        </label> \
+        <label class="share">Sharing: <br/> \
+            <input type="text" name="share" readonly="readonly" value="" /> \
+        </label> \
+        <div class="priority label"><span>Priority</span>: \
+            <input type="hidden" name="priority" value="3" /> \
+            <span class="p"><img src="/css/img/high.png" alt="1" /> High</span> \
+            <span class="p"><img src="css/img/med.png" alt="2" /> Medium</span> \
+        </div> \
+        <input type="submit" name="add" value="Add task" /> \
+        <a class="clear" href="#">clear</a> \
+    </form> \
+    </div><!-- work_box -->'
     , SPINWHEEL = $('<div class="spin"></div>')
+    , GROUPS_AUTOCOMPLETE_URL = '/group/f/'
+/*-------------- VARIABLES --------------*/
+    , workbox_text = {
+        'groups_auto': ''
+    }
+    , autocomplete_timeout = false
+    , preventKeyUp = false
 ;
 
-/* add task -- priority */
-$('.' + WORK_BOX_CLASS + ' .priority span').live('click', function() {
-    if ($(this).hasClass('s')) {
-        $('.' + WORK_BOX_CLASS + ' .priority input').val('3');
-        $(this).removeClass('s');
-    }
-    else {
-        $('.' + WORK_BOX_CLASS + ' .priority span')
-            .removeClass('s');
-        $('.' + WORK_BOX_CLASS + ' .priority input').val($(this).find('img').attr('alt'));
-        $(this)
-            .addClass('s');
-    }
-    return false;
-});
+/**
+ * Handles moving up and down on the suggestion list
+ * and tab + enter.
+ */
+function autocomplete_keydown(e, obj, class) {
+    var text = obj.val()
+        , suggest_box = $('.' + class)
+        , results = false, active = -1
+        , new_text
+    ;
 
+    if (suggest_box.is(':visible')) {
+        results = suggest_box.children();
 
-function edit_task(task_id, user_id, description, remind, due, priority) {
-    if (!remind || remind == '+0s') remind = 'now';
-    if (!due || due == '+0s' || due == '-30yr') due = 'today';
-    $('.' + WORK_BOX_CLASS + ' textarea[name="description"]')[0].value = description;
-    $('.' + WORK_BOX_CLASS + ' input[name="remind"]').val(remind);
-    $('.' + WORK_BOX_CLASS + ' input[name="due"]').val(due);
-    $('.' + WORK_BOX_CLASS + ' select[name="user_id"] option')
-        .attr('selected', '');
-    $('.' + WORK_BOX_CLASS + ' select[name="user_id"] option[value="' + user_id + '"]')
-        .attr('selected', 'selected');
-    $('.' + WORK_BOX_CLASS + ' .title').html(WORK_BOX_TITLE + ' (edit)');
-    $('.' + WORK_BOX_CLASS + ' input[name="add"]').hide();
-    $('.' + WORK_BOX_CLASS + ' input[name="task_id"]').val(task_id);
+        // move to the next one
+        active = results.index(results.filter('.active'));
+        if (e.keyCode == 40) {
+            // down arrow
+            results.removeClass('active');
+            results.eq(active+1).addClass('active');
+            return false;
+        } else if (e.keyCode == 38) {
+            // up arrow
+            results.removeClass('active');
+            results.eq(active-1).addClass('active');
+            return false;
+        } else if (e.keyCode == 13 || e.keyCode == 9) {
+            // enter or tab
 
-    $('.' + WORK_BOX_CLASS + ' .priority input').val(priority);
-    $('.' + WORK_BOX_CLASS + ' .priority span').removeClass('s');
-    if (priority != '3') {
-        if (priority == '1') {
-            var priority_selector = ':first';
+            new_text = results.eq(active).text();
+            obj.val(new_text);
+            suggest_box.children().remove();
+            suggest_box.hide();
+            return false;
+        } else if (e.keyCode == 27) {
+            // esc
+            suggest_box.hide();
+            return false;
         }
-        else if (priority == '2') {
-            var priority_selector = ':last';
-        }
-        $('.' + WORK_BOX_CLASS + ' .priority span' + priority_selector).addClass('s');
     }
 
-    $('.' + WORK_BOX_CLASS + ' input[name="edit"]').show();
+    return true;
 }
 
-function cancel_edit() {
-    $('.' + WORK_BOX_CLASS + ' textarea[name="description"]')[0].value = '';
-    $('.' + WORK_BOX_CLASS + ' input[name="remind"]').val(TASK_DEFAULT_REMIND);
-    $('.' + WORK_BOX_CLASS + ' input[name="due"]').val(TASK_DEFAULT_DUE);
-    $('.' + WORK_BOX_CLASS + ' select[name="user_id"] option')
-        .attr('selected', '');
-    $('.' + WORK_BOX_CLASS + ' .title').html(WORK_BOX_TITLE);
-    $('.' + WORK_BOX_CLASS + ' input[name="task_id"]').val('');
-    $('.' + WORK_BOX_CLASS + ' input[name="edit"]').hide();
+/**
+ * Handles doing the lookup and filling in suggestions.
+ */
+function autocomplete_keyup(e, obj, class, the_url) {
+    if (preventKeyUp) return false;
 
-    $('.' + WORK_BOX_CLASS + ' .priority input').val('3');
-    $('.' + WORK_BOX_CLASS + ' .priority span').removeClass('s');
+    var   text = obj.val()
+        , suggest_box = $('.' + class)
+    ;
+    if (text.length > 20) {
+        return false;
+    }
 
-    $('.' + WORK_BOX_CLASS + ' input[name="add"]').show();
+    if (text == workbox_text[class]) return false;
+    workbox_text[class] = text;
+    if (text.indexOf(':') >= 0) {
+        return false;
+    }
+
+    if (text.length <= 0) {
+        suggest_box.hide();
+        return false;
+    }
+
+    lookup = text;
+
+    if (autocomplete_timeout) clearTimeout(autocomplete_timeout);
+    autocomplete_timeout = setTimeout(function () {
+    $.ajax({
+        url: the_url,
+        type: 'POST',
+        async: true,
+        cache: false,
+        dataType: 'json',
+        data: {'name': lookup},
+        timeout: 3000,
+        global: false,
+        error: function(request, textStatus, errorThrown) {
+            console.log('Error trying to autocomplete.');
+        },
+        success: function(data, textStatus, request) {
+            suggest_box.children().remove();
+            if (data.message) {
+                return;
+            }
+            var result, qresult;
+            for (var i in data.results) {
+                result = data.results[i];
+                qresult = $('<li></li>');
+                qresult.html(result.name);
+                qresult.appendTo(suggest_box);
+            }
+            if (data.results.length > 0) {
+                suggest_box.show();
+            } else {
+                suggest_box.hide();
+            }
+        }
+    })
+    }, 200); // setTimeout
 }
 
-$('.ed').live('click', function() {
-    var   taskRef = $(this).next().children()
-        , task_id = parseInt($(this).attr('href').substr(3))
-        task = {
-            description: $(this).parent().next().text()
-            , remind : taskRef[0].innerHTML
-            , due    : taskRef[1].innerHTML
-            , user_id: taskRef[2].innerHTML
-            , priority: taskRef[3].innerHTML
-        };
-    edit_task(task_id, task.user_id, task.description, task.remind, task.due, task.priority);
-    document.getElementById('wb').scrollIntoView(true);
-    return false;
+
+
+$('.autocomplete li').live('mousedown', function() {
+    var e = {'keyCode': 13}
+        , obj = $('.work-box textarea')
+        , class = 'groups_auto'
+    ;
+    $(this).siblings().removeClass('active');
+    $(this).addClass('active');
+    autocomplete_keydown(e, obj, class);
+    obj.focus();
 });
 
-$('.cancel_edit').click(function() {
-    cancel_edit();
-    return false;
-});
-
-$('.' + WORK_BOX_CLASS + ' tr:last td')
-    .prepend(SPINWHEEL);
-SPINWHEEL.hide();
-$('.' + WORK_BOX_CLASS + ' input[type="submit"]').click(function () {
-    var   form_data = $('.' + WORK_BOX_CLASS + ' form').serialize()
-        , load_ref = $('.' + WORK_BOX_CLASS + '')
-        , form_action = $('.' + WORK_BOX_CLASS + ' input[type="submit"]:visible').attr('name');
+$('.work-box input[type="submit"]').live('click', function () {
+    var   form_data = $('.work-box form').serialize()
+        , work_box = $('.work-box')
     $.ajax({
         type: 'POST',
-        url: SAVE_TASK_URL,
-        data: (form_data + '&' + form_action + '=1'),
+        url: work_box.find('form').attr('action'),
+        data: form_data + '&add=1',
         beforeSend: function() {
             SPINWHEEL.show();
         },
@@ -117,21 +171,147 @@ $('.' + WORK_BOX_CLASS + ' input[type="submit"]').click(function () {
             SPINWHEEL.hide();
             return task_error_ajax(response, text_status, error);
         },
-        success: function(response){
-            if ('1' == response.charAt(0)) {
-            }
-            else {
-                task_error_response(response);
-            }
-            refresh_all_tasklists();
+        success: function(response) {
+            update_groups(response.groups);
             SPINWHEEL.hide();
         }
     });
     return false;
 });
 
-$(document).ready(function() {
-    /**
-     * Init
-     */
+
+$('.work-box .share input[type="checkbox"]').live('click', function () {
+    if (!$(this).is(':checked') &&
+        $(this).parents('ul').find(':checked').length <= 0) {
+        return false;
+    }
+    var   s_obj = $('.share input[name="share"]')
+        , s_text = s_obj.val()
+        , new_text = $(this).next().text()
+        , this_in_regex = new RegExp('([ ]|^)' + new_text + '([ ]|$)')
+        , this_in = this_in_regex.exec(s_text)
+    ;
+    if ($(this).is(':checked')) {
+        if (this_in == null) {
+            s_obj.val(s_text + ' ' + new_text);
+        }
+    } else {
+        s_obj.val(s_text.replace(this_in_regex, ''));
+    }
 });
+
+/**
+ * Called from main.js at end of setup
+ */
+function init_workbox() {
+    $('.work-box textarea')
+
+        .keydown(function(e) {
+        preventKeyUp = !autocomplete_keydown(e, $(this), 'groups_auto', false);
+        return !preventKeyUp;
+    })
+
+        .keyup(function(e) {
+        return autocomplete_keyup(e, $(this), 'groups_auto', GROUPS_AUTOCOMPLETE_URL, false);
+    })
+
+        .focus(function(e) {
+        if ($('.work-box .groups_auto').children().length > 0) {
+            $('.work-box .groups_auto').show();
+        }
+    })
+        .blur(function(e) {
+        $('.work-box .groups_auto').hide();
+    });
+
+    /**
+    * priority update on image
+    */
+    $('.work-box .priority .p').click(function() {
+        if ($(this).hasClass('s')) {
+            $(this).parents('.priority').find('input').val('3');
+            $(this).removeClass('s');
+        }
+        else {
+            $(this).parents('.priority').find('.p')
+                .removeClass('s');
+            $(this).parents('.priority').find('input')
+                .val($(this).find('img').attr('alt'));
+            $(this)
+                .addClass('s');
+        }
+        return false;
+    });
+
+
+    /**
+     * Clears the workbox
+     */
+    function clear_workbox() {
+        var WORK_BOX = $('.work-box');
+        $('textarea', WORK_BOX)[0].value = '';
+        $('input[name="due"]', WORK_BOX).val('today');
+        $('input[name="share"]', WORK_BOX).val(CURRENT_USER.name);
+        $('.priority input', WORK_BOX).val('3');
+        $('.priority .p', WORK_BOX).removeClass('s');
+    }
+
+    $('.work-box .clear').live('click', function () {
+        clear_workbox();
+        return false;
+    });
+
+    $('.work-box label:first').append('<ul class="groups_auto autocomplete hide"></ul>');
+
+    // add list of users to share
+    var share_with = FOLLOWERS_TEMPLATE.clone(),
+        current_user = share_with
+            .find('input.u' + CURRENT_USER.id).attr('checked', 'checked')
+            .parent().parent()
+            .prependTo(share_with);
+    $('.work-box .share input[name="share"]')
+        .val(current_user.find('span').text());
+
+    share_with
+        .appendTo('.work-box .share');
+
+
+    $('.work-box')
+        .append(SPINWHEEL);
+    SPINWHEEL.hide();
+
+}
+
+/**
+ * From http://blog.vishalon.net/index.php/javascript-getting-and-setting-caret-position-in-textarea/
+ */
+function getCaretPosition(ctrl) {
+    var CaretPos = 0;   // IE Support
+    if (document.selection) {
+    ctrl.focus ();
+        var Sel = document.selection.createRange ();
+        Sel.moveStart ('character', -ctrl.value.length);
+        CaretPos = Sel.text.length;
+    }
+    // Firefox support
+    else if (ctrl.selectionStart || ctrl.selectionStart == '0')
+        CaretPos = ctrl.selectionStart;
+    return (CaretPos);
+}
+function setCaretPosition(ctrl, pos){
+    if(ctrl.setSelectionRange)
+    {
+        ctrl.focus();
+        ctrl.setSelectionRange(pos,pos);
+    }
+    else if (ctrl.createTextRange) {
+        var range = ctrl.createTextRange();
+        range.collapse(true);
+        range.moveEnd('character', pos);
+        range.moveStart('character', pos);
+        range.select();
+    }
+}
+String.prototype.trim = function() {
+    return this.replace(/^\s+|\s+$/g,"");
+}

@@ -11,8 +11,6 @@ function on_hash_change(hash) {
     var   page = parseInt(get_url_param('p', window.location.href))
         , group = parseInt(get_url_param('g', window.location.href))
     ;
-    if (isNaN(page)) page = 1;
-    if (isNaN(group)) group = 0;
     if (page != t_page || group != t_group) {
         t_page = page;
         t_group = group;
@@ -34,7 +32,8 @@ function get_url_param(name, url) {
     var regex = new RegExp(regexS);
     var results = regex.exec(url);
     if (results == null) {
-        return '';
+        if (name == 'p') return 1;
+        if (name == 'g') return 0;
     }
     return results[1];
 }

@@ -20,7 +20,6 @@ var
     , TASKLIST_URL = '/tasklist/t/1/?n='
     , TASKLIST_TIMEOUT = 5000
     , REFRESH_TIMEOUT = 120000
-    , MAIN
     , LOADING_ROW_CLASS = 'loadbar'
     , DEFAULT_NO_TASKS = $('<div class="notasks"> \
         No tasks are available. Create one using the box to the right. \
@@ -40,8 +39,8 @@ var
         </div> \
         </div>')
     , FOLLOWERS_TEMPLATE = $('<ul></ul>')
-    , FOLLOWER_TEMPLATE = $('<li><input class="" type="checkbox" \
-            name="follower" value=""/> <a href="#"></a></li>')
+    , FOLLOWER_TEMPLATE = $('<li><label><input class="" type="checkbox" \
+            name="follower[]" value=""/> <span></span></label></li>')
     , GROUPS_TEMPLATE = $('<ul></ul>')
     , GROUP_TEMPLATE = $('<li><a href="#"></a></li>')
     , TASK_GROUP_TEMPLATE = $('<a href="#" class="g"></a>')
@@ -52,6 +51,7 @@ var
     , DEFAULT_TITLES = [
         '<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0] + '</a>',
     ]
+    , CURRENT_USER
 /*-------------- VARIABLES --------------*/
     , hash_last = ''
     , tasks_per_page
@@ -75,22 +75,22 @@ var
 /**
  * Changing task priority
  */
-$('.p', MAIN).live('click', function() {
-    update_row('priority', MAIN, $(this));
+$('.p', $('#main')).live('click', function() {
+    update_row('priority', $('#main'), $(this));
 });
 
 /**
  * Changing task status
  */
-$('.s input', MAIN).live('click', function() {
-    update_row('status', MAIN, $(this));
+$('.s input', $('#main')).live('click', function() {
+    update_row('status', $('#main'), $(this));
 });
 
 /**
  * Delete task
  */
-$('.del-link', MAIN).live('click', function() {
-    update_row('delete', MAIN, $(this));
+$('.del-link', $('#main')).live('click', function() {
+    update_row('delete', $('#main'), $(this));
     return false;
 });
 
@@ -187,6 +187,14 @@ function dispatch_response(type, task_box, t_row, target,
             });
             break;
         case 'text':
+            if (response.group) {
+                var group = $('<div/>').html(
+                    TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+                        + response.group.id)
+                        .html(response.group.name)
+                    );
+                response.text = group.html() + ': ' + response.text;
+            }
             update_groups(response.groups);
         case 'due':
             finish_edit(task_box, target, response[type]);
@@ -235,7 +243,7 @@ function dispatch_error(type, task_box, t_row, target,
 /**
  * Updating row
  * @param type = update type, one of 'priority', 'status'
- * @param task_box = defaults to MAIN -- which box to look in
+ * @param task_box = defaults to $('#main') -- which box to look in
  * @param target = the target of the event
  */
 function update_row(type, task_box, target) {
@@ -339,7 +347,7 @@ function reset_timeout(elem) {
  * Fetching tasklist
  */
 function get_tasklist() {
-    var   task_box = MAIN
+    var   task_box = $('#main')
         , group = parseInt(get_url_param('g'));
     clear_timeout(task_box);
 
@@ -431,7 +439,7 @@ $('form.inplace input').live('keydown', function(e) {
         // enter pressed
         var type = $(this).parents('.td')
             .attr('class').substr(3);
-        update_row(type, MAIN, $(this));
+        update_row(type, $('#main'), $(this));
         return false;
     }
     else if (e.keyCode == 27) {
@@ -493,7 +501,7 @@ function get_old_text(ref) {
 function cancel_edit_task(ref, new_text) {
     var task_box = ref.parents('.task-box');
     var old_text = get_old_text(ref);
-    if (new_text && new_text != old_text) {
+    if (new_text && new_text != plain_text(old_text)) {
         return false;
     }
     finish_edit(task_box, ref, old_text);
@@ -525,7 +533,11 @@ function replace_html(event) {
 }
 
 function build_editable_html(buffer) {
-    return '<form class="inplace"><input type="text" value="' + buffer.replace(/(<([^>]+)>)/ig,"") + '" /><input type="hidden" name="buffer" value="' + buffer + '" /></form>';
+    return '<form class="inplace"><input type="text" value="' + plain_text(buffer) + '" /><input type="hidden" name="buffer" value="' + buffer + '" /></form>';
+}
+
+function plain_text(text) {
+    return text.replace(/(<([^>]+)>)/ig,"");
 }
 /* end of code for editable tasks */
 
@@ -546,28 +558,10 @@ $('.editable a').live('click', function (e) {
     }
 });
 
-$('.title a', MAIN).live('click', function () {
+$('.title a', $('#main')).live('click', function () {
     url_update_hash('p', 1, true);
     return false;
 });
-
-/**
- * Gets and builds the list of groups in JSON
- */
-function get_groups() {
-    $.ajax({
-        type: 'GET',
-        url: GROUPS_URL,
-        dataType: 'json',
-        error: function (response, text_status, error) {
-            alert('Error getting groups.')
-            return false;
-        },
-        success: function(response, textStatus, request) {
-            update_groups(response.groups);
-        }
-    });
-}
 
 function update_groups(groups) {
     var html_g, url_g;
@@ -576,14 +570,14 @@ function update_groups(groups) {
         url_g = '#g=' + groups[i].id;
         title_g = groups[i].name;
         if (t_group && t_group == groups[i].id) {
-            $('.title', MAIN)
+            $('.title', $('#main'))
                 .html('<a href="#p=1">' + groups[i].name
                     + '</a>');
             ;
             url_g = '#p=1';
             title_g = DEFAULT_TITLES_PLAIN[0];
         } else if (!t_group) {
-            $('.title', MAIN)
+            $('.title', $('#main'))
                 .html('<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0]
                     + '</a>');
             ;
@@ -595,7 +589,8 @@ function update_groups(groups) {
         ;
         template.append(html_g);
     }
-    template.appendTo($('.groups', MAIN));
+    $('.groups ul', $('#main')).remove();
+    template.appendTo($('.groups', $('#main')));
 }
 
 
@@ -607,11 +602,11 @@ function update_groups(groups) {
 /**
  * Share with someone else
  */
-$('.followers input', MAIN).live('click', function() {
+$('.followers input', $('#main')).live('click', function() {
     if ($(this).is(':checked')) {
-        update_row('follower_remove', MAIN, $(this));
+        update_row('follower_remove', $('#main'), $(this));
     } else {
-        update_row('follower_add', MAIN, $(this));
+        update_row('follower_add', $('#main'), $(this));
     }
 });
 
@@ -623,6 +618,7 @@ function get_users() {
         type: 'GET',
         url: USERS_URL,
         dataType: 'json',
+        async: false,
         error: function (response, text_status, error) {
             alert('Error getting users.')
             return false;
@@ -631,12 +627,15 @@ function get_users() {
             var html_f;
             FOLLOWERS_TEMPLATE.html('');
             for (var i in response.users) {
+                if (response.users[i].current) {
+                    CURRENT_USER = response.users[i];
+                }
                 html_f = FOLLOWER_TEMPLATE.clone();
-                html_f.children('input')
+                html_f.find('input')
                     .val(response.users[i].id)
                     .attr('class', 'u' + response.users[i].id)
                 ;
-                html_f.children('a').html(response.users[i].username);
+                html_f.find('span').html(response.users[i].username);
                 FOLLOWERS_TEMPLATE.append(html_f);
             }
         }
@@ -685,20 +684,21 @@ $('body').keydown(function(e) {
  * Resizing the window causes tables to resize
  */
 function resize() {
-    var t_height = 0;
-    MAIN.height($(window).height() - FOOTER_SPACE);
+    var t_height = 0, reload = false;
+    $('#main').height($(window).height() - FOOTER_SPACE);
     tasks_per_page = parseInt(
-        (MAIN.height() - TASK_TABLE_MINUS)
+        ($('#main').height() - TASK_TABLE_MINUS)
         / TASK_TABLE_ROW_HEIGHT
     );
     $('.loading').each(function() {
         $(this).height($(this).parent().height() + 'px');
     });
-    if ($('.task-table', MAIN).height() == tasks_per_page * TASK_TABLE_ROW_HEIGHT) {
-        return false;
+    if ($('.task-table', $('#main')).height() != tasks_per_page * TASK_TABLE_ROW_HEIGHT) {
+        $('.task-table', $('#main')).height(tasks_per_page * TASK_TABLE_ROW_HEIGHT);
+        reload = true;
     }
-    $('.task-table', MAIN).height(tasks_per_page * TASK_TABLE_ROW_HEIGHT);
-    if (!hash_last) get_tasklist();
+    if (!hash_last) reload = true;
+    if (reload) get_tasklist();
 }
 $(window).resize(resize);
 
@@ -707,9 +707,8 @@ $(document).ready(function() {
      * Init
      */
     get_users();
-    get_groups();
 
-    $('#content').html('\
+    $('#content').html(TEMPLATE_WORK_BOX + '\
     <div class="task-box" id="main"> \
         <div class="loading"></div> \
         <div class="groups"><h1 class="title"><a href="#p=1">my tasks</a>\
@@ -718,7 +717,6 @@ $(document).ready(function() {
         </div> \
         <!-- pager? --> \
     </div><!-- /.task-box -->');
-    MAIN = $('#main');
     resize();
     tasklist_refresh_timeout = setInterval(get_tasklist, REFRESH_TIMEOUT);
 
@@ -726,4 +724,5 @@ $(document).ready(function() {
     // The callback is called at once by present location.hash.
     $.historyInit(on_hash_change, INITIAL_URL);
     $('.error_dialog').jqm();
+    init_workbox()
 });

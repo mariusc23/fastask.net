@@ -9,16 +9,16 @@ class Model_User extends Model_Auth_User {
     public function validate_create(& $array) {
         // Initialize the validation library and setup rules
         $array = Validate::factory($array)
-            ->rule('username', 'min_length', array(3))
-            ->rule('username', 'max_length', array(50))
-            ->rule('password', 'min_length', array(6))
-            ->rule('username', 'max_length', array(50))
             ->rules('password', $this->_rules['password'])
             ->rules('username', $this->_rules['username'])
             ->rules('email', $this->_rules['email'])
             ->rules('password_confirm', $this->_rules['password_confirm'])
+            ->rule('username', 'min_length', array(3))
+            ->rule('username', 'max_length', array(50))
+            ->rule('password', 'min_length', array(6))
+            ->rule('password', 'max_length', array(50))
+            ->rule('username', 'alpha_dash')
             ->filter('username', 'trim')
-            ->filter('email', 'trim')
             ->filter('password', 'trim')
             ->filter('password_confirm', 'trim');
 

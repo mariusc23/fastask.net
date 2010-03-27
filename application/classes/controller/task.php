@@ -2,21 +2,84 @@
 
 class Controller_Task extends Controller {
     private $user = null;
+    private $task = null;
+    private $id = null;
+
+    public function action_add() {
+        if (!$_POST || !isset($_POST['add'])) {
+            $this->request->status = 400;
+            return ;
+        }
+        // validate data first
+        $post = new Validate($_POST);
+        $post
+            ->rule('text', 'min_length', array(10))
+            ->rule('text', 'max_length', array(1500))
+            ->rule('share', 'min_length', array(3))
+            ->rule('text', 'min_length', array(5))
+            ->rule('priority', 'range', array(1, 3))
+            ->filter(TRUE, 'trim')
+        ;
+
+        if (!$post->check()) {
+            $this->request->status = 400;
+            return ;
+        }
+
+        if (!$_POST['follower'] || !is_array($_POST['follower'])
+            || (count($_POST['follower']) == 1 &&
+                !in_array($this->user->id, $_POST['follower']))
+            ) {
+            $this->request->status = 400;
+            return ;
+        }
+
+        // create task
+        $task = new Model_Task;
+        $task->group_id = 0;
+        $task->due = Model_Task::format_due_in(trim($_POST['due']));
+        $task->priority = $post['priority'];
+        $task->user_id = $this->user->id;
+        $task->status = 0;
+        $task->trash = 0;
+        $task->created = time();
+
+        $group = $this->handle_text($task, $post['text']);
+        $group_arr = array();
+        if ($group) {
+            $group_arr = array( 'group' => array(
+                'id' => $group->id,
+                'name' => $group->name,
+            ));
+        }
+
+        if (!$task->save()) {
+            $this->request->status = 500;
+            return ;
+        }
+
+        // use array of follower ids
+        foreach ($_POST['follower'] as $f_id) {
+            $follower = new Model_User(intval($f_id));
+            if ($follower->loaded()) {
+                $task->add('followers', $follower);
+            }
+        }
+
+        $group_controller = new Controller_Group($this->request);
+        $task->reload();
+        $this->task = $task;
+        $json = array_merge($group_arr,
+            array('id' => $this->task->id),
+            $group_controller->my_json_groups()
+        );
+        $this->request->response = json_encode($json);
+    }
 
     /**
      * adds or removes a follower to a task
      */
     public function action_share() {
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
         if (!$_POST || !isset($_POST['u']) || !intval($_POST['u'])) {
             $this->request->status = 400;
             return ;
@@ -34,31 +97,33 @@ class Controller_Task extends Controller {
         // already has the follower, bad request
         // adding a user
         if (isset($_POST['r']) && $_POST['r']) {
-            if ($task->has('followers', $user)) {
+            if ($this->task->has('followers', $user)) {
                 $this->request->status = 400;
                 return ;
             }
 
-            if (!$task->add('followers', $user)) {
+            if (!$this->task->add('followers', $user)) {
                 $this->request->status = 500;
-                return ;
+                return json_encode(array(
+                    'error' => $user->username . 'is already following this task',
+                ));
             }
         } else {
         // removing a user
-            if (!$task->has('followers', $user)) {
+            if (!$this->task->has('followers', $user)) {
                 $this->request->status = 400;
                 return ;
             }
 
             $count = DB::select(DB::expr('COUNT(follower_id) AS count'))->from('follow_task')
-                ->where('task_id', '=', $id)
+                ->where('task_id', '=', $this->id)
                 ->execute('default')->get('count');
 
             if ($count <= 1) {
                 $this->request->status = 400;
                 return ;
             }
-            if (!$task->remove('followers', $user)) {
+            if (!$this->task->remove('followers', $user)) {
                 $this->request->status = 500;
                 return ;
             }
@@ -70,25 +135,15 @@ class Controller_Task extends Controller {
      * updates priority
      */
     public function action_pri() {
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
-        $task->priority = ($task->priority + 1) % 3 + 1;
+        $this->task->priority = ($this->task->priority + 1) % 3 + 1;
 
         // save it
-        if (!$task->save($id)) {
+        if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
         $this->request->response = json_encode(array(
-            'priority' => $task->priority,
+            'priority' => $this->task->priority,
         ));
     }
 
@@ -96,28 +151,18 @@ class Controller_Task extends Controller {
      * updates status
      */
     public function action_s() {
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
-        $task->status = 1 - $task->status;
-        if (!in_array($task->status, array(0, 1))) {
-            $task->status = 0;
+        $this->task->status = 1 - $this->task->status;
+        if (!in_array($this->task->status, array(0, 1))) {
+            $this->task->status = 0;
         }
 
         // save it
-        if (!$task->save($id)) {
+        if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
         $this->request->response = json_encode(array(
-            'status' => $task->status,
+            'status' => $this->task->status,
         ));
     }
 
@@ -125,23 +170,8 @@ class Controller_Task extends Controller {
      * delete task
      */
     public function action_d() {
-        if (!$this->user) {
-            //Request::instance()->redirect('user/login');
-        }
-
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
-        $task->trash = 1;
-        if (!$task->save($id)) {
+        $this->task->trash = 1;
+        if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
@@ -153,21 +183,6 @@ class Controller_Task extends Controller {
      * updates text
      */
     public function action_text() {
-        if (!$this->user) {
-            //Request::instance()->redirect('user/login');
-        }
-
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
         $post = new Validate($_POST);
         $post
             ->rule('text', 'min_length', array(10))
@@ -178,47 +193,23 @@ class Controller_Task extends Controller {
             $this->request->status = 400;
             return ;
         }
-        $text = $post['text'];
 
-        $t_arr = preg_split("/^[^\s]+:\s/u", $text, 2);
-
-        $this->remove_groups($task);
-        // task has group
-        if (isset($t_arr[1])) {
-            $text = trim($t_arr[1]);
-            $t_arr[0] = trim($t_arr[0]);
-            $group = ORM::factory('group')->where('name', '=', $t_arr[0])->find();
-
-            // if not found, create group
-            if (!$group->loaded()) {
-                $group_controller = new Controller_Group($this->request);
-                $group = $group_controller->_add(array(
-                    'name' => $t_arr[0],
-                ));
-                if (!$group || !$task->add('groups', $group)) {;
-                    $this->request->status = 500;
-                    return ;
-                }
-            } else {
-            // otherwise, just add it to the task
-                if (!$task->add('groups', $group)) {;
-                    $this->request->status = 500;
-                    return ;
-                }
-            }
-        } // end if task has group
-
-        $task->text = $text;
-        if (!$task->save($id)) {
+        $group = $this->handle_text($this->task, $post['text']);
+        $group_arr = array();
+        if ($group) {
+            $group_arr = array( 'group' => array(
+                'id' => $group->id,
+                'name' => $group->name,
+            ));
+        }
+        if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
-        $task->reload();
-        $task->text = Model_Task::format_text_out($task, $this->user);
+        $this->task->text = Model_Task::format_text_out($this->task, $this->user);
         $group_controller = new Controller_Group($this->request);
-        $json = array_merge(
-            array('text' => $task->text,
-                'group' => Model_Task::get_group($task, $this->user)),
+        $json = array_merge($group_arr,
+            array('text' => $this->task->text),
             $group_controller->my_json_groups()
         );
         $this->request->response = json_encode($json);
@@ -229,35 +220,20 @@ class Controller_Task extends Controller {
      * updates due
      */
     public function action_due() {
-        if (!$this->user) {
-            //Request::instance()->redirect('user/login');
-        }
-
-        $id = $this->request->param('id');
-        $task = new Model_Task($id);
-
-        $this->request->headers['Content-Type'] = 'application/json';
-
-        // error if not found
-        if (!$task->loaded()) {
-            $this->request->status = 404;
-            return ;
-        }
-
         if (!isset($_POST['due'])) {
             $this->request->status = 400;
             return ;
         }
-        $task->due = Model_Task::format_due_in($_POST['due']);
-        if (!$task->save($id)) {
+        $this->task->due = Model_Task::format_due_in($_POST['due']);
+        if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
         // reload the task
-        $task->reload();
-        $task->due = Model_Task::format_due_out($task->due);
+        $this->task->reload();
+        $this->task->due = Model_Task::format_due_out($this->task->due);
         $this->request->response = json_encode(array(
-            'due' => $task->due,
+            'due' => $this->task->due,
         ));
     }
 
@@ -267,28 +243,69 @@ class Controller_Task extends Controller {
     }
 
 
-    /**
-     * Removes user's groups for a task
-     */
-    protected function remove_groups($task) {
-        $success = true;
-        $task_groups = $task->groups
-            ->where('user_id', '=', $this->user->id)
-            ->find_all();
-
-        foreach ($task_groups as $group) {
-            // skip if not my own
-            if ($group->user_id != $this->user->id) {
-                continue;
+    public function handle_text(&$task, $text) {
+        $t_arr = explode(': ', $text, 2);
+        // task has group
+        $group_id = 0;
+        $group_arr = array();
+        $group_controller = new Controller_Group($this->request);
+        if (isset($t_arr[1])) {
+            $text = trim($t_arr[1]);
+            $t_arr[0] = trim($t_arr[0]);
+            $group = ORM::factory('group')->where('name', '=', $t_arr[0])->find();
+            // if not found, create group
+            if (!$group->loaded()) {
+                $group = $group_controller->_add(array(
+                    'name' => $t_arr[0],
+                ));
+                if (!$group) {
+                    $this->request->status = 500;
+                    return ;
+                }
             }
-            // otherwise remove it from this task
-            $task->remove('groups', $group);
-            $success = Controller_Group::check_used($group);
+            $group_id = $group->id;
+        } // end if task has group
+        if ($task->group_id != $group_id) {
+            // group has changed
+            if ($task->group_id) {
+                Controller_Group::remove_if_unused($task->group_id);
+            }
+            $task->group_id = $group_id;
         }
-        return $success;
+        $task->text = $text;
+        if (isset($group)) {
+            return $group;
+        } else {
+            return null;
+        }
     }
 
     public function before() {
+        if (Request::instance()->action == 'index') return ;
+
+        $this->request->headers['Content-Type'] = 'application/json';
         $this->user = Auth::instance()->get_user();
+        if (!$this->user) {
+            $this->request->status = 403;
+            return ;
+        }
+
+        // must be logged in to do anything
+        $this->id = $this->request->param('id');
+        $this->task = new Model_Task($this->id);
+
+        if (Request::instance()->action == 'add') return ;
+        // error if not found
+        if (!$this->task->loaded()) {
+            $this->request->status = 404;
+            return ;
+        }
+
+        // error if not following
+        if (!$this->task->has('followers', $this->user)
+            && !$this->task->user_id == $this->user->id) {
+            $this->request->status = 403;
+            return ;
+        }
     }
 }
