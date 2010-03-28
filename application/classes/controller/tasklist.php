@@ -39,42 +39,73 @@ class Controller_Tasklist extends Controller_Template {
         if ($per_page <= 0) {
             $per_page = TASKS_PER_PAGE;
         }
+        $pl_per_page = 0;
+        if (isset($_GET['m'])) {
+            $pl_per_page = intval($_GET['m']);
+        }
+        if ($pl_per_page <= 0) {
+            $pl_per_page = TASKS_PER_PAGE;
+        }
 
+        $count = 0;
+        $tasks = array();
         if (isset($_GET['s'])) {
             extract($this->search($_GET['s'], $per_page));
-        } else {
+        } else if (isset($_GET['ep']) && $_GET['ep']) {
             $count = $this->get_count($_GET);
         }
 
         // create pagination object
-        $pagination = Pagination::factory(array(
-            'current_page'   => array('source' => 'query_string', 'key' => 'p', 'output' => 'hash'),
-            'total_items'    => $count,
-            'items_per_page' => $per_page,
-        ));
+        if ($count) {
+            $pagination = Pagination::factory(array(
+                'current_page'   => array('source' => 'query_string', 'key' => 'p', 'output' => 'hash'),
+                'total_items'    => $count,
+                'items_per_page' => $per_page,
+            ));
+        }
 
-        if (!isset($_GET['s'])) {
+        if (!isset($_GET['s'])
+            && isset($_GET['ep']) && $_GET['ep']) {
             $tasks = $this->get_tasks($_GET, $pagination)->as_array();
         }
 
-
         $json = array('tasks' => array());
 
-        $planner_pagination = Pagination::factory(array(
-            'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
-            'total_items'    => $count,
-            'items_per_page' => $per_page / 2,
-        ));
-        $planner_tasks = $this->get_planner_tasks($planner_pagination)->as_array();
+        $planner_tasks = array();
+        $planner_count = 0;
+        if (isset($_GET['eu']) && $_GET['eu']) {
+            $planner_count = $this->get_min_count('planner');
 
-        if (!isset($tasks[0]) && !isset($planner_tasks[0])) {
+            $planner_pagination = Pagination::factory(array(
+                'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
+                'total_items'    => $planner_count,
+                'items_per_page' => $pl_per_page,
+            ));
+            $planner_tasks = $this->get_min_tasks($planner_pagination, 'planner')->as_array();
+        }
+        $trash_tasks = array();
+        $trash_count = 0;
+        if (isset($_GET['ev']) && $_GET['ev']) {
+            $trash_count = $this->get_min_count('trash');
+
+            $trash_pagination = Pagination::factory(array(
+                'current_page'   => array('source' => 'query_string', 'key' => 'v', 'output' => 'hash'),
+                'total_items'    => $trash_count,
+                'items_per_page' => $pl_per_page,
+            ));
+            $trash_tasks = $this->get_min_tasks($trash_pagination, 'trash')->as_array();
+        }
+
+        if (!isset($tasks[0])
+            && !isset($planner_tasks[0])
+            && !isset($trash_tasks[0])) {
             $this->request->status = 404;
             $json['error'] = 'No tasks found';
             $this->request->response = json_encode($json);
             return ;
         }
 
-        $tasks = array_merge($tasks, $planner_tasks);
+        $tasks = array_merge($tasks, $planner_tasks, $trash_tasks);
 
 
         $columns = $tasks[0]->list_columns();
@@ -85,8 +116,12 @@ class Controller_Tasklist extends Controller_Template {
             foreach ($columns as $k => $v) {
                 $json_task[$k] = $task->$k;
             }
+            $json_task['due_out'] = $task->due_out;
 
-            if ($task->due == 'plan') {
+            if ($task->trash == 1) {
+                $json_task['trash'] = 1;
+            }
+            if ($task->due < TIMESTAMP_PLANNED) {
                 $json_task['plan'] = 1;
             }
 
@@ -107,8 +142,15 @@ class Controller_Tasklist extends Controller_Template {
 
             $json['tasks'][] = $json_task;
         }
-        $json['pager'] = $pagination->render();
-        $json['pl_pager'] = $planner_pagination->render();
+        if ($count) {
+            $json['pager'] = $pagination->render();
+        }
+        if ($planner_count) {
+            $json['pl_pager'] = $planner_pagination->render();
+        }
+        if ($trash_count) {
+            $json['tr_pager'] = $trash_pagination->render();
+        }
         $group_controller = new Controller_Group($this->request);
         $json = array_merge(
             $json,
@@ -119,7 +161,7 @@ class Controller_Tasklist extends Controller_Template {
     }
 
     public function get_count($params) {
-        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
+        $yesterday = time() - SECONDS_IN_DAY;
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
@@ -130,7 +172,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->where('group_id','=', $g_id)
                 ->execute()->get('count');
             ;
@@ -145,7 +187,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '!=', $this->user->id)
                         ->where('follower_id', '=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', DATE_PLANNED)
+                        ->where('due', '>', TIMESTAMP_PLANNED)
                         ->and_where_open()
                             ->where('status', '=', 0)
                             ->or_where_open()
@@ -163,7 +205,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '=', $this->user->id)
                         ->where('follower_id', '!=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', DATE_PLANNED)
+                        ->where('due', '>', TIMESTAMP_PLANNED)
                         ->and_where_open()
                             ->where('status', '=', 0)
                             ->or_where_open()
@@ -195,7 +237,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->and_where_open()
                     ->where('status', '=', 0)
                     ->or_where_open()
@@ -209,7 +251,7 @@ class Controller_Tasklist extends Controller_Template {
 
 
     public function get_tasks($params, $pagination) {
-        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
+        $yesterday = time() - SECONDS_IN_DAY;
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
@@ -220,15 +262,14 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->where('group_id','=', $g_id)
                 ->order_by('status','asc')
                 ->order_by('priority','asc')
                 ->order_by('due','asc')
                 ->limit($pagination->items_per_page)
                 ->offset($pagination->offset)
-                ->find_all()
-            ;
+                ->find_all();
         } elseif (isset($params['t']) && $params['t']) {
             switch (intval($params['t'])) {
                 case 1:
@@ -240,7 +281,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '!=', $this->user->id)
                         ->where('follower_id', '=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', DATE_PLANNED)
+                        ->where('due', '>', TIMESTAMP_PLANNED)
                         ->and_where_open()
                             ->where('status', '=', 0)
                             ->or_where_open()
@@ -263,7 +304,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '=', $this->user->id)
                         ->where('follower_id', '!=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', DATE_PLANNED)
+                        ->where('due', '>', TIMESTAMP_PLANNED)
                         ->and_where_open()
                             ->where('status', '=', 0)
                             ->or_where_open()
@@ -276,8 +317,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->order_by('due','asc')
                         ->limit($pagination->items_per_page)
                         ->offset($pagination->offset)
-                        ->find_all()
-                    ;
+                        ->find_all();
                 case 3:
                     // archive stuff that is done AND followed by me
                     return ORM::factory('task')
@@ -292,8 +332,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->order_by('due','asc')
                         ->limit($pagination->items_per_page)
                         ->offset($pagination->offset)
-                        ->find_all()
-                    ;
+                        ->find_all();
                 default:
                     return null;
             }
@@ -307,7 +346,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->and_where_open()
                     ->where('status', '=', 0)
                     ->or_where_open()
@@ -320,23 +359,69 @@ class Controller_Tasklist extends Controller_Template {
                 ->order_by('due','asc')
                 ->limit($pagination->items_per_page)
                 ->offset($pagination->offset)
-                ->find_all()
-            ;
+                ->find_all();
         }
     }
 
-    public function get_planner_tasks($pagination) {
-        return ORM::factory('task')
-            ->distinct(true)
-            ->join('follow_task')
-                ->on('follow_task.task_id', '=', 'tasks.id')
-            ->where('follower_id', '=', $this->user->id)
-            ->where('trash', '=', 0)
-            ->where('due', '<=', DATE_PLANNED)
-            ->limit($pagination->items_per_page)
-            ->offset($pagination->offset)
-            ->find_all()
-        ;
+    /**
+     * Planner count. Used for pagination
+     */
+    public function get_min_count($for = 'planner') {
+        switch ($for) {
+            case 'planner':
+                return DB::select(DB::expr('COUNT(id) AS count'))
+                    ->from('tasks')
+                    ->distinct(true)
+                    ->join('follow_task')
+                        ->on('follow_task.task_id', '=', 'tasks.id')
+                    ->where('follower_id', '=', $this->user->id)
+                    ->where('trash', '=', 0)
+                    ->where('status', '=', 0)
+                    ->where('due', '<=', TIMESTAMP_PLANNED)
+                    ->execute()->get('count');
+            case 'trash':
+                return DB::select(DB::expr('COUNT(id) AS count'))
+                    ->from('tasks')
+                    ->distinct(true)
+                    ->join('follow_task')
+                        ->on('follow_task.task_id', '=', 'tasks.id')
+                    ->where('follower_id', '=', $this->user->id)
+                    ->where('trash', '=', 1)
+                    ->execute()->get('count');
+        }
+    }
+
+    /**
+     * Planner tasks
+     */
+    public function get_min_tasks($pagination, $for = 'planner') {
+        switch ($for) {
+            case 'planner':
+                return ORM::factory('task')
+                    ->distinct(true)
+                    ->join('follow_task')
+                        ->on('follow_task.task_id', '=', 'tasks.id')
+                    ->where('follower_id', '=', $this->user->id)
+                    ->where('trash', '=', 0)
+                    ->where('status', '=', 0)
+                    ->where('due', '<=', TIMESTAMP_PLANNED)
+                    ->order_by('priority', 'asc')
+                    ->limit($pagination->items_per_page)
+                    ->offset($pagination->offset)
+                    ->find_all();
+            case 'trash':
+                return ORM::factory('task')
+                    ->from('tasks')
+                    ->distinct(true)
+                    ->join('follow_task')
+                        ->on('follow_task.task_id', '=', 'tasks.id')
+                    ->where('follower_id', '=', $this->user->id)
+                    ->where('trash', '=', 1)
+                    ->order_by('lastmodified', 'desc')
+                    ->limit($pagination->items_per_page)
+                    ->offset($pagination->offset)
+                    ->find_all();
+        }
     }
 
     public function search($query, $per_page) {

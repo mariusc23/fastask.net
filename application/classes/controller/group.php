@@ -9,7 +9,7 @@ class Controller_Group extends Controller {
     }
 
     public function json_groups($type = 0) {
-        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
+        $yesterday = time() - SECONDS_IN_DAY;
         switch (intval($type)) {
         case 1:
             // assignments
@@ -22,7 +22,7 @@ class Controller_Group extends Controller {
                 ->where('tasks.user_id', '!=', $this->user->id)
                 ->where('follower_id', '=', $this->user->id)
                 ->where('trash', '=', 0)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->and_where_open()
                     ->where('status', '=', 0)
                     ->or_where_open()
@@ -45,7 +45,7 @@ class Controller_Group extends Controller {
                 ->where('tasks.user_id', '=', $this->user->id)
                 ->where('follower_id', '!=', $this->user->id)
                 ->where('trash', '=', 0)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->and_where_open()
                     ->where('status', '=', 0)
                     ->or_where_open()
@@ -85,7 +85,7 @@ class Controller_Group extends Controller {
                 ->where('tasks.user_id', '=', $this->user->id)
                 ->where('follower_id', '=', $this->user->id)
                 ->where('trash', '=', 0)
-                ->where('due', '>', DATE_PLANNED)
+                ->where('due', '>', TIMESTAMP_PLANNED)
                 ->and_where_open()
                     ->where('status', '=', 0)
                     ->or_where_open()

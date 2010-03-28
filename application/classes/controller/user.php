@@ -57,7 +57,6 @@ class Controller_User extends Controller_Template {
                 $json_user['name'] = $user->name;
                 $json_user['email'] = $user->email;
                 $json_user['logins'] = $user->email;
-                /* TODO: use proper timezone */
                 $json_user['last_login'] = $user->last_login;
             }
 

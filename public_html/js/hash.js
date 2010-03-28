@@ -9,11 +9,31 @@ function on_hash_change(hash) {
 
     hash_last = hash;
     var   page = parseInt(get_url_param('p', window.location.href))
+        , pl_page = parseInt(get_url_param('u', window.location.href))
         , group = parseInt(get_url_param('g', window.location.href))
         , type = parseInt(get_url_param('t', window.location.href))
+        , tr_page = parseInt(get_url_param('v', window.location.href))
     ;
-    if (page != t_page || group != t_group || type != t_type) {
+    if (page != t_page || pl_page != t_pl_page || tr_page != t_tr_page
+        || group != t_group || type != t_type) {
+        if (page != t_page || group != t_group) {
+            expecting.main = 1;
+        } else {
+            expecting.main = 0;
+        }
+        if (pl_page != t_pl_page) {
+            expecting.plan = 1;
+        } else {
+            expecting.plan = 0;
+        }
+        if (tr_page != t_tr_page) {
+            expecting.trash = 1;
+        } else {
+            expecting.trash = 0;
+        }
         t_page = page;
+        t_pl_page = pl_page;
+        t_tr_page = tr_page;
         t_group = group;
         t_type = type;
         get_tasklist();
@@ -34,8 +54,9 @@ function get_url_param(name, url) {
     var regex = new RegExp(regexS);
     var results = regex.exec(url);
     if (results == null) {
-        if (name == 'p') return 1;
+        if (name == 'p' || name == 'u' || name == 'v') return 1;
         if (name == 'g' || name == 't') return 0;
+        return '';
     }
     return results[1];
 }

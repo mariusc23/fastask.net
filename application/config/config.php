@@ -3,7 +3,6 @@
 define('IN_PRODUCTION', TRUE);
 define('SITE_SEPARATOR', ' - ');
 define('SITE_NAME', 'Tasklist');
-define('DATE_MYSQL_FORMAT', 'Y-m-d H:i:s');
 
 setlocale(LC_ALL, 'en_US.utf8');
 
@@ -25,8 +24,9 @@ $LENGTHS         = array('60','60','24','30','12','10');
 define('LENGTHS_COUNT', 6);
 
 // planning
-define('DATE_PLANNED', '1985-00-00 00:00:00');
-define('TIMESTAMP_PLANNED', strtotime(DATE_PLANNED));
+define('SECONDS_IN_DAY', 86400);
+// '1985-00-00 00:00:00' <-- before is planned
+define('TIMESTAMP_PLANNED', 470649600);
 
 // username validation
 define('USERNAME_REGEX', '/[a-z]{3,50}/i');

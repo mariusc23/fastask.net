@@ -47,7 +47,7 @@ class Controller_Task extends Controller {
         $task->group_id = 0;
 
         if (isset($_POST['plan'])) {
-            $task->due = '0000-00-00 00:00:00';
+            $task->due = 0;
         } else {
             $task->due = Model_Task::format_due_in(trim($_POST['due']));
         }
@@ -262,6 +262,37 @@ class Controller_Task extends Controller {
 
 
     /**
+     * plans a task
+     */
+    public function action_plan() {
+        if ($this->request->status != 200) {
+            return ;
+        }
+        // default to today
+        $due = time();// + SECONDS_IN_DAY; //tomorrow
+        $this->task->due = $due;
+        if (isset($_POST['due'])) {
+            $due = $_POST['due'];
+            $this->task->due = Model_Task::format_due_in($due);
+        }
+        if (!$this->task->save($this->id)) {
+            $this->request->status = 500;
+            return ;
+        }
+        // reload the task
+        $this->task->reload();
+        $due_out = Model_Task::format_due_out($this->task->due);
+        $json = array(
+            'due' => $this->task->due,
+            'due_out' => $due_out,
+        );
+        if ($due_out == 'plan') {
+            $json['plan'] = 1;
+        }
+        $this->request->response = json_encode($json);
+    }
+
+    /**
      * updates due
      */
     public function action_due() {
@@ -279,9 +310,10 @@ class Controller_Task extends Controller {
         }
         // reload the task
         $this->task->reload();
-        $this->task->due = Model_Task::format_due_out($this->task->due);
+        $due_out = Model_Task::format_due_out($this->task->due);
         $this->request->response = json_encode(array(
             'due' => $this->task->due,
+            'due_out' => $due_out,
         ));
     }
 

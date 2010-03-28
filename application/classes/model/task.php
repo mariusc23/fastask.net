@@ -8,8 +8,13 @@ class Model_Task extends ORM {
         'followers' => array('model' => 'user', 'through' => 'follow_task'),
     );
 
+    public function __construct($id = NULL) {
+        parent::__construct($id);
+        $this->_object['due_out'] = $this->_object['due'];
+    }
+
     public static function format_task(&$task, $user) {
-        $task->due = self::format_due_out($task->due);
+        $task->due_out = self::format_due_out($task->due);
         $task->text = self::format_text_out($task, $user);
     }
 
@@ -23,13 +28,8 @@ class Model_Task extends ORM {
         return $data;
     }
 
-    public static function format_due_out($date) {
-        if(!$date) {
-            $date = date(DATE_MYSQL_FORMAT);
-        }
-        $t_now              = time();
-        $t_unix_date        = strtotime($date);
-
+    public static function format_due_out($t_unix_date) {
+        $t_now = time();
         $span = Date::span($t_unix_date, $t_now);
 
         $i = 6;
@@ -47,12 +47,10 @@ class Model_Task extends ORM {
             if ($span2[$i] > 0) break;
         }
         // $highest = $i;
-        if ($i > 5) {
-            if ($t_unix_date < $t_now && $t_unix_date < TIMESTAMP_PLANNED) {
-                $difference = 'plan';
-            } else {
-                $difference .= "{$span2[$i]}yr{$span2[$i-1]}mo";
-            }
+        if ($t_unix_date < TIMESTAMP_PLANNED) {
+            $difference = 'plan';
+        } elseif ($i > 5) {
+            $difference .= "{$span2[$i]}yr{$span2[$i-1]}mo";
         } elseif ($i > 4) {
             $difference .= "{$span2[$i]}mo";
         } elseif ($i > 3) {
@@ -95,6 +93,6 @@ class Model_Task extends ORM {
             return false;
         }
 
-        return date(DATE_MYSQL_FORMAT, $date);
+        return $date;
     }
 }

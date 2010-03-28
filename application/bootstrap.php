@@ -9,7 +9,7 @@ require_once('config/config.php');
  * @see  http://docs.kohanaphp.com/about.configuration
  * @see  http://php.net/timezones
  */
-date_default_timezone_set('America/Chicago');
+date_default_timezone_set('America/Los_Angeles');
 
 /**
  * Set the default locale.

@@ -392,7 +392,7 @@ input[type="text"], input[type="password"] {
 .loadbar .text span {
     background: url('img/loadbar.gif') no-repeat right;
 }
-.row:hover.loadbar .text span {
+.task-table .row:hover.loadbar .text span {
     background: #e9f0e6 url('img/loadbar.gif') no-repeat right;
 }
 .task-table .due {
@@ -795,6 +795,7 @@ input[type="text"], input[type="password"] {
 .profile-box .links a {
     padding: 0.2em 1em;
 }
+
 /*****************************************************************************/
 /*
 /* Planner box
@@ -805,10 +806,10 @@ input[type="text"], input[type="password"] {
     top: 0;
     left: 50%;
     margin-left: -610px;
-    height: 100%;
+    height: 50%;
     width: 260px;
-    -moz-box-shadow: 1px 1px 12px #000;
-    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-box-shadow: 1px 12px 12px #000;
+    -webkit-box-shadow: 1px 12px 12px #000;
     background: #fff;
 }
 
@@ -821,11 +822,11 @@ input[type="text"], input[type="password"] {
     font-weight: normal;
 }
 
-.planner-box .row-min:nth-child(2n) {
+.planner-box .row:nth-child(2n) {
     background: #f5fcf4;
 }
 
-.planner-box .row-min:hover {
+.planner-box .row:hover {
     background-color: #e9f0e6;
 }
 
@@ -833,6 +834,152 @@ input[type="text"], input[type="password"] {
     margin: 0;
     padding: 0;
     width: 100%;
+}
+
+.planner-table .row {
+    clear: both;
+    height: 30px;
+    padding: 0 0.5em;
+}
+.planner-table .row .td {
+    float: left;
+    margin: 0;
+}
+.planner-table .row:hover .text {
+    background: #e9f0e6;
+    height: auto;
+    position: absolute;
+    overflow: visible;
+    z-index: 1;
+}
+.planner-table .text {
+    display: block;
+    height: 2em;
+    overflow: hidden;
+    width: 210px;
+}
+
+.planner-table .del
+, .planner-table .plan {
+    position: absolute;
+    left: 240px;
+    width: 12px;
+    height: 2em;
+    margin: 0;
+}
+.planner-table .plan {
+    left: 220px;
+}
+.planner-table .del a
+, .planner-table .plan a {
+    display: block;
+    width: 12px;
+    margin-top: 5px;
+    height: 13px;
+    text-indent: -9999px;
+    background: url('/css/img/sprite.png') no-repeat -254px -31px;
+}
+.planner-table .plan a {
+    background: url('/css/img/sprite.png') no-repeat -266px -31px;
+}
+.planner-table .row:hover .del a {
+    background-position: -254px 0;
+}
+.planner-table .row:hover .plan a {
+    background-position: -266px 0;
+}
+
+/*****************************************************************************/
+/*
+/* Trash box
+/*
+/*****************************************************************************/
+.trash-box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-left: -610px;
+    height: 50%;
+    width: 260px;
+    -moz-box-shadow: 1px 12px 12px #000;
+    -webkit-box-shadow: 1px 12px 12px #000;
+    background: #fff;
+}
+
+.trash-box .title {
+    text-align: center;
+    margin: 16px auto 0 auto;
+    padding-bottom: 0.3em;
+    font-family: Georgia, freeserif, serif;
+    font-size: 26px;
+    font-weight: normal;
+}
+
+.trash-box .row:nth-child(2n) {
+    background: #f5fcf4;
+}
+
+.trash-box .row:hover {
+    background-color: #e9f0e6;
+}
+
+.trash-table {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+.trash-table .row {
+    clear: both;
+    height: 30px;
+    padding: 0 0.5em;
+}
+.trash-table .row .td {
+    float: left;
+    margin: 0;
+}
+.trash-table .row:hover .text {
+    background: #e9f0e6;
+    height: auto;
+    position: absolute;
+    overflow: visible;
+    z-index: 1;
+}
+.trash-table .text {
+    display: block;
+    height: 2em;
+    overflow: hidden;
+    width: 210px;
+}
+
+.trash-table .del
+, .trash-table .plan {
+    position: absolute;
+    left: 240px;
+    width: 12px;
+    height: 2em;
+    margin: 0;
+}
+.trash-table .plan {
+    left: 220px;
+}
+.trash-table .del a
+, .trash-table .plan a {
+    display: block;
+    width: 12px;
+    margin-top: 5px;
+    height: 13px;
+    text-indent: -9999px;
+    background: url('/css/img/sprite.png') no-repeat -254px -31px;
+}
+.trash-table .plan a {
+    background: url('/css/img/sprite.png') no-repeat -266px -31px;
+}
+.trash-table .row:hover .del a {
+    background-position: -254px 0;
+}
+.trash-table .row:hover .plan a {
+    background-position: -266px 0;
 }
 
 /* jqModal styling */
