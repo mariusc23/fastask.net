@@ -99,7 +99,7 @@ var
  * Changing task priority
  */
 $('.p', $('#main')).live('click', function() {
-    update_row('priority', $('#main'), $(this));
+    update_row('priority', $(this));
     return false;
 });
 
@@ -107,14 +107,14 @@ $('.p', $('#main')).live('click', function() {
  * Changing task status
  */
 $('.s input', $('#main')).live('click', function() {
-    update_row('status', $('#main'), $(this));
+    update_row('status', $(this));
 });
 
 /**
  * Delete task
  */
 $('.del a', $('#main')).live('click', function() {
-    update_row('delete', $('#main'), $(this));
+    update_row('delete', $(this));
     return false;
 });
 
@@ -530,7 +530,7 @@ $('form.inplace input').live('keydown', function(e) {
         if (type.indexOf(' ') >= 0) {
             type = type.substr(0, type.indexOf(' '));
         }
-        update_row(type, $('#main'), $(this));
+        update_row(type, $(this));
         return false;
     }
     else if (e.keyCode == 27) {
@@ -712,9 +712,9 @@ function update_groups(groups) {
  */
 $('.followers input', $('#main')).live('click', function() {
     if ($(this).is(':checked')) {
-        update_row('follower_remove', $('#main'), $(this));
+        update_row('follower_remove', $(this));
     } else {
-        update_row('follower_add', $('#main'), $(this));
+        update_row('follower_add', $(this));
     }
 });
 

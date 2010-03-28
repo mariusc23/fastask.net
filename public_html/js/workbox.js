@@ -27,7 +27,7 @@ var
         <div class="priority label"><span>Priority:</span> \
             <input type="hidden" name="priority" value="3" /> \
             <span class="p p-1"><span class="img hi" alt="1"></span> High</span> \
-            <span class="p p-2"><span class="img me" alt="1"></span> Medium</span> \
+            <span class="p p-2"><span class="img me" alt="2"></span> Medium</span> \
         </div> \
         <input type="submit" name="add" title="Add task" value="Add task" /> \
         <input type="submit" name="plan" title="Plan task" value="Plan task" /> \
@@ -265,7 +265,7 @@ $('.work-box .priority .p').click(function() {
         $(this).parents('.priority').find('.p')
             .removeClass('s');
         $(this).parents('.priority').find('input')
-            .val($(this).find('img').attr('alt'));
+            .val($(this).find('.img').attr('alt'));
         $(this)
             .addClass('s');
     }

@@ -552,6 +552,7 @@ input[type="text"], input[type="password"] {
 }
 
 .work-box div.label {
+    cursor: pointer;
     display: inline-block;
 }
 
