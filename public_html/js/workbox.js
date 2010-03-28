@@ -17,7 +17,7 @@ var
             <textarea rows="5" cols="10" name="text"></textarea> \
         </label> \
         <label class="due">Date: <br/> \
-            <input type="text" name="due" value="today" /> \
+            <input type="text" name="due" value="+1d" /> \
             <span class="due-icon"></span> \
         </label> \
         <div class="share label">Sharing: <br/> \
@@ -149,7 +149,7 @@ function autocomplete_keyup(e, obj, box_class, the_url) {
             }
         }
     })
-    }, 200); // setTimeout
+    }, 400); // setTimeout
 }
 
 
@@ -279,7 +279,7 @@ $('.work-box .priority .p').click(function() {
 $('.work-box .clear').live('click', function () {
     var WORK_BOX = $('.work-box');
     $('textarea', WORK_BOX)[0].value = '';
-    $('input[name="due"]', WORK_BOX).val('today');
+    $('input[name="due"]', WORK_BOX).val('+1d');
     $('.share .input', WORK_BOX).html(CURRENT_USER.username);
     $('.priority input', WORK_BOX).val('3');
     $('.priority .p', WORK_BOX).removeClass('s');
