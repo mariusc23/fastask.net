@@ -27,8 +27,8 @@ class Model_Task extends ORM {
         if(!$date) {
             $date = date(DATE_MYSQL_FORMAT);
         }
-        $t_now               = time();
-        $t_unix_date         = strtotime($date);
+        $t_now              = time();
+        $t_unix_date        = strtotime($date);
 
         $span = Date::span($t_unix_date, $t_now);
 
@@ -48,12 +48,13 @@ class Model_Task extends ORM {
         }
         // $highest = $i;
         if ($i > 5) {
-            $difference = 'plan';
-        } elseif ($i > 4) {
-            $difference = 'mos';
-            if ($t_unix_date < $t_now) {
-                $difference .= ' ago';
+            if ($t_unix_date < $t_now && $t_unix_date < TIMESTAMP_PLANNED) {
+                $difference = 'plan';
+            } else {
+                $difference .= "{$span2[$i]}yr{$span2[$i-1]}mo";
             }
+        } elseif ($i > 4) {
+            $difference .= "{$span2[$i]}mo";
         } elseif ($i > 3) {
             // weeks to days
             $days = $span2[$i] * 7 + $span2[$i-1];

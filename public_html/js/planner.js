@@ -11,7 +11,7 @@ function init_planner() {
 var
 /*-------------- CONSTANTS --------------*/
       PLANER_BOX = $('\
-    <div class="planner-box"> \
+    <div id="plan" class="planner-box"> \
     <div class="loading"></div> \
     <h1 class="title">planner</h1> \
     <div class="planner-table" cellspacing="0"> \

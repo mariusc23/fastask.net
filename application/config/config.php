@@ -26,6 +26,7 @@ define('LENGTHS_COUNT', 6);
 
 // planning
 define('DATE_PLANNED', '1985-00-00 00:00:00');
+define('TIMESTAMP_PLANNED', strtotime(DATE_PLANNED));
 
 // username validation
 define('USERNAME_REGEX', '/[a-z]{3,50}/i');

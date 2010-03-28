@@ -334,9 +334,10 @@ function unset_loading(elem) {
 
 
 /**
- * Pager updates the url hash
+ * Task Box Pager updates the url hash
+ * Parameter: p
  */
-$('.pager a').live('click', function() {
+$('.pager a', $('#main')).live('click', function() {
     var page = parseInt(get_url_param('p', $(this).attr('href')));
     if (last_search_q.length > 0) {
         search_page = page;
@@ -347,6 +348,16 @@ $('.pager a').live('click', function() {
     return false;
 });
 
+
+/**
+ * Planner/Trash Pager updates the url hash
+ * Parameter: u
+ */
+$('.pager a', $('#plan')).live('click', function() {
+    var page = parseInt(get_url_param('u', $(this).attr('href')));
+    url_update_hash('u', page);
+    return false;
+});
 
 /**
  * Groups update the url hash
@@ -424,7 +435,7 @@ function build_tasklist(response, textStatus, request) {
     $('.notasks', TASK_BOX).remove();
 
     $('.task-table', TASK_BOX).html('');
-    $('.planner-table', $('.planner-box')).html('');
+    $('.planner-table', $('#plan')).html('');
     var task, task_group, html_text;
     for (var i in response.tasks) {
         json_task = response.tasks[i]
@@ -450,7 +461,7 @@ function build_tasklist(response, textStatus, request) {
                 .end()
                 .children('input[name="user_id"]').val(json_task.user_id)
             ;
-            html_task.appendTo($('.planner-box').children('.planner-table'));
+            html_task.appendTo($('#plan').children('.planner-table'));
         } else {
             html_task = ROW_TEMPLATE.clone();
             if (json_task.status) {
@@ -507,11 +518,11 @@ function build_tasklist(response, textStatus, request) {
         pager.remove();
     }
     pager = $(response.pager).appendTo(TASK_BOX);
-    pager = $('.pager', $('.planner-box'));
+    pager = $('.pager', $('#plan'));
     if (pager.length > 0) {
         pager.remove();
     }
-    pager = $(response.pl_pager).appendTo($('.planner-box'));
+    pager = $(response.pl_pager).appendTo($('#plan'));
 }
 
 /*****************************************************************************/
@@ -682,11 +693,13 @@ function update_groups(groups) {
     template = GROUPS_TEMPLATE.clone().html('');
     for (var i in groups) {
         url_g = '#g=' + groups[i].id;
-        title_g = groups[i].name;
+        title_g = groups[i].name
+            + ' (' + groups[i].num_tasks + ')';
         if (t_group && t_group == groups[i].id) {
             url_g = '#t=' + t_group;
             $('.title', $('#main'))
-                .html('<a href="' + url_g + '">' + groups[i].name
+                .html('<a href="' + url_g + '">'
+                    + title_g
                     + '</a>');
             ;
             title_g = DEFAULT_TITLES_PLAIN[t_type];

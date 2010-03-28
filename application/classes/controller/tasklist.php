@@ -65,7 +65,7 @@ class Controller_Tasklist extends Controller_Template {
             'total_items'    => $count,
             'items_per_page' => $per_page / 2,
         ));
-        $planner_tasks = array();//$this->get_planner_tasks($planner_pagination)->as_array();
+        $planner_tasks = $this->get_planner_tasks($planner_pagination)->as_array();
 
         if (!isset($tasks[0]) && !isset($planner_tasks[0])) {
             $this->request->status = 404;

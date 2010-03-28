@@ -105,6 +105,7 @@ class Controller_Group extends Controller {
 
             $json_group['id'] = $group->id;
             $json_group['name'] = $group->name;
+            $json_group['num_tasks'] = $group->num_tasks;
             $json_group['user_id'] = $group->user->id;
             if (!isset($users[$group->user->id])) {
                 // find the user
@@ -195,12 +196,14 @@ class Controller_Group extends Controller {
      * Precondition: $id is an integer
      * Deletes a group if no tasks are using it
      */
-    public static function remove_if_unused($id) {
-        $count = DB::select(DB::expr('COUNT(*) AS count'))->from('tasks')
-            ->where('group_id', '=', $id)
-            ->execute('default')->get('count');
-        if ($count > 1) return true;
-        $group = new Model_Group($id);
+    public static function remove_if_unused($group) {
+        $group->num_tasks--;
+        if ($group->num_tasks > 1) {
+            if (!$group->save()) {
+                return false;
+            }
+            return true;
+        }
         // if no other task uses this group, delete it
         if (!$group->delete()) {
             return false;

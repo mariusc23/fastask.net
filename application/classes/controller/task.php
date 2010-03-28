@@ -6,6 +6,9 @@ class Controller_Task extends Controller {
     private $id = null;
 
     public function action_add() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         if (!$_POST ||
             (!isset($_POST['add']) && !isset($_POST['plan']))) {
             $this->request->status = 400;
@@ -91,6 +94,9 @@ class Controller_Task extends Controller {
      * adds or removes a follower to a task
      */
     public function action_share() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         if (!$_POST || !isset($_POST['u']) || !intval($_POST['u'])) {
             $this->request->status = 400;
             return ;
@@ -119,6 +125,13 @@ class Controller_Task extends Controller {
                     'error' => $user->username . 'is already following this task',
                 ));
                 return ;
+            } else {
+                $this->task->num_followers++;
+                // save it
+                if (!$this->task->save($this->id)) {
+                    $this->request->status = 500;
+                    return ;
+                }
             }
         } else {
         // removing a user
@@ -127,17 +140,20 @@ class Controller_Task extends Controller {
                 return ;
             }
 
-            $count = DB::select(DB::expr('COUNT(follower_id) AS count'))->from('follow_task')
-                ->where('task_id', '=', $this->id)
-                ->execute('default')->get('count');
-
-            if ($count <= 1) {
+            if ($this->task->num_followers <= 1) {
                 $this->request->status = 400;
                 return ;
             }
             if (!$this->task->remove('followers', $user)) {
                 $this->request->status = 500;
                 return ;
+            } else {
+                $this->task->num_followers--;
+                // save it
+                if (!$this->task->save($this->id)) {
+                    $this->request->status = 500;
+                    return ;
+                }
             }
         }
         $this->request->response = '{}';
@@ -147,6 +163,9 @@ class Controller_Task extends Controller {
      * updates priority
      */
     public function action_pri() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         $this->task->priority = ($this->task->priority + 1) % 3 + 1;
 
         // save it
@@ -163,6 +182,9 @@ class Controller_Task extends Controller {
      * updates status
      */
     public function action_s() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         $this->task->status = 1 - $this->task->status;
         if (!in_array($this->task->status, array(0, 1))) {
             $this->task->status = 0;
@@ -182,6 +204,9 @@ class Controller_Task extends Controller {
      * delete task
      */
     public function action_d() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         $this->task->trash = 1;
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
@@ -195,6 +220,9 @@ class Controller_Task extends Controller {
      * updates text
      */
     public function action_text() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         $post = new Validate($_POST);
         $post
             ->rule('text', 'min_length', array(10))
@@ -237,6 +265,9 @@ class Controller_Task extends Controller {
      * updates due
      */
     public function action_due() {
+        if ($this->request->status != 200) {
+            return ;
+        }
         if (!isset($_POST['due'])) {
             $this->request->status = 400;
             return ;
@@ -256,6 +287,9 @@ class Controller_Task extends Controller {
 
     public function action_index()
     {
+        if ($this->request->status != 200) {
+            return ;
+        }
         $this->request->response = 'hello, world!';
     }
 
@@ -289,12 +323,18 @@ class Controller_Task extends Controller {
                     return ;
                 }
             }
+            $group->num_tasks++;
+
+            if (!$group->save()) {
+                $this->request->status = 500;
+                return ;
+            }
             $group_id = $group->id;
         } // end if task has group
         if ($task->group_id != $group_id) {
             // group has changed
             if ($task->group_id) {
-                Controller_Group::remove_if_unused($task->group_id);
+                Controller_Group::remove_if_unused($task->group);
             }
             $task->group_id = $group_id;
         }
@@ -335,7 +375,7 @@ class Controller_Task extends Controller {
 
         // error if not following
         if (!$this->task->has('followers', $this->user)
-            || !$this->task->user_id == $this->user->id) {
+            && $this->task->user_id != $this->user->id) {
             $this->request->status = 403;
             $this->request->response = json_encode(array(
                 'error' => 'Permission denied. You must be the owner '
