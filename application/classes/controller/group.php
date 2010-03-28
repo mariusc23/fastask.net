@@ -8,19 +8,115 @@ class Controller_Group extends Controller {
         $this->user = Auth::instance()->get_user();
     }
 
-    public function my_json_groups() {
-        $groups = ORM::factory('group')
-             ->where('user_id', '=', $this->user->id)
-             ->order_by('name', 'asc')
-             ->find_all()
-        ;
+    public function json_groups($type = 0) {
+        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
+        switch (intval($type)) {
+        case 1:
+            // assignments
+            $groups = ORM::factory('group')
+                ->distinct(true)
+                ->join('tasks')
+                    ->on('tasks.group_id', '=', 'groups.id')
+                ->join('follow_task')
+                    ->on('follow_task.task_id', '=', 'tasks.id')
+                ->where('tasks.user_id', '!=', $this->user->id)
+                ->where('follower_id', '=', $this->user->id)
+                ->where('trash', '=', 0)
+                ->where('due', '>', DATE_PLANNED)
+                ->and_where_open()
+                    ->where('status', '=', 0)
+                    ->or_where_open()
+                        ->where('status', '=', 1)
+                        ->where('lastmodified', '>', $yesterday)
+                    ->or_where_close()
+                ->and_where_close()
+                ->order_by('name', 'asc')
+                ->find_all()
+            ;
+            break;
+        case 2:
+            // command center
+            $groups = ORM::factory('group')
+                ->distinct(true)
+                ->join('tasks')
+                    ->on('tasks.group_id', '=', 'groups.id')
+                ->join('follow_task')
+                    ->on('follow_task.task_id', '=', 'tasks.id')
+                ->where('tasks.user_id', '=', $this->user->id)
+                ->where('follower_id', '!=', $this->user->id)
+                ->where('trash', '=', 0)
+                ->where('due', '>', DATE_PLANNED)
+                ->and_where_open()
+                    ->where('status', '=', 0)
+                    ->or_where_open()
+                        ->where('status', '=', 1)
+                        ->where('lastmodified', '>', $yesterday)
+                    ->or_where_close()
+                ->and_where_close()
+                ->order_by('name', 'asc')
+                ->find_all()
+            ;
+            break;
+        case 3:
+            // archive
+            $groups = ORM::factory('group')
+                ->distinct(true)
+                ->join('tasks')
+                    ->on('tasks.group_id', '=', 'groups.id')
+                ->join('follow_task')
+                    ->on('follow_task.task_id', '=', 'tasks.id')
+                ->where('follower_id', '=', $this->user->id)
+                ->where('trash', '=', 0)
+                ->where('status', '=', 1)
+                ->order_by('name', 'asc')
+                ->find_all()
+            ;
+            break;
+        case 0:
+        default:
+            // just get my groups
+            $groups = ORM::factory('group')
+                ->distinct(true)
+                ->join('tasks')
+                    ->on('tasks.group_id', '=', 'groups.id')
+                ->join('follow_task')
+                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
+                    ->on('follow_task.task_id', '=', 'tasks.id')
+                ->where('tasks.user_id', '=', $this->user->id)
+                ->where('follower_id', '=', $this->user->id)
+                ->where('trash', '=', 0)
+                ->where('due', '>', DATE_PLANNED)
+                ->and_where_open()
+                    ->where('status', '=', 0)
+                    ->or_where_open()
+                        ->where('status', '=', 1)
+                        ->where('lastmodified', '>', $yesterday)
+                    ->or_where_close()
+                ->and_where_close()
+                ->order_by('name', 'asc')
+                ->find_all()
+            ;
+        }
 
         $json = array('groups' => array());
+        $users = array($this->user->id => $this->user, );
         foreach ($groups as $group) {
             $json_group = array();
 
             $json_group['id'] = $group->id;
             $json_group['name'] = $group->name;
+            $json_group['user_id'] = $group->user->id;
+            if (!isset($users[$group->user->id])) {
+                // find the user
+                $g_user = new Model_User($group->user->id);
+                if ($g_user->loaded()) {
+                    $users[$group->user->id] = $g_user;
+                }
+            }
+            // if there is a corresponding user, load the username
+            if (isset($users[$group->user->id])) {
+                $json_group['username'] = $users[$group->user->id]->username;
+            }
 
             $json['groups'][] = $json_group;
         }
@@ -59,19 +155,6 @@ class Controller_Group extends Controller {
 
             $json['results'][] = $json_group;
         }
-        $this->request->response = json_encode($json);
-    }
-
-
-    /**
-     * Lists groups, id and name in JSON format
-     */
-    public function action_l() {
-        $this->request->headers['Content-Type'] = 'application/json';
-        $this->auto_render = FALSE;
-
-        $json = $this->my_json_groups();
-
         $this->request->response = json_encode($json);
     }
 

@@ -2,6 +2,7 @@
 class Controller_Tasklist extends Controller_Template {
     public $template = 'base/template';
     private $user = null;
+    private $sphinxclient = null;
 
     /**
      * Index action
@@ -26,11 +27,9 @@ class Controller_Tasklist extends Controller_Template {
             return ;
         }
 
-        $id = $this->request->param('id');
-
-        if (!$id) {
-            $this->request->status = 400;
-            return ;
+        $type = 0;
+        if (isset($_GET['t'])) {
+            $type = intval($_GET['t']);
         }
 
         $per_page = 0;
@@ -41,7 +40,11 @@ class Controller_Tasklist extends Controller_Template {
             $per_page = TASKS_PER_PAGE;
         }
 
-        $count = $this->get_count($_GET);
+        if (isset($_GET['s'])) {
+            extract($this->search($_GET['s'], $per_page));
+        } else {
+            $count = $this->get_count($_GET);
+        }
 
         // create pagination object
         $pagination = Pagination::factory(array(
@@ -50,12 +53,15 @@ class Controller_Tasklist extends Controller_Template {
             'items_per_page' => $per_page,
         ));
 
-        $tasks = $this->get_tasks($_GET, $pagination);
+        if (!isset($_GET['s'])) {
+            $tasks = $this->get_tasks($_GET, $pagination);
+        }
 
         $json = array('tasks' => array());
 
         if (!isset($tasks[0])) {
             $this->request->status = 404;
+            $json['error'] = 'No tasks found';
             $this->request->response = json_encode($json);
             return ;
         }
@@ -90,14 +96,14 @@ class Controller_Tasklist extends Controller_Template {
         $group_controller = new Controller_Group($this->request);
         $json = array_merge(
             $json,
-            $group_controller->my_json_groups()
+            $group_controller->json_groups($type)
         );
 
         $this->request->response = json_encode($json);
     }
 
     public function get_count($params) {
-        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('yesterday 00:00'));
+        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
@@ -110,13 +116,6 @@ class Controller_Tasklist extends Controller_Template {
                 ->where('follower_id', '=', $this->user->id)
                 ->where('due', '>', DATE_PLANNED)
                 ->where('group_id','=', $g_id)
-                ->and_where_open()
-                    ->where('status', '=', 0)
-                    ->or_where_open()
-                        ->where('status', '=', 1)
-                        ->where('lastmodified', '>', $yesterday)
-                    ->or_where_close()
-                ->and_where_close()
                 ->execute()->get('count');
             ;
         } elseif (isset($params['t']) && $params['t']) {
@@ -194,7 +193,7 @@ class Controller_Tasklist extends Controller_Template {
 
 
     public function get_tasks($params, $pagination) {
-        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('yesterday 00:00'));
+        $yesterday = date(DATE_MYSQL_FORMAT, strtotime('today 00:00'));
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
@@ -207,13 +206,6 @@ class Controller_Tasklist extends Controller_Template {
                 ->where('follower_id', '=', $this->user->id)
                 ->where('due', '>', DATE_PLANNED)
                 ->where('group_id','=', $g_id)
-                ->and_where_open()
-                    ->where('status', '=', 0)
-                    ->or_where_open()
-                        ->where('status', '=', 1)
-                        ->where('lastmodified', '>', $yesterday)
-                    ->or_where_close()
-                ->and_where_close()
                 ->order_by('status','asc')
                 ->order_by('priority','asc')
                 ->order_by('due','asc')
@@ -247,9 +239,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->offset($pagination->offset)
                         ->find_all();
                 case 2:
-                    // command center, tasks assigned to others
-                    // ** only difference between this and my tasks
-                    // ** is the follower_id != $this->user->id
+                    // command center, my tasks assigned to others
                     return ORM::factory('task')
                         ->distinct(true)
                         ->join('follow_task')
@@ -329,4 +319,45 @@ class Controller_Tasklist extends Controller_Template {
         $this->template->model = 'tasklist';
         $this->template->action = Request::instance()->action;
    }
+
+    public function search($query, $per_page) {
+        require_once(APPPATH.'classes/sphinxapi.php');
+        $search_query = $query ? $query : '';
+        $search_offset = isset($_GET['p']) ? intval($_GET['p']) : 1;
+        $search_offset = $per_page * ($search_offset - 1);
+        if (!$search_offset) $search_offset = 0;
+
+        if ($search_query !== '') {
+            $search_query = mb_convert_encoding($search_query, 'UTF-8', 'auto');
+            $search_query = str_replace(array(' OR ',' AND ',' NOT '), array(' | ',' & ',' !'), $search_query);
+        } else {
+            return array('count' => 0, 'tasks' => array());
+        }
+
+        $this->sphinxclient = new SphinxClient();
+        $this->sphinxclient->SetServer(SPHINX_HOST, SPHINX_PORT);
+        $this->sphinxclient->SetLimits($search_offset, TASKS_PER_PAGE, SPHINX_MAXRESULTS);
+        //$this->sphinxclient->SetMatchMode(SPH_MATCH_EXTENDED2);
+        //$this->sphinxclient->SetRankingMode(SPHINX_RANKER);
+        $this->sphinxclient->SetSortMode(SPH_SORT_EXTENDED, 'status asc priority asc due asc');
+        $this->sphinxclient->SetArrayResult(true);
+        //$this->sphinxclient->SetFilter('followers', array($this->user->id));
+
+        $results = $this->sphinxclient->Query(
+            mb_ereg_replace('-', '\-', $search_query), SPHINX_INDEX);
+        $count = 0;
+        if (isset($results['matches'])) {
+            $count = $results['total'];
+            $results = $results['matches'];
+
+            $tasks = array();
+            if (isset($results)) foreach ($results as $sphinx_task) {
+                $tasks[] = new Model_Task($sphinx_task['id']);
+            }
+        }
+        if (!$count) {
+            return array('count' => 0, 'tasks' => array());
+        }
+        return compact('count', 'tasks');
+    }
 }

@@ -120,7 +120,7 @@ input[type="text"], input[type="password"] {
     -moz-border-radius-topright: 16px;
     -webkit-border-top-left-radius: 16px;
     -webkit-border-top-right-radius: 16px;
-    background: #f5fcf2;
+    background: #fff;
 }
 
 .task-box .notasks {
@@ -159,8 +159,11 @@ input[type="text"], input[type="password"] {
     background-position: -20px 0;
     width: 17px;
 }
+.task-box .tabs .icon.command {
+    padding-top: 13px;
+}
 .task-box .tabs .icon.command a {
-    background-position: -40px 0;
+    background-position: -39px 0;
     width: 28px;
     height: 22px;
 }
@@ -178,7 +181,7 @@ input[type="text"], input[type="password"] {
 }
 .task-box .tabs .icon.command:hover a
 , .task-box .tabs .icon.command.active a {
-    background-position: -40px -31px;
+    background-position: -39px -31px;
 }
 .task-box .tabs .icon.archive:hover a
 , .task-box .tabs .icon.archive.active a {
@@ -190,7 +193,7 @@ input[type="text"], input[type="password"] {
     text-align: center;
     padding: 15px 0 5px 0;
     margin: 0;
-    width: 214px;
+    width: 222px;
     height: 36px;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
@@ -215,7 +218,7 @@ input[type="text"], input[type="password"] {
 .task-box .groups {
     float: left;
     position: relative;
-    width: 214px;
+    width: 222px;
 }
 .task-box .groups:hover ul {
     display: block;
@@ -230,10 +233,10 @@ input[type="text"], input[type="password"] {
     -webkit-box-shadow: 0px 2px 2px #000;
     display: none;
     list-style: none;
-    width: 184px;
+    width: 192px;
     list-style: none;
     line-height: 30px;
-    margin: 0 0 0 -107px;
+    margin: 0 0 0 -111px;
     padding: 0 15px 10px;
     top: 40px; left: 50%;
     position: absolute;
@@ -359,19 +362,28 @@ input[type="text"], input[type="password"] {
     width: 445px;
 }
 .task-table .text span {
-    padding: 0 3px;
-    width: 439px;
+    margin: 0 3px;
+    position: absolute;
+    display: inline;
+    width: 445px;
 }
 .task-table .text .g {
     color: #56991a;
 }
+.text.nogroup form.inplace {
+    display: inline;
+}
+.text.nogroup form.inplace input {
+    display: inline;
+}
 .done .text span {
     text-decoration: line-through;
 }
-.task-table .row:hover .text {
+.task-table .row:nth-child(2n) {
+    background: #f5fcf4;
 }
 .task-table .row:hover .text span {
-    background: #d5dcd2;
+    background: #e9f0e6;
     height: auto;
     position: absolute;
     overflow: visible;
@@ -381,7 +393,7 @@ input[type="text"], input[type="password"] {
     background: url('img/loadbar.gif') no-repeat right;
 }
 .row:hover.loadbar .text span {
-    background: #d5dcd2 url('img/loadbar.gif') no-repeat right;
+    background: #e9f0e6 url('img/loadbar.gif') no-repeat right;
 }
 .task-table .due {
     width: 65px;
@@ -392,15 +404,13 @@ input[type="text"], input[type="password"] {
 .task-table .editable {
     display: block;
 }
-.task-table .del .sh {
-    display: block;
-}
 .task-table .del {
     width: 12px;
     height: 2em;
     margin: 0 9px 0 16px;
 }
 .task-table .del-link {
+    display: block;
     width: 12px;
     margin-top: 5px;
     height: 13px;
@@ -409,6 +419,9 @@ input[type="text"], input[type="password"] {
 }
 .task-table .row:hover .del-link {
     background-position: -254px 0;
+}
+.task-table .row:hover .followers > a {
+    background-position: -244px 0;
 }
 .task-table .followers {
     position: relative;
@@ -420,7 +433,7 @@ input[type="text"], input[type="password"] {
     width: 10px;
     height: 13px;
     margin-top: 5px;
-    background: url('/css/img/sprite.png') no-repeat -244px 0;
+    background: url('/css/img/sprite.png') no-repeat -244px -31px;
 }
 .task-table .followers ul {
     display: none;
@@ -466,7 +479,7 @@ input[type="text"], input[type="password"] {
     display: block;
 }
 .task-table .row:hover {
-    background-color: #d5dcd2;
+    background-color: #e9f0e6;
 }
 .task-table .row.notme {
     background-color: #e5ece2;
@@ -524,7 +537,7 @@ input[type="text"], input[type="password"] {
     -moz-border-radius-bottomright: 16px;
     -webkit-border-bottom-left-radius: 16px;
     -webkit-border-bottom-right-radius: 16px;
-    background: #f5fcf2;
+    background: #f5fcf4;
 }
 
 .work-box .title {
@@ -628,7 +641,7 @@ input[type="text"], input[type="password"] {
     cursor: pointer;
 }
 .work-box .priority .p {
-    border: 1px solid #f5fcf2;
+    border: 1px solid #f5fcf4;
     display: inline-block;
     height: 20px;
     width: 66px;
@@ -723,7 +736,7 @@ input[type="text"], input[type="password"] {
     -moz-border-radius-topright: 16px;
     -webkit-border-top-left-radius: 16px;
     -webkit-border-top-right-radius: 16px;
-    background: #f5fcf2;
+    background: #f5fcf4;
     line-height: 1.6em;
 }
 
@@ -799,7 +812,7 @@ input[type="text"], input[type="password"] {
     width: 246px;
     -moz-box-shadow: 1px 1px 12px #000;
     -webkit-box-shadow: 1px 1px 12px #000;
-    background: #f5fcf2;
+    background: #f5fcf4;
 }
 
 .planner-box .title {

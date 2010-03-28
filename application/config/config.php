@@ -7,9 +7,9 @@ define('DATE_MYSQL_FORMAT', 'Y-m-d H:i:s');
 setlocale(LC_ALL, 'en_US.utf8');
 
 // sphinx settings
-define('SPHINX_MAXRESULTS', 1000);
+define('SPHINX_MAXRESULTS', 200);
 define('SPHINX_RANKER', 0);
-define('SPHINX_INDEX', 'tasks');
+define('SPHINX_INDEX', 'tasklist');
 // set host, port to access sphinxd
 define('SPHINX_HOST', 'localhost');
 define('SPHINX_PORT', 3312);

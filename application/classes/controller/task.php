@@ -34,6 +34,11 @@ class Controller_Task extends Controller {
             return ;
         }
 
+        $type = 0;
+        if (isset($_POST['t'])) {
+            $type = intval($_POST['t']);
+        }
+
         // create task
         $task = new Model_Task;
         $task->group_id = 0;
@@ -77,7 +82,7 @@ class Controller_Task extends Controller {
         $this->task = $task;
         $json = array_merge($group_arr,
             array('id' => $this->task->id),
-            $group_controller->my_json_groups()
+            $group_controller->json_groups($type)
         );
         $this->request->response = json_encode($json);
     }
@@ -110,9 +115,10 @@ class Controller_Task extends Controller {
 
             if (!$this->task->add('followers', $user)) {
                 $this->request->status = 500;
-                return json_encode(array(
+                $this->request->response = json_encode(array(
                     'error' => $user->username . 'is already following this task',
                 ));
+                return ;
             }
         } else {
         // removing a user
@@ -200,6 +206,11 @@ class Controller_Task extends Controller {
             return ;
         }
 
+        $type = 0;
+        if (isset($_POST['t'])) {
+            $type = intval($_POST['t']);
+        }
+
         $group = $this->handle_text($this->task, $post['text']);
         $group_arr = array();
         if ($group) {
@@ -216,7 +227,7 @@ class Controller_Task extends Controller {
         $group_controller = new Controller_Group($this->request);
         $json = array_merge($group_arr,
             array('text' => $this->task->text),
-            $group_controller->my_json_groups()
+            $group_controller->json_groups($type)
         );
         $this->request->response = json_encode($json);
     }
@@ -249,10 +260,19 @@ class Controller_Task extends Controller {
     }
 
 
+    /**
+     * Parses the text and creates a group. Also removes a group if
+     * the old task's group does not belong to any other task.
+     */
     public function handle_text(&$task, $text) {
         $t_arr = explode(': ', $text, 2);
-        // task has group
         $group_id = 0;
+        if ($task->user_id != $this->user->id) {
+            // cannot change group if not owner
+            $t_arr = array($text);
+            $group_id = $task->group_id;
+        }
+        // task has group
         $group_arr = array();
         $group_controller = new Controller_Group($this->request);
         if (isset($t_arr[1])) {
@@ -293,24 +313,34 @@ class Controller_Task extends Controller {
         $this->user = Auth::instance()->get_user();
         if (!$this->user) {
             $this->request->status = 403;
+            $this->request->response = json_encode(array(
+                'error' => 'Permission denied. You must be logged in.'
+            ));
             return ;
         }
+
+        if (Request::instance()->action == 'add') return ;
 
         // must be logged in to do anything
         $this->id = $this->request->param('id');
         $this->task = new Model_Task($this->id);
-
-        if (Request::instance()->action == 'add') return ;
         // error if not found
         if (!$this->task->loaded()) {
             $this->request->status = 404;
+            $this->request->response = json_encode(array(
+                'error' => 'Task not found.',
+            ));
             return ;
         }
 
         // error if not following
         if (!$this->task->has('followers', $this->user)
-            && !$this->task->user_id == $this->user->id) {
+            || !$this->task->user_id == $this->user->id) {
             $this->request->status = 403;
+            $this->request->response = json_encode(array(
+                'error' => 'Permission denied. You must be the owner '
+                    + 'or assigned to this task.',
+            ));
             return ;
         }
     }

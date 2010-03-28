@@ -43,16 +43,13 @@ function get_url_param(name, url) {
 /**
  * Updates the hash
  */
-function url_update_hash(param, val, erase) {
+function url_update_hash(param, val, erase_page) {
     var   new_hash = ''
         , initial = hash_last
         , params_values = []
         , params = {}
         , param_value
     ;
-    if (erase) {
-        initial = '';
-    }
     // split url into params
     if (initial) {
         params_values = initial.split(';');
@@ -63,6 +60,13 @@ function url_update_hash(param, val, erase) {
     }
     // update value
     params[param] = val;
+    if (erase_page && params.page) {
+        delete params.page;
+    }
+    if ((undefined !== params.g && params.g != t_group) || 
+        (undefined !== params.t && params.t != t_type)) {
+        params.p = 1;
+    }
     // collapse params to string
     for (var i in params) {
         if (!params[i]) continue;

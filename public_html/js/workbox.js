@@ -173,7 +173,7 @@ $('.work-box input[type="submit"]').live('click', function () {
     $.ajax({
         type: 'POST',
         url: work_box.find('form').attr('action'),
-        data: form_data + '&' + target.attr('name') + '=1',
+        data: form_data + '&' + target.attr('name') + '=1' + '&t=' + t_type,
         beforeSend: function() {
             SPINWHEEL.show();
         },
@@ -276,17 +276,13 @@ $('.work-box .priority .p').click(function() {
 /**
     * Clears the workbox
     */
-function clear_workbox() {
+$('.work-box .clear').live('click', function () {
     var WORK_BOX = $('.work-box');
     $('textarea', WORK_BOX)[0].value = '';
     $('input[name="due"]', WORK_BOX).val('today');
-    $('.share .input', WORK_BOX).val(CURRENT_USER.name);
+    $('.share .input', WORK_BOX).html(CURRENT_USER.username);
     $('.priority input', WORK_BOX).val('3');
     $('.priority .p', WORK_BOX).removeClass('s');
-}
-
-$('.work-box .clear').live('click', function () {
-    clear_workbox();
     return false;
 });
 
