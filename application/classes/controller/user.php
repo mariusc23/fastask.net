@@ -69,7 +69,7 @@ class Controller_User extends Controller_Template {
 
     public function action_login() {
         if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
-            //$this->request->redirect(URL::site('user/login', 'https'));
+            $this->request->redirect(URL::site('user/login', 'https'));
         }
         $view = $this->template->content = View::factory('user/login');
         // if user already logged in

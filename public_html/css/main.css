@@ -124,6 +124,7 @@ input[type="text"], input[type="password"] {
 }
 
 .task-box .notasks {
+    clear: left;
     text-align: center;
     padding: 2em 0;
 }
@@ -133,7 +134,8 @@ input[type="text"], input[type="password"] {
     float: left;
     padding: 15px;
 }
-.task-box .tabs .icon:hover {
+.task-box .tabs .icon:hover
+, .task-box .tabs .icon.active {
     background: #fbfbfb;
 }
 .task-box .tabs .icon a {
@@ -166,23 +168,27 @@ input[type="text"], input[type="password"] {
     background-position: -68px 0;
     width: 23px;
 }
-.task-box .tabs .icon.my-tasks:hover a {
+.task-box .tabs .icon.my-tasks:hover a
+, .task-box .tabs .icon.my-tasks.active a {
     background-position: 0 -31px;
 }
-.task-box .tabs .icon.assignments:hover a {
+.task-box .tabs .icon.assignments:hover a
+, .task-box .tabs .icon.assignments.active a {
     background-position: -20px -31px;
 }
-.task-box .tabs .icon.command:hover a {
+.task-box .tabs .icon.command:hover a
+, .task-box .tabs .icon.command.active a {
     background-position: -40px -31px;
 }
-.task-box .tabs .icon.archive:hover a {
+.task-box .tabs .icon.archive:hover a
+, .task-box .tabs .icon.archive.active a {
     background-position: -68px -31px;
 }
 .task-box .tabs a {
 }
 .task-box .title {
     text-align: center;
-    padding: 8px 0;
+    padding: 15px 0 5px 0;
     margin: 0;
     width: 214px;
     height: 36px;
@@ -202,6 +208,10 @@ input[type="text"], input[type="password"] {
     position: relative; z-index: 1;
 }
 
+.task-box .groups .title a {
+    color: #000;
+    text-decoration: none;
+}
 .task-box .groups {
     float: left;
     position: relative;
@@ -209,6 +219,10 @@ input[type="text"], input[type="password"] {
 }
 .task-box .groups:hover ul {
     display: block;
+}
+
+.task-box .groups a:hover {
+    text-decoration: underline;
 }
 
 .task-box .groups ul {
@@ -342,11 +356,11 @@ input[type="text"], input[type="password"] {
     background-position: -290px 0;
 }
 .task-table .text {
-    width: 470px;
+    width: 445px;
 }
 .task-table .text span {
     padding: 0 3px;
-    width: 464px;
+    width: 439px;
 }
 .task-table .text .g {
     color: #56991a;
@@ -370,13 +384,16 @@ input[type="text"], input[type="password"] {
     background: #d5dcd2 url('img/loadbar.gif') no-repeat right;
 }
 .task-table .due {
-    width: 40px;
+    width: 65px;
     padding: 0;
     margin: 0;
+    text-align: right;
 }
 .task-table .editable {
     display: block;
-    width: 40px;
+}
+.task-table .del .sh {
+    display: block;
 }
 .task-table .del {
     width: 12px;
@@ -388,7 +405,10 @@ input[type="text"], input[type="password"] {
     margin-top: 5px;
     height: 13px;
     text-indent: -9999px;
-    background: url('/css/img/sprite.png') no-repeat -254px 0;
+    background: url('/css/img/sprite.png') no-repeat -254px -31px;
+}
+.task-table .row:hover .del-link {
+    background-position: -254px 0;
 }
 .task-table .followers {
     position: relative;
@@ -591,6 +611,9 @@ input[type="text"], input[type="password"] {
     padding: 0 2px;
     line-height: 1.45em;
     height: 18px;
+    overflow: hidden;
+    top: 4px;
+    position: relative;
 }
 .work-box .share:hover ul {
     display: block;

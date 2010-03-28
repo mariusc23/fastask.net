@@ -46,9 +46,15 @@ var
     , EDITABLE_BLANK = $('<span class="editable"></span>')
     , DEFAULT_TITLES_PLAIN = [
         'my tasks',
+        'assignments',
+        'command',
+        'self-esteem',
     ]
     , DEFAULT_TITLES = [
-        '<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0] + '</a>',
+        '<a href="#t=0">' + DEFAULT_TITLES_PLAIN[0] + '</a>',
+        '<a href="#t=1">' + DEFAULT_TITLES_PLAIN[1] + '</a>',
+        '<a href="#t=2">' + DEFAULT_TITLES_PLAIN[2] + '</a>',
+        '<a href="#t=3">' + DEFAULT_TITLES_PLAIN[3] + '</a>',
     ]
     , CURRENT_USER
 /*-------------- VARIABLES --------------*/
@@ -63,6 +69,7 @@ var
     }
     , t_page = get_url_param('p', INITIAL_URL)
     , t_group = get_url_param('g', INITIAL_URL)
+    , t_type = get_url_param('t', INITIAL_URL)
 ;
 
 /*****************************************************************************/
@@ -76,6 +83,7 @@ var
  */
 $('.p', $('#main')).live('click', function() {
     update_row('priority', $('#main'), $(this));
+    return false;
 });
 
 /**
@@ -347,12 +355,15 @@ function reset_timeout(elem) {
  */
 function get_tasklist() {
     var   task_box = $('#main')
-        , group = parseInt(get_url_param('g'));
+        , group = parseInt(get_url_param('g'))
+        , t_type = parseInt(get_url_param('t'))
+    ;
     clear_timeout(task_box);
 
     $.ajax({
         type: 'GET',
-        url: TASKLIST_URL + tasks_per_page + '&p=' + t_page + '&g=' + t_group,
+        url: TASKLIST_URL + tasks_per_page + '&p=' + t_page + '&g=' + t_group
+            + '&t=' + t_type,
         dataType: 'json',
         beforeSend: function() {
             return set_loading(task_box);
@@ -360,7 +371,7 @@ function get_tasklist() {
         error: function (response, text_status, error) {
             unset_loading(task_box);
             if (response.status == 404) {
-                DEFAULT_NO_TASKS.insertAfter($('.groups', task_box));
+                DEFAULT_NO_TASKS.insertBefore($('.task-table', task_box));
                 return ;
             }
 
@@ -563,6 +574,18 @@ $('.title a', $('#main')).live('click', function () {
 });
 
 function update_groups(groups) {
+    $('.tabs .icon', $('#main'))
+        .removeClass('active')
+        .eq(t_type).addClass('active')
+    ;
+    if (!t_group) {
+        $('.title', $('#main'))
+            .html(DEFAULT_TITLES[t_type]);
+        ;
+    }
+    if (groups.length <= 0) {
+        return;
+    }
     var html_g, url_g;
     template = GROUPS_TEMPLATE.clone().html('');
     for (var i in groups) {
@@ -574,12 +597,7 @@ function update_groups(groups) {
                     + '</a>');
             ;
             url_g = '#p=1';
-            title_g = DEFAULT_TITLES_PLAIN[0];
-        } else if (!t_group) {
-            $('.title', $('#main'))
-                .html('<a href="#p=1">' + DEFAULT_TITLES_PLAIN[0]
-                    + '</a>');
-            ;
+            title_g = DEFAULT_TITLES_PLAIN[t_type];
         }
         html_g = GROUP_TEMPLATE.clone();
         html_g.children('a')
@@ -710,10 +728,10 @@ $(document).ready(function() {
     <div class="task-box" id="main"> \
         <div class="loading"></div> \
         <div class="tabs"> \
-            <div class="icon my-tasks" title="my and only my tasks"><a href="#t=1"></a></div> \
-            <div class="icon assignments" title="assignments from others"><a href="#t=2"></a></div> \
-            <div class="icon command" title="command center"><a href="#t=3"></a></div> \
-            <div class="icon archive" title="self-esteem box (archive)"><a href="#t=4"></a></div> \
+            <div class="icon my-tasks" title="my and only my tasks"><a href="#t=0"></a></div> \
+            <div class="icon assignments" title="assignments from others"><a href="#t=1"></a></div> \
+            <div class="icon command" title="command center"><a href="#t=2"></a></div> \
+            <div class="icon archive" title="self-esteem box (archive)"><a href="#t=3"></a></div> \
         </div> \
         <div class="groups"><h1 class="title"><a href="#p=1">my tasks</a>\
             </h1></div> \
@@ -726,7 +744,7 @@ $(document).ready(function() {
         </div> \
         <!-- pager? --> \
     </div><!-- /.task-box -->');
-    tasklist_refresh_timeout = setInterval(get_tasklist, REFRESH_TIMEOUT);
+    reset_timeout($('#main'));
 
     // Initialize history plugin.
     // The callback is called at once by present location.hash.

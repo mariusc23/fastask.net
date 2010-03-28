@@ -6,7 +6,8 @@ class Controller_Task extends Controller {
     private $id = null;
 
     public function action_add() {
-        if (!$_POST || !isset($_POST['add'])) {
+        if (!$_POST ||
+            (!isset($_POST['add']) && !isset($_POST['plan']))) {
             $this->request->status = 400;
             return ;
         }
@@ -15,7 +16,6 @@ class Controller_Task extends Controller {
         $post
             ->rule('text', 'min_length', array(10))
             ->rule('text', 'max_length', array(1500))
-            ->rule('share', 'min_length', array(3))
             ->rule('text', 'min_length', array(5))
             ->rule('priority', 'range', array(1, 3))
             ->filter(TRUE, 'trim')
@@ -37,7 +37,13 @@ class Controller_Task extends Controller {
         // create task
         $task = new Model_Task;
         $task->group_id = 0;
-        $task->due = Model_Task::format_due_in(trim($_POST['due']));
+
+        if (isset($_POST['plan'])) {
+            $task->due = '0000-00-00 00:00:00';
+        } else {
+            $task->due = Model_Task::format_due_in(trim($_POST['due']));
+        }
+
         $task->priority = $post['priority'];
         $task->user_id = $this->user->id;
         $task->status = 0;

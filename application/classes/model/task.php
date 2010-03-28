@@ -49,6 +49,9 @@ class Model_Task extends ORM {
         // $highest = $i;
         if ($i > 5) {
             $difference = 'plan';
+            if ($t_unix_date < $t_now) {
+                $difference = 'long ago';
+            }
         } elseif ($i > 4) {
             $difference = 'mos';
             if ($t_unix_date < $t_now) {

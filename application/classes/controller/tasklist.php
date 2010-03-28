@@ -101,11 +101,10 @@ class Controller_Tasklist extends Controller_Template {
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
-            // created by me AND followed by me
+            // ONLY followed by me
             return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
                 ->distinct(true)
                 ->join('follow_task')
-                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
@@ -118,8 +117,60 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('lastmodified', '>', $yesterday)
                     ->or_where_close()
                 ->and_where_close()
-                ->execute('default')->get('count');
+                ->execute()->get('count');
             ;
+        } elseif (isset($params['t']) && $params['t']) {
+            switch (intval($params['t'])) {
+                case 1:
+                    // assignments
+                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('user_id', '!=', $this->user->id)
+                        ->where('follower_id', '=', $this->user->id)
+                        ->where('trash', '=', 0)
+                        ->where('due', '>', DATE_PLANNED)
+                        ->and_where_open()
+                            ->where('status', '=', 0)
+                            ->or_where_open()
+                                ->where('status', '=', 1)
+                                ->where('lastmodified', '>', $yesterday)
+                            ->or_where_close()
+                        ->and_where_close()
+                        ->execute()->get('count');
+                case 2:
+                    // command center, my tasks assigned to others
+                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('user_id', '=', $this->user->id)
+                        ->where('follower_id', '!=', $this->user->id)
+                        ->where('trash', '=', 0)
+                        ->where('due', '>', DATE_PLANNED)
+                        ->and_where_open()
+                            ->where('status', '=', 0)
+                            ->or_where_open()
+                                ->where('status', '=', 1)
+                                ->where('lastmodified', '>', $yesterday)
+                            ->or_where_close()
+                        ->and_where_close()
+                        ->execute()->get('count');
+                case 3:
+                    // archive
+                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('trash', '=', 0)
+                        ->where('follower_id', '=', $this->user->id)
+                        ->where('status', '=', 1)
+                        ->execute()->get('count');
+                    ;
+                default:
+                    return null;
+            }
         } else {
             // count items
             return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
@@ -137,7 +188,7 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('lastmodified', '>', $yesterday)
                     ->or_where_close()
                 ->and_where_close()
-                ->execute('default')->get('count');
+                ->execute()->get('count');
         }
     }
 
@@ -147,11 +198,10 @@ class Controller_Tasklist extends Controller_Template {
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
             // my tasks are:
-            // created by me AND followed by me
+            // ONLY followed by me
             return ORM::factory('task')
                 ->distinct(true)
                 ->join('follow_task')
-                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
@@ -171,6 +221,76 @@ class Controller_Tasklist extends Controller_Template {
                 ->offset($pagination->offset)
                 ->find_all()
             ;
+        } elseif (isset($params['t']) && $params['t']) {
+            switch (intval($params['t'])) {
+                case 1:
+                    // assignments
+                    return ORM::factory('task')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('user_id', '!=', $this->user->id)
+                        ->where('follower_id', '=', $this->user->id)
+                        ->where('trash', '=', 0)
+                        ->where('due', '>', DATE_PLANNED)
+                        ->and_where_open()
+                            ->where('status', '=', 0)
+                            ->or_where_open()
+                                ->where('status', '=', 1)
+                                ->where('lastmodified', '>', $yesterday)
+                            ->or_where_close()
+                        ->and_where_close()
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                        ->limit($pagination->items_per_page)
+                        ->offset($pagination->offset)
+                        ->find_all();
+                case 2:
+                    // command center, tasks assigned to others
+                    // ** only difference between this and my tasks
+                    // ** is the follower_id != $this->user->id
+                    return ORM::factory('task')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('user_id', '=', $this->user->id)
+                        ->where('follower_id', '!=', $this->user->id)
+                        ->where('trash', '=', 0)
+                        ->where('due', '>', DATE_PLANNED)
+                        ->and_where_open()
+                            ->where('status', '=', 0)
+                            ->or_where_open()
+                                ->where('status', '=', 1)
+                                ->where('lastmodified', '>', $yesterday)
+                            ->or_where_close()
+                        ->and_where_close()
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                        ->limit($pagination->items_per_page)
+                        ->offset($pagination->offset)
+                        ->find_all()
+                    ;
+                case 3:
+                    // archive stuff that is done AND followed by me
+                    return ORM::factory('task')
+                        ->distinct(true)
+                        ->join('follow_task')
+                            ->on('follow_task.task_id', '=', 'tasks.id')
+                        ->where('trash', '=', 0)
+                        ->where('follower_id', '=', $this->user->id)
+                        ->where('status', '=', 1)
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                        ->limit($pagination->items_per_page)
+                        ->offset($pagination->offset)
+                        ->find_all()
+                    ;
+                default:
+                    return null;
+            }
         } else {
             // my tasks are:
             // created by me AND followed by me

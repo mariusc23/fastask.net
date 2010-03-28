@@ -10,10 +10,12 @@ function on_hash_change(hash) {
     hash_last = hash;
     var   page = parseInt(get_url_param('p', window.location.href))
         , group = parseInt(get_url_param('g', window.location.href))
+        , type = parseInt(get_url_param('t', window.location.href))
     ;
-    if (page != t_page || group != t_group) {
+    if (page != t_page || group != t_group || type != t_type) {
         t_page = page;
         t_group = group;
+        t_type = type;
         get_tasklist();
     }
 }
@@ -33,7 +35,7 @@ function get_url_param(name, url) {
     var results = regex.exec(url);
     if (results == null) {
         if (name == 'p') return 1;
-        if (name == 'g') return 0;
+        if (name == 'g' || name == 't') return 0;
     }
     return results[1];
 }

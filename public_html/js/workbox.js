@@ -168,10 +168,12 @@ $('.autocomplete li').live('mousedown', function() {
 $('.work-box input[type="submit"]').live('click', function () {
     var   form_data = $('.work-box form').serialize()
         , work_box = $('.work-box')
+        , target = $(this)
+    ;
     $.ajax({
         type: 'POST',
         url: work_box.find('form').attr('action'),
-        data: form_data + '&add=1',
+        data: form_data + '&' + target.attr('name') + '=1',
         beforeSend: function() {
             SPINWHEEL.show();
         },
