@@ -1,4 +1,5 @@
 <?php
+
 define('IN_PRODUCTION', TRUE);
 define('SITE_SEPARATOR', ' - ');
 define('SITE_NAME', 'Tasklist');
@@ -15,6 +16,8 @@ define('SPHINX_HOST', 'localhost');
 define('SPHINX_PORT', 3312);
 
 // pagination
+define('PAGES_BEFORE', 5);
+define('PAGES_AFTER', 6);
 define('TASKS_PER_PAGE', 10);
 $PERIODS_NAMES   = array('seconds', 'minutes', 'hours', 'days', 'months', 'years', 'decades');
 $PERIODS         = array('s', 'm', 'h', 'd', 'mo', 'yr', 'decade');

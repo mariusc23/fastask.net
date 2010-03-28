@@ -54,17 +54,28 @@ class Controller_Tasklist extends Controller_Template {
         ));
 
         if (!isset($_GET['s'])) {
-            $tasks = $this->get_tasks($_GET, $pagination);
+            $tasks = $this->get_tasks($_GET, $pagination)->as_array();
         }
+
 
         $json = array('tasks' => array());
 
-        if (!isset($tasks[0])) {
+        $planner_pagination = Pagination::factory(array(
+            'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
+            'total_items'    => $count,
+            'items_per_page' => $per_page / 2,
+        ));
+        $planner_tasks = $this->get_planner_tasks($planner_pagination)->as_array();
+
+        if (!isset($tasks[0]) && !isset($planner_tasks[0])) {
             $this->request->status = 404;
             $json['error'] = 'No tasks found';
             $this->request->response = json_encode($json);
             return ;
         }
+
+        $tasks = array_merge($tasks, $planner_tasks);
+
 
         $columns = $tasks[0]->list_columns();
         foreach ($tasks as $task) {
@@ -73,6 +84,10 @@ class Controller_Tasklist extends Controller_Template {
 
             foreach ($columns as $k => $v) {
                 $json_task[$k] = $task->$k;
+            }
+
+            if ($task->due == 'plan') {
+                $json_task['plan'] = 1;
             }
 
             $json_task['followers'] = array();
@@ -93,6 +108,7 @@ class Controller_Tasklist extends Controller_Template {
             $json['tasks'][] = $json_task;
         }
         $json['pager'] = $pagination->render();
+        $json['pl_pager'] = $planner_pagination->render();
         $group_controller = new Controller_Group($this->request);
         $json = array_merge(
             $json,
@@ -309,16 +325,19 @@ class Controller_Tasklist extends Controller_Template {
         }
     }
 
-    public function before() {
-        parent::before();
-        $this->user = Auth::instance()->get_user();
-        if (!$this->user) {
-            Request::instance()->redirect('user/login');
-        }
-        $this->template->user = $this->user;
-        $this->template->model = 'tasklist';
-        $this->template->action = Request::instance()->action;
-   }
+    public function get_planner_tasks($pagination) {
+        return ORM::factory('task')
+            ->distinct(true)
+            ->join('follow_task')
+                ->on('follow_task.task_id', '=', 'tasks.id')
+            ->where('follower_id', '=', $this->user->id)
+            ->where('trash', '=', 0)
+            ->where('due', '<=', DATE_PLANNED)
+            ->limit($pagination->items_per_page)
+            ->offset($pagination->offset)
+            ->find_all()
+        ;
+    }
 
     public function search($query, $per_page) {
         require_once(APPPATH.'classes/sphinxapi.php');
@@ -336,7 +355,7 @@ class Controller_Tasklist extends Controller_Template {
 
         $this->sphinxclient = new SphinxClient();
         $this->sphinxclient->SetServer(SPHINX_HOST, SPHINX_PORT);
-        $this->sphinxclient->SetLimits($search_offset, TASKS_PER_PAGE, SPHINX_MAXRESULTS);
+        $this->sphinxclient->SetLimits($search_offset, $per_page, SPHINX_MAXRESULTS);
         //$this->sphinxclient->SetMatchMode(SPH_MATCH_EXTENDED2);
         //$this->sphinxclient->SetRankingMode(SPHINX_RANKER);
         $this->sphinxclient->SetSortMode(SPH_SORT_EXTENDED, 'status asc priority asc due asc');
@@ -360,4 +379,15 @@ class Controller_Tasklist extends Controller_Template {
         }
         return compact('count', 'tasks');
     }
+
+    public function before() {
+        parent::before();
+        $this->user = Auth::instance()->get_user();
+        if (!$this->user) {
+            Request::instance()->redirect('user/login');
+        }
+        $this->template->user = $this->user;
+        $this->template->model = 'tasklist';
+        $this->template->action = Request::instance()->action;
+   }
 }

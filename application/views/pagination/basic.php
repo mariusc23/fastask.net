@@ -1,6 +1,4 @@
 <?php
-define('PAGES_BEFORE', 5);
-define('PAGES_AFTER', 6);
 $start = $current_page - PAGES_BEFORE;
 $end = PAGES_AFTER;
 if ($start < 1) {

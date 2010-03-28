@@ -25,7 +25,7 @@ var
     , DEFAULT_NO_TASKS = $('<div class="notasks"> \
         No tasks are available. Create one using the box to the right. \
         </div>')
-    , ROW_TEMPLATE = $('<div class="row "> \
+    , ROW_TEMPLATE = $('<div class="row"> \
         <div class="td s"> \
             <input type="checkbox" class="md sh" name="status" /> \
         </div> \
@@ -33,7 +33,19 @@ var
         <div class="td text"><span class="editable"></span></div> \
         <div class="td due"><span class="editable"></span></div> \
         <div class="td del"> \
-            <a href="#" class="del-link"> </a> \
+            <a href="#"> </a> \
+            <input type="hidden" value="" name="task_id"> \
+            <input type="hidden" value="" name="user_id"> \
+        </div> \
+        <div class="td followers"><a href="#" title="sharing"></a></div> \
+        </div>')
+    , ROW_TEMPLATE_MIN = $('<div class="row-min"> \
+        <div class="td text"></div> \
+        <div class="td plan"> \
+            <a href="#"> </a> \
+        </div> \
+        <div class="td del"> \
+            <a href="#"> </a> \
             <input type="hidden" value="" name="task_id"> \
             <input type="hidden" value="" name="user_id"> \
         </div> \
@@ -101,7 +113,7 @@ $('.s input', $('#main')).live('click', function() {
 /**
  * Delete task
  */
-$('.del-link', $('#main')).live('click', function() {
+$('.del a', $('#main')).live('click', function() {
     update_row('delete', $('#main'), $(this));
     return false;
 });
@@ -155,8 +167,6 @@ function extract_data(type, t_row, target) {
 /**
  * Handles the JSON response for a row
  * @param type shortly, which column was edited
- * @param task_box jQuery object, the relevant box
- *          which contains the target
  * @param t_row jQuery object, the row edited
  * @param target jQuery object, the exact target
  * @param response JSON response
@@ -164,15 +174,15 @@ function extract_data(type, t_row, target) {
  * @param request @see jQuery.ajax documentation
  * @param t_data output of extract_data function
  */
-function dispatch_response(type, task_box, t_row, target,
+function dispatch_response(type, t_row, target,
             response, textStatus, request, t_data) {
     if (request.status != 200) {
-        dispatch_error(type, task_box, t_row, target,
+        dispatch_error(type, t_row, target,
             response, textStatus, request, t_data);
         return false;
     }
     if (type != 'text') {
-        reset_timeout(task_box);
+        reset_timeout(TASK_BOX);
     }
     switch (type) {
         case 'priority':
@@ -210,7 +220,7 @@ function dispatch_response(type, task_box, t_row, target,
             }
             update_groups(response.groups);
         case 'due':
-            finish_edit(task_box, target, response[type]);
+            finish_edit(TASK_BOX, target, response[type]);
             break;
         case 'follower_add':
         case 'follower_remove':
@@ -222,7 +232,7 @@ function dispatch_response(type, task_box, t_row, target,
 /**
  * Handles errors
  */
-function dispatch_error(type, task_box, t_row, target,
+function dispatch_error(type, t_row, target,
     response, textStatus, request, t_data) {
     switch (type) {
         case 'priority':
@@ -256,12 +266,11 @@ function dispatch_error(type, task_box, t_row, target,
 /**
  * Updating row
  * @param type = update type, one of 'priority', 'status'
- * @param task_box = defaults to $('#main') -- which box to look in
  * @param target = the target of the event
  */
-function update_row(type, task_box, target) {
+function update_row(type, target) {
     var t_row = target.parents('.row');
-    clear_timeout(task_box);
+    clear_timeout(TASK_BOX);
     if (is_loading_row(t_row)) {
         return false;
     }
@@ -278,13 +287,13 @@ function update_row(type, task_box, target) {
             set_loading_row(t_row);
         },
         error: function (response, textStatus, error) {
-            dispatch_error(type, task_box, t_row, target,
+            dispatch_error(type, t_row, target,
                 response, textStatus, error, t_data);
             unset_loading_row(t_row);
             return false;
         },
         success: function(response, textStatus, request) {
-            dispatch_response(type, task_box, t_row, target,
+            dispatch_response(type, t_row, target,
                 response, textStatus, request, t_data);
             unset_loading_row(t_row);
         }
@@ -377,8 +386,7 @@ function reset_timeout(elem) {
 function get_tasklist() {
     // reset search
     last_search_q = '';
-    var   task_box = $('#main');
-    clear_timeout(task_box);
+    clear_timeout(TASK_BOX);
 
     $.ajax({
         type: 'GET',
@@ -386,13 +394,13 @@ function get_tasklist() {
             + '&t=' + t_type,
         dataType: 'json',
         beforeSend: function() {
-            return set_loading(task_box);
+            return set_loading(TASK_BOX);
         },
         error: function (response, text_status, error) {
-            unset_loading(task_box);
+            unset_loading(TASK_BOX);
             if (response.status == 404) {
-                DEFAULT_NO_TASKS.insertBefore($('.task-table', task_box));
-                $('.task-table', task_box).html('');
+                DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
+                $('.task-table', TASK_BOX).html('');
                 return ;
             }
 
@@ -400,81 +408,110 @@ function get_tasklist() {
         },
         success: function(response, textStatus, request) {
             if (request.status == 200) {
-                build_tasklist(response, textStatus, request,
-                    task_box);
+                build_tasklist(response, textStatus, request);
             } else {
                 task_error_response(response);
             }
-            unset_loading(task_box);
+            unset_loading(TASK_BOX);
         }
     });
 }
 
-function build_tasklist(response, textStatus, request,
-    task_box) {
+function build_tasklist(response, textStatus, request) {
     // build tasklist from json
     update_groups(response.groups);
     // remove no tasks message if exists
-    $('.notasks', task_box).remove();
+    $('.notasks', TASK_BOX).remove();
 
-    task_box.children('.task-table').html('');
+    $('.task-table', TASK_BOX).html('');
+    $('.planner-table', $('.planner-box')).html('');
     var task, task_group, html_text;
     for (var i in response.tasks) {
         json_task = response.tasks[i]
-        html_task = ROW_TEMPLATE.clone();
-        if (json_task.status) {
-            html_task.children('.s').children('input')
-                .attr('checked', 'checked');
-            html_task.addClass('done');
-        }
-        html_task.children('.p')
-            .addClass('pri_' + json_task.priority);
-        if (json_task.group) {
-            task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
-                + json_task.group.id)
-                .html(json_task.group.name);
-            // for ASSIGNMENTS, not allowed to change group
+        if (json_task.plan || json_task.trash) {
+            html_task = ROW_TEMPLATE_MIN.clone();
+            if (json_task.status) {
+                html_task.addClass('done');
+            }
             html_text = html_task.children('.text');
-            if (t_type == 1) {
-                task_group.html(task_group.html() + ': ')
-                    .prependTo(html_text);
-                html_text.addClass('nogroup');
-            } else {
+            if (json_task.group) {
+                task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+                    + json_task.group.id)
+                    .html(json_task.group.name);
+                // for ASSIGNMENTS, not allowed to change group
                 task_group
-                    .prependTo(html_task.children('.text')
-                        .children('.editable')
-                    );
+                    .prependTo(html_text);
                 json_task.text = ': ' + json_task.text;
             }
-        }
-        html_task.children('.text').children('.editable')
-            .append(json_task.text);
-        html_task.children('.due').children('.editable')
-            .html(json_task.due);
-        var html_followers = FOLLOWERS_TEMPLATE.clone();
-        for (var i in json_task.followers) {
-            html_followers.find('input.u' +
-                json_task.followers[i].id).attr('checked', 'checked');
-        }
-        html_followers.appendTo(html_task.children('.followers'));
-        html_task.children('.del')
-            .children('input[name="task_id"]').val(json_task.id)
-            .end()
-            .children('input[name="user_id"]').val(json_task.user_id)
-        ;
-        html_task.appendTo(task_box.children('.task-table'));
-        if (t_type == 1 && json_task.group) {
-            html_text.find('.editable').width(
-                html_text.width() - task_group.width()
-                - ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT
-            );
+            html_text
+                .append(json_task.text);
+            html_task.children('.del')
+                .children('input[name="task_id"]').val(json_task.id)
+                .end()
+                .children('input[name="user_id"]').val(json_task.user_id)
+            ;
+            html_task.appendTo($('.planner-box').children('.planner-table'));
+        } else {
+            html_task = ROW_TEMPLATE.clone();
+            if (json_task.status) {
+                html_task.children('.s').children('input')
+                    .attr('checked', 'checked');
+                html_task.addClass('done');
+            }
+            html_task.children('.p')
+                .addClass('pri_' + json_task.priority);
+            html_text = html_task.children('.text');
+            if (json_task.group) {
+                task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+                    + json_task.group.id)
+                    .html(json_task.group.name);
+                // for ASSIGNMENTS, not allowed to change group
+                if (t_type == 1) {
+                    task_group.html(task_group.html() + ': ')
+                        .prependTo(html_text);
+                    html_text.addClass('nogroup');
+                } else {
+                    task_group
+                        .prependTo(html_task.children('.text')
+                            .children('.editable')
+                        );
+                    json_task.text = ': ' + json_task.text;
+                }
+            }
+            html_text.children('.editable')
+                .append(json_task.text);
+            html_task.children('.due').children('.editable')
+                .html(json_task.due);
+            var html_followers = FOLLOWERS_TEMPLATE.clone();
+            for (var i in json_task.followers) {
+                html_followers.find('input.u' +
+                    json_task.followers[i].id).attr('checked', 'checked');
+            }
+            html_followers.appendTo(html_task.children('.followers'));
+            html_task.children('.del')
+                .children('input[name="task_id"]').val(json_task.id)
+                .end()
+                .children('input[name="user_id"]').val(json_task.user_id)
+            ;
+            html_task.appendTo(TASK_BOX.children('.task-table'));
+            if (t_type == 1 && json_task.group) {
+                html_text.find('.editable').width(
+                    html_text.width() - task_group.width()
+                    - ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT
+                );
+            }
         }
     }
-    pager = $('.pager', task_box)
+    pager = $('.pager', TASK_BOX);
     if (pager.length > 0) {
         pager.remove();
     }
-    pager = $(response.pager).appendTo(task_box);
+    pager = $(response.pager).appendTo(TASK_BOX);
+    pager = $('.pager', $('.planner-box'));
+    if (pager.length > 0) {
+        pager.remove();
+    }
+    pager = $(response.pl_pager).appendTo($('.planner-box'));
 }
 
 /*****************************************************************************/
@@ -553,16 +590,15 @@ function get_old_text(ref) {
 }
 
 function cancel_edit_task(ref, new_text) {
-    var task_box = ref.parents('.task-box');
     var old_text = get_old_text(ref);
     if (new_text && new_text != plain_text(old_text)) {
         return false;
     }
-    finish_edit(task_box, ref, old_text);
+    finish_edit(TASK_BOX, ref, old_text);
     return true;
 }
 
-function finish_edit(task_box, ref, text) {
+function finish_edit(TASK_BOX, ref, text) {
     editable = EDITABLE_BLANK.clone().html(text);
     editable.width(ref.next().attr('rel') + 'px');
     ref.parents('.td')
@@ -570,7 +606,7 @@ function finish_edit(task_box, ref, text) {
             .remove()
             .end()
         .append(editable);
-    t_editing[task_box[0].id] = false;
+    t_editing[TASK_BOX[0].id] = false;
 }
 
 function replace_html(event) {
@@ -722,7 +758,6 @@ function get_users() {
 $('input[name="search"]').live('keyup', function () {
     search_page = 1;
     clearTimeout(search_timeout);
-    var task_box = $('#main');
     var search_val = $(this).val();
     if (search_val.length < SEARCH_MINLENGTH) {
         if (search_val.length <= 0) {
@@ -734,7 +769,7 @@ $('input[name="search"]').live('keyup', function () {
     if (last_search_q == search_val) {
         return true;
     }
-    clear_timeout(task_box);
+    clear_timeout(TASK_BOX);
 
     search_timeout = setTimeout(function() {
         do_search(search_val)
@@ -742,20 +777,19 @@ $('input[name="search"]').live('keyup', function () {
 });
 
 function do_search(search_val) {
-    var task_box = $('#main');
     $.ajax({
         type: 'GET',
         url: TASKLIST_URL + tasks_per_page + '&p=' + search_page + '&s=' + search_val,
         dataType: 'json',
         beforeSend: function() {
-            return set_loading(task_box);
+            return set_loading(TASK_BOX);
         },
         error: function (response, text_status, error) {
             last_search_q = search_val;
-            unset_loading(task_box);
+            unset_loading(TASK_BOX);
             if (response.status == 404) {
-                DEFAULT_NO_TASKS.insertBefore($('.task-table', task_box));
-                $('.task-table', task_box).html('');
+                DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
+                $('.task-table', TASK_BOX).html('');
                 return ;
             }
 
@@ -764,12 +798,11 @@ function do_search(search_val) {
         success: function(response, textStatus, request) {
             last_search_q = search_val;
             if (request.status == 200) {
-                build_tasklist(response, textStatus, request,
-                    task_box);
+                build_tasklist(response, textStatus, request);
             } else {
                 task_error_response(response);
             }
-            unset_loading(task_box);
+            unset_loading(TASK_BOX);
         }
     });
 }
@@ -866,7 +899,8 @@ $(document).ready(function() {
         </div> \
         <!-- pager? --> \
     </div><!-- /.task-box -->');
-    reset_timeout($('#main'));
+    TASK_BOX = $('#main');
+    reset_timeout(TASK_BOX);
 
     // Initialize history plugin.
     // The callback is called at once by present location.hash.

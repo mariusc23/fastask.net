@@ -14,6 +14,8 @@ var
     <div class="planner-box"> \
     <div class="loading"></div> \
     <h1 class="title">planner</h1> \
+    <div class="planner-table" cellspacing="0"> \
+    </div> \
     </div><!-- planner-box -->')
 /*-------------- VARIABLES --------------*/
 ;
