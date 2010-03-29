@@ -110,19 +110,28 @@ label {
 }
 label span.label {
     text-align: right;
-    width: 120px;
+    width: 110px;
     padding-right: 0.3em;
     display: inline-block;
 }
 
-span.info {
+span.info-icon {
+    display: inline-block;
+    width: 180px;
+    height: 20px;
+}
+span.info
+, span.icon {
+    display: none;
+}
+span.info.on {
     display: inline-block;
     width: 136px;
     text-align: left;
     margin-left: 10px;
 }
 
-span.icon {
+span.icon.on {
     background: url('/css/img/sprite.png') no-repeat -204px 0;
     display: inline-block;
     position: relative;
@@ -139,7 +148,7 @@ span.icon.valid {
 
 span.indicator {
     display: inline-block;
-    width: 194px;
+    width: 172px;
 }
 
 span.indicator {
@@ -150,11 +159,14 @@ span.s {
     background: url('/css/img/sprite.png') no-repeat -104px -31px;
     width: 20px;
     height: 20px;
-    margin: 0 6px;
+    margin: 0 12px 0 0;
     position: relative;
     top: 4px;
     padding: 0;
     display: inline-block;
+}
+span.s.s-5 {
+    margin-right: 0;
 }
 span.on.s-1 {
     background-position: -104px 0;
@@ -196,13 +208,12 @@ ul {
     position: fixed;
     top: 50%;
     left: 50%;
-    margin-left: 248px;
-    margin-top: -50px;
-    padding-top: 25px;
+    padding: 10px 20px;
     text-align: center;
-    width: 200px;
-    height: 265px;
-    margin-top: -145px;
+    width: 436px;
+    position: absolute; left: 50%; top: 50%;
+    margin-top: 160px;
+    margin-left: -238px;
     -moz-box-shadow: 1px 1px 12px #000;
     -webkit-box-shadow: 1px 1px 12px #000;
     -moz-border-radius: 16px;
@@ -210,4 +221,5 @@ ul {
     background: #f5fcf2;
     text-align: left;
     line-height: 2em;
+    list-style: none;
 }

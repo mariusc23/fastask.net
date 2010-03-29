@@ -9,7 +9,7 @@ $email = isset($_POST['email']) ? $_POST['email']
 
 <?php print Form::open('user/register', array('class' => 'register')); ?>
     <ul>
-        <li>We're still in private beta. Registration is invitation-only.</li>
+        <li>we're still in private beta, registration is invitation-only</li>
 <?php if (isset($errors)): ?>
     <?php foreach ($errors as $error): ?>
         <li><?php print ucfirst($error); ?></li>
@@ -19,17 +19,22 @@ $email = isset($_POST['email']) ? $_POST['email']
 <label for="username"><span class="label">Username:</span> <?php
     print Form::input('username', $username, array('maxlength' => 50, 'id' => "username"));
 ?>
-    <span class="icon"></span><span class="info">Letters &amp; numbers</span>
+    <span class="info-icon"><span class="icon"></span>
+        <span class="info">Letters &amp; numbers</span></span>
 </label>
 <label for="email"><span class="label">Email:</span> <?php
     print Form::input('email', $email, array('maxlength' => 255, 'id' => "email"));
 ?>
-    <span class="icon"></span><span class="info">For reminders</span>
+    <span class="info-icon">
+        <span class="icon"></span><span class="info">For reminders</span>
+    </span>
 </label>
 <label for="password"><span class="label">Password:</span> <?php
     print Form::password('password', '', array('maxlength' => 50, 'id' => "password"));
 ?>
-    <span class="icon"></span><span class="info">Case sensitive *</span>
+    <span class="info-icon">
+        <span class="icon"></span><span class="info">Case sensitive *</span>
+    </span>
 </label>
 <label class="strength"><span class="label">Strength:</span>
 <span class="indicator">
@@ -39,12 +44,16 @@ $email = isset($_POST['email']) ? $_POST['email']
     <span class="s s-4"></span>
     <span class="s s-5"></span>
 </span>
-    <span class="info">Very Weak</span>
+    <span class="info-icon">
+        <span class="info">Very Weak</span>
+    </span>
 </label>
 <label for="password_confirm"><span class="label">Password again:</span> <?php
     print Form::password('password_confirm', '', array('maxlength' => 50, 'id' => "password_confirm"));
 ?>
-    <span class="icon"></span><span class="info">Don't copy &amp; paste</span>
+    <span class="info-icon">
+        <span class="icon"></span><span class="info">Don't copy &amp; paste</span>
+    </span>
 </label>
 
 <?php

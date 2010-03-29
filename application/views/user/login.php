@@ -1,3 +1,7 @@
+<?php
+$username = isset($_POST['username']) ? $_POST['username']
+            : '';
+?>
 <div class="login" style="display: none">
 <?php if (isset($user)): ?>
 <h1><?php print $user->username; ?></h1>
@@ -15,7 +19,7 @@ if (isset($errors)) {
 }
 print '</ul>';
 print '<label for="username" id="user"><span>Username:</span> '
-    . Form::input('username', '', array('id' => 'username')) . '</label>';
+    . Form::input('username', $username, array('id' => 'username')) . '</label>';
 print '<label for="password" id="pass"><span>Password:</span> '
     . Form::password('password', '', array('id' => 'password', 'maxlength' => 50)) . '
         <br/><a href="/user/reset" id="forgot">Forgot password?</a></label>';

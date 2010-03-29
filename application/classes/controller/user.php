@@ -75,8 +75,7 @@ class Controller_User extends Controller_Template {
         if (Auth::instance()->logged_in() != 0){
             $referer = isset($this->referer) ? $this->referer
                 : URL::site('/', 'https');
-            if ($_POST) Request::instance()->redirect($referer);
-            $view->user = $this->template->user;
+            Request::instance()->redirect($referer);
         }
 
 
@@ -103,7 +102,7 @@ class Controller_User extends Controller_Template {
         Auth::instance()->logout();
         $referer = isset($this->referer) ? $this->referer
             : URL::site('user/login', 'https');
-        if ($_POST) Request::instance()->redirect($referer);
+        Request::instance()->redirect($referer);
     }
 
 
