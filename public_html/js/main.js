@@ -599,9 +599,10 @@ function build_task_json(json_task) {
     if (json_task.status) {
         html_task.children('.s').children('input')
             .attr('checked', 'checked')
-            .bind('click', handle_status);
         html_task.addClass('done');
     }
+    html_task.children('.s').children('input')
+        .bind('click', handle_status);
     html_task.children('.p')
         .addClass('pri_' + json_task.priority)
         .bind('click', handle_priority);
