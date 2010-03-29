@@ -50,24 +50,29 @@ class Controller_Tasklist extends Controller_Template {
             $pl_per_page = TASKS_PER_PAGE;
         }
 
-        $count = 0;
+        $old_t = isset($_GET['t']) ? $_GET['t'] : 0;
+        $count = array($old_t => 0);
         $tasks = array();
         if (isset($_GET['s'])) {
             extract($this->search($_GET['s'], $per_page));
         } else if (isset($_GET['ep']) && $_GET['ep']) {
-            $count = $this->get_count($_GET);
+            for ($t = 0; $t < 4; $t++) {
+                $_GET['t'] = $t;
+                $count[$t] = $this->get_count($_GET);
+            }
         }
+        $_GET['t'] = $old_t;
 
         // create pagination object
-        if ($count) {
+        if ($count[$old_t]) {
             $pagination = Pagination::factory(array(
                 'current_page'   => array('source' => 'query_string', 'key' => 'p', 'output' => 'hash'),
-                'total_items'    => $count,
+                'total_items'    => $count[$old_t],
                 'items_per_page' => $per_page,
             ));
         }
 
-        if ($count && !isset($_GET['s'])
+        if ($count[$old_t] && !isset($_GET['s'])
             && isset($_GET['ep']) && $_GET['ep']) {
             $tasks = $this->get_tasks($_GET, $pagination)->as_array();
         }
@@ -117,7 +122,7 @@ class Controller_Tasklist extends Controller_Template {
             $json_task = $task_controller->jsonify($task, $columns);
             $json['tasks'][] = $json_task;
         }
-        if ($count) {
+        if ($count[$old_t]) {
             $json['pager'] = $pagination->render();
         }
         if ($planner_count) {
@@ -127,6 +132,7 @@ class Controller_Tasklist extends Controller_Template {
             $json['tr_pager'] = $trash_pagination->render();
         }
         $group_controller = new Controller_Group($this->request);
+        $json['counts'] = $count;
         $json = array_merge(
             $json,
             $group_controller->json_groups($type)
@@ -320,9 +326,9 @@ class Controller_Tasklist extends Controller_Template {
 
         $results = $this->sphinxclient->Query(
             mb_ereg_replace('-', '\-', $search_query), SPHINX_INDEX);
-        $count = 0;
+        $count = array(0 => 0);
         if (isset($results['matches'])) {
-            $count = $results['total'];
+            $count[0] = $results['total'];
             $results = $results['matches'];
 
             $tasks = array();
@@ -332,7 +338,7 @@ class Controller_Tasklist extends Controller_Template {
                 $tasks[] = $task;
             }
         }
-        if (!$count) {
+        if (!$count[0]) {
             return array('count' => 0, 'tasks' => array());
         }
         return compact('count', 'tasks');

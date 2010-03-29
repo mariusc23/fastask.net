@@ -135,6 +135,18 @@ input[type="text"], input[type="password"] {
     float: left;
     padding: 15px;
     cursor: pointer;
+    position: relative;
+}
+
+.task-box .icon .c {
+    font-size: 8px;
+    color: #a2a2a2;
+    display: block;
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    text-align: center;
+    width: 100%;
 }
 .task-box .tabs .icon:hover
 , .task-box .tabs .icon.active {
@@ -152,6 +164,9 @@ input[type="text"], input[type="password"] {
     padding-left: 35px;
     -moz-border-radius-topleft: 16px;
     -webkit-border-top-left-radius: 16px;
+}
+.task-box .icon.my-tasks .c {
+    width: 90px;
 }
 .task-box .tabs .icon.archive {
     -moz-border-radius-bottomright: 16px;

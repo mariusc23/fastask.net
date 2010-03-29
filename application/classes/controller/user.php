@@ -73,7 +73,9 @@ class Controller_User extends Controller_Template {
         $view = $this->template->content = View::factory('user/login');
         // if user already logged in
         if (Auth::instance()->logged_in() != 0){
-            if ($_POST) Request::instance()->redirect($this->referer);
+            $referer = isset($this->referer) ? $this->referer
+                : URL::site('/', 'https');
+            if ($_POST) Request::instance()->redirect($referer);
             $view->user = $this->template->user;
         }
 
@@ -99,10 +101,9 @@ class Controller_User extends Controller_Template {
     public function action_logout() {
         // log out
         Auth::instance()->logout();
-        if (!isset($this->referer)) {
-            $this->referer = '/';
-        }
-        Request::instance()->redirect($this->referer);
+        $referer = isset($this->referer) ? $this->referer
+            : URL::site('user/login', 'https');
+        if ($_POST) Request::instance()->redirect($referer);
     }
 
 

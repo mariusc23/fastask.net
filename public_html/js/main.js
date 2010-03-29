@@ -507,6 +507,11 @@ function build_tasklist(response, textStatus, request) {
         }
         pager = $(response.pager).appendTo(TASK_BOX);
         pager.children('a').bind('click', handle_pager_main);
+
+        // update small numbers for the tabs
+        for (var k in response.counts) {
+            $('.tabs .c').eq(k).html(response.counts[k]);
+        }
     }
     if (expecting.plan) {
         pager = $('.pager', $('#plan'));
@@ -1130,10 +1135,14 @@ $(document).ready(function() {
     <div class="task-box box" id="main"> \
         <div class="loading"></div> \
         <div class="tabs"> \
-            <div class="icon my-tasks" title="my and only my tasks"><a href="#t=0"></a></div> \
-            <div class="icon assignments" title="assignments from others"><a href="#t=1"></a></div> \
-            <div class="icon command" title="command center"><a href="#t=2"></a></div> \
-            <div class="icon archive" title="self-esteem box (archive)"><a href="#t=3"></a></div> \
+            <div class="icon my-tasks" title="my and only my tasks"> \
+                <a href="#t=0"></a><span class="c"></span></div> \
+            <div class="icon assignments" title="assignments from others"> \
+                <a href="#t=1"></a><span class="c"></span></div> \
+            <div class="icon command" title="command center"> \
+                <a href="#t=2"></a><span class="c"></span></div> \
+            <div class="icon archive" title="self-esteem box (archive)"> \
+                <a href="#t=3"></a><span class="c"></span></div> \
         </div> \
         <div class="groups"><h1 class="title"><a href="#t=0">my tasks</a>\
             </h1></div> \
