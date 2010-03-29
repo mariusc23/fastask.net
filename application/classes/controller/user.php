@@ -107,9 +107,9 @@ class Controller_User extends Controller_Template {
 
 
     function action_register() {
-        // if user already logged in
+        // if user not logged in
         if (Auth::instance()->logged_in() != 0){
-            Request::instance()->redirect('user/login', 'https');
+            Request::instance()->redirect(URL::site('user/login', 'https'));
         }
         if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
             $this->request->redirect(URL::site('user/register', 'https'));
@@ -143,8 +143,195 @@ class Controller_User extends Controller_Template {
             } else {
                 // show the registration errors
                 $view->errors = $post->errors('register');
+                $this->template->title = 'Error registering';
+                return ;
             }
         }
+        $this->template->title = 'Register';
+    }
+
+    /**
+     * Update user info from profile
+     */
+    function action_update() {
+        // if user not logged in
+        $json = array('errors' => array());
+        $this->request->headers['Content-Type'] = 'application/json';
+        $this->auto_render = FALSE;
+        // must be logged in
+        if (Auth::instance()->logged_in() == 0 ||
+            !isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
+            $this->request->status = 403;
+            $json['errors'][] = 'Access denied. Must use a secure connection.';
+            $this->request->response(json_encode($json));
+            return ;
+        }
+
+        // if posted data
+        if ($_POST) {
+            $user = $this->user;
+ 
+            // validate data
+            $post = $user->validate_change($_POST);
+            $pass_check = 1;
+            if (isset($_POST['current_password'])) {
+                if (Auth::instance()->login($this->user->username,
+                    trim($_POST['current_password']))) {
+                    $pass_check = 2;
+                } else {
+                    $pass_check = 0;
+                }
+            }
+ 
+            if ($post->check() && $pass_check) {
+                // feed the data
+                $user->name = $post['name'];
+                $user->email = $post['email'];
+
+                // change password
+                if ($pass_check == 2) {
+                    $pass_array = array(
+                        'password' => trim($_POST['password']),
+                        'password_confirm' => trim($_POST['password_confirm'])
+                    );
+                    if (!$user->change_password(
+                        $pass_array,
+                        true
+                    )) {
+                        $this->request->status = 400;
+                        $json['errors'][] = 'Could not change your password. '
+                            . 'Make sure you typed it twice. Case sensitive.';
+                        $this->request->response(json_encode($json));
+                        return ;
+                    }
+                }
+                // and save it
+                if (!$user->save()) {
+                    $this->request->status = 500;
+                    $json['errors'][] = 'Failed to process your request.';
+                    $this->request->response(json_encode($json));
+                    return ;
+                }
+            } else {
+                // show the registration errors
+                $this->request->status = 400;
+                $json['errors'][] = 'Failed to process your request.';
+                $json['errors_post'] = $post->errors();
+                $this->request->response = json_encode($json);
+                return ;
+            }
+        }
+    }
+
+    /**
+     * Update user info from profile
+     */
+    function action_reset() {
+        // must be logged out
+        if (Auth::instance()->logged_in() != 0) {
+            $this->request->redirect(URL::site('/', 'https'));
+        }
+        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
+            $this->request->redirect(URL::site('user/reset', 'https'));
+        }
+        $view = $this->template->content = View::factory('user/reset');
+        $this->template->okjs = true;
+        $view->title = 'Oops!';
+
+        if (isset($_GET['code'])) {
+            // check code
+            $notification = ORM::factory('notification')
+                ->where('code', '=', $_GET['code'])
+                ->find();
+            if (!$notification->loaded()) {
+                $view->message = 'Sorry. Could not find any notification with
+                that code. If you pasted the URL, make sure you didn\'t
+                make a mistake.';
+                return;
+            }
+            $view->title = $notification->user->username;
+            $view->code = $notification->code;
+            return;
+        } elseif (isset($_POST['username']) && $_POST['username']) {
+            //generate hash code and send email
+            $user = ORM::factory('user')
+                ->where('username', '=', trim($_POST['username']))
+                ->find();
+            if (!$user->loaded()) {
+                // could not find user
+                $view->message = 'Could not find any user named ' . $_POST['username'] . '</br>
+                    Please <a href="' . URL::site('user/reset', 'https') . '">go back</a> and try again.
+                    <a href="http://craciunoiu.net/contact">Contact us</a> if you do not receive an email after 24 hours.</div>';
+                return;
+            }
+            $notification = ORM::factory('notification')
+                ->where('user_id', '=', $user->id)
+                ->where('type', '=', NOTIFICATION_PASSWORD_RESET)
+                ->find();
+            if (!$notification->loaded()) {
+                $notification = new Model_Notification();
+                $notification->user_id = $user->id;
+                $notification->type = NOTIFICATION_PASSWORD_RESET;
+                $notification->code = session_id() . sha1(rand()
+                . session_id() . rand());
+                $notification->params =  '';
+                $notification->code = session_id() . sha1(rand()
+                . session_id() . rand());
+                $notification->lastmodified = time();
+                $notification->save();
+            }
+            // send email
+            include_once(APPPATH.'config/email_reset.php');
+            mail(
+                // to
+                $user->email,
+                // subject
+                SITE_NAME . SITE_SEPARATOR
+                    . $user->username . SITE_SEPARATOR
+                    . 'password reset code',
+                // message
+                $message
+            );
+            $view->title = 'Thank you, '. $user->username;
+            $view->message = '
+                Your request has been processed.</br>
+                You should receive an email with further instructions in a moment.
+                <a href="http://craciunoiu.net/contact">Contact us</a> if you do not receive an email after 24 hours.</div>';
+            return;
+        } elseif (isset($_POST['password']) && isset($_POST['code'])) {
+            // change password
+            $pass_array = array(
+                'password' => trim($_POST['password']),
+                'password_confirm' => trim($_POST['password_confirm'])
+            );
+            $notification = ORM::factory('notification')
+                ->where('code', '=', $_POST['code'])
+                ->find();
+            if (!$notification->loaded()) {
+                $view->message = 'Sorry. Could not find any notification with
+                that code. If you pasted the URL, make sure you didn\'t
+                make a mistake.';
+                return;
+            }
+            if (!$notification->user->change_password(
+                $pass_array,
+                true
+            )) {
+                $view->message = 'Could not change your password. '
+                    . 'Make sure you typed it twice. It must be at least
+                    6 characters long and it is case sensitive. Hit back in your browser.';
+                return ;
+            }
+            Auth::instance()->login($notification->user->username, $_POST['password']);
+            $notification->delete();
+            // show their account
+            Request::instance()->redirect('/');
+        } else {
+            $view->title = '';
+            $view->start = true;
+            return;
+        }
+
     }
 
     public function before() {

@@ -30,3 +30,6 @@ define('TIMESTAMP_PLANNED', 470649600);
 
 // username validation
 define('USERNAME_REGEX', '/[a-z]{3,50}/i');
+
+// notification codes
+define('NOTIFICATION_PASSWORD_RESET', 1);

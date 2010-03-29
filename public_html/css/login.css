@@ -29,7 +29,8 @@ body {
     background: #f5fcf2;
 }
 
-div.login {
+div.login
+, div.reset {
     background: #f5fcf2;
     height: 170px; width: 280px;
     position: absolute; left: 50%; top: 50%;
@@ -56,7 +57,7 @@ input[type="text"]
     border: 1px solid #d2e8c8;
 }
 
-a {
+.login a {
     color: #8f8f8f;
     text-decoration: none;
     position: relative;
@@ -98,4 +99,57 @@ input[type="submit"] {
     -moz-border-radius-bottomright: 16px;
     -webkit-border-bottom-right-radius: 16px;
     font-family: Georgia, "Times New Roman", Times, freeserif, serif;
+}
+
+
+.user-reset .reset {
+    padding: 0 10px;
+}
+.user-reset h1 {
+    font-size: 150%;
+}
+
+.user-reset input[type="submit"] {
+    font-size: 180%;
+    cursor: pointer;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: #d2e8c8;
+    border: 0;
+    height: 50px;
+    width: 100%;
+    -moz-border-radius-bottomright: 16px;
+    -moz-border-radius-bottomleft: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+    -webkit-border-bottom-right-radius: 16px;
+    font-family: Georgia, "Times New Roman", Times, freeserif, serif;
+}
+
+.user-reset label span {
+    width: 66px;
+    display: inline-block;
+    text-align: right;
+}
+
+.user-reset .intro {
+    margin-top: 10px;
+}
+
+ul {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    padding-top: 25px;
+    text-align: center;
+    height: 145px; width: 200px;
+    margin-top: -85px;
+    margin-left: 160px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
+    background: #f5fcf2;
+    text-align: left;
+    line-height: 2em;
 }

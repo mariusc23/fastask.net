@@ -10,7 +10,9 @@ if (isset($title)) {
 <head>
 <title><?php print $title; ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<?php if ($model == 'user' && $action == 'login'): ?>
+<?php if ($model == 'user' && $action == 'reset'): ?>
+<link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
+<?php elseif ($model == 'user' && $action == 'login'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'register'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/register.css'); ?>" rel="stylesheet" media="screen" />
@@ -20,9 +22,11 @@ if (isset($title)) {
 </head>
 <body class="<?php print $model . '-' . $action; ?>">
 <div id="content" role="main">
+<?php if (!isset($okjs)): ?>
 <div class="nojs">
     You must enable javascript to use Tasklist.
 </div>
+<?php endif; ?>
 <?php print $content ?>
 </div><!-- /#content -->
 

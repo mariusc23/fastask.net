@@ -1,4 +1,9 @@
-
+<?php
+$username = isset($_POST['username']) ? $_POST['username']
+            : '';
+$email = isset($_POST['email']) ? $_POST['email']
+            : '';
+?>
 <div class="register" style="display: none">
 <h1>Register</h1>
 
@@ -11,12 +16,12 @@
     </ul>
 <?php endif; ?>
 <label for="username"><span class="label">Username:</span> <?php
-    print Form::input('username', '', array('maxlength' => 50, 'id' => "username"));
+    print Form::input('username', $username, array('maxlength' => 50, 'id' => "username"));
 ?>
     <span class="icon"></span><span class="info">Letters &amp; numbers</span>
 </label>
 <label for="email"><span class="label">Email:</span> <?php
-    print Form::input('email', '', array('maxlength' => 255, 'id' => "email"));
+    print Form::input('email', $email, array('maxlength' => 255, 'id' => "email"));
 ?>
     <span class="icon"></span><span class="info">For reminders</span>
 </label>

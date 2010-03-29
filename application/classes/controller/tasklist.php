@@ -8,6 +8,9 @@ class Controller_Tasklist extends Controller_Template {
      * Index action
      */
     public function action_index() {
+        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
+            $this->request->redirect(URL::site('/', 'https'));
+        }
         // get the content
         $view = $this->template->content = View::factory('tasklist/index');
         $view->tasks = array();

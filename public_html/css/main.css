@@ -52,7 +52,7 @@ a:hover {
     top: 50%;
     left: 50%;
     margin-left: -300px;
-    margin-top: -50px;
+    margin-top: -38px;
     padding-top: 25px;
     text-align: center;
     width: 600px;
@@ -157,7 +157,7 @@ input[type="text"], input[type="password"] {
     -webkit-border-bottom-right-radius: 16px;
 }
 .task-box .tabs .icon.assignments a {
-    background-position: -20px 0;
+    background-position: -22px 0;
     width: 17px;
 }
 .task-box .tabs .icon.command {
@@ -178,7 +178,7 @@ input[type="text"], input[type="password"] {
 }
 .task-box .tabs .icon.assignments:hover a
 , .task-box .tabs .icon.assignments.active a {
-    background-position: -20px -31px;
+    background-position: -22px -31px;
 }
 .task-box .tabs .icon.command:hover a
 , .task-box .tabs .icon.command.active a {
@@ -725,8 +725,7 @@ input[type="text"], input[type="password"] {
     top: 340px;
     left: 50%;
     margin-left: 340px;
-    height: 100%;
-    min-height: 250px;
+    min-height: 257px;
     padding: 12px;
     width: 246px;
     -moz-box-shadow: 1px 1px 12px #000;
@@ -737,6 +736,9 @@ input[type="text"], input[type="password"] {
     -webkit-border-top-right-radius: 16px;
     background: #fff;
     line-height: 1.6em;
+}
+.profile-box .loading {
+    background: #fff url('img/wait2.gif') no-repeat center;
 }
 
 .profile-box .title {
