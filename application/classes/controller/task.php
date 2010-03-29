@@ -9,9 +9,12 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return ;
         }
+        $json = array();
         if (!$_POST ||
             (!isset($_POST['add']) && !isset($_POST['plan']))) {
             $this->request->status = 400;
+            $json['errors'][] = 'Must be adding or planning.';
+            $this->request->response = json_encode($json);
             return ;
         }
         // validate data first
@@ -25,6 +28,9 @@ class Controller_Task extends Controller {
         ;
 
         if (!$post->check()) {
+            $json['errors'][] = 'Invalid data posted.';
+            $json['errors_post'][] = $post['errors'];
+            $this->request->response = json_encode($json);
             $this->request->status = 400;
             return ;
         }
@@ -33,6 +39,9 @@ class Controller_Task extends Controller {
             || (count($_POST['follower']) == 1 &&
                 !in_array($this->user->id, $_POST['follower']))
             ) {
+            $json['errors'][] = 'You must be assigned to the '
+                . 'tasks you create so you can see them.';
+            $this->request->response = json_encode($json);
             $this->request->status = 400;
             return ;
         }
@@ -128,7 +137,6 @@ class Controller_Task extends Controller {
             }
 
             if (!$this->task->add('followers', $user)) {
-                print 'z';
                 $this->request->status = 500;
                 $this->request->response = json_encode(array(
                     'error' => $user->username . 'is already following this task',

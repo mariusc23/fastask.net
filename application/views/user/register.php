@@ -8,13 +8,14 @@ $email = isset($_POST['email']) ? $_POST['email']
 <h1>Register</h1>
 
 <?php print Form::open('user/register', array('class' => 'register')); ?>
-<?php if (isset($errors)): ?>
     <ul>
+        <li>We're still in private beta. Registration is invitation-only.</li>
+<?php if (isset($errors)): ?>
     <?php foreach ($errors as $error): ?>
         <li><?php print ucfirst($error); ?></li>
     <?php endforeach; ?>
-    </ul>
 <?php endif; ?>
+    </ul>
 <label for="username"><span class="label">Username:</span> <?php
     print Form::input('username', $username, array('maxlength' => 50, 'id' => "username"));
 ?>
@@ -47,6 +48,10 @@ $email = isset($_POST['email']) ? $_POST['email']
 </label>
 
 <?php
+    // TODO: remove this
+    if (isset($_REQUEST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead'])) {
+        print Form::hidden('a06d2d1f8c394e3421286a81254d6ad6bf9c4ead', $_REQUEST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead']);
+    }
     print Form::submit('register', 'sign up');
     print Form::close();
 ?>

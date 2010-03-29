@@ -217,24 +217,8 @@ function manage_share(the_input) {
     }
 }
 
-$('.work-box .share li').live('mousedown', function (e) {
+$('.work-box .share li').live('mousedown', function () {
     var the_input = $(this).find('input');
-    if (!the_input.is(':checked') &&
-        the_input.parents('ul').find(':checked').length <= 1) {
-        the_input.attr('checked', '');
-    }
-
-    return false;
-});
-
-$('.work-box .share li span').live('mousedown', function () {
-    var the_input = $(this).prev();
-    manage_share(the_input);
-    return false;
-});
-
-$('.work-box .share li input').live('mousedown', function () {
-    var the_input = $(this);
     manage_share(the_input);
     return false;
 });

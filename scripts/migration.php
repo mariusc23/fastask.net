@@ -49,7 +49,7 @@ foreach ($rows as $row) {
 }
 echo $count . " tasks shared \n";
 
-/* get quotes */
+/* get users */
 $query = '
     SELECT user_id, login, pass, name_f, name_l
     FROM user
@@ -59,7 +59,8 @@ $statement->execute();
 $rows = $statement->fetchAll();
 
 /* migrate users */
-$statement = $db_2_link->prepare("INSERT IGNORE INTO users(id, username, pass, name_f, name_l, email, created, lastmodified)
+$statement = $db_2_link->prepare("INSERT IGNORE INTO users(id, username, password, name, email,
+        created, last_login, logins)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?);");
 
 $count = 0;
@@ -67,15 +68,29 @@ foreach ($rows as $row) {
     $count += $statement->execute(array(
         $row['user_id'],
         $row['login'],
-        $row['pass'],
-        $row['name_f'],
-        $row['name_l'],
+        '0e5d91af84642b3eb887ed068c380b239ff12cefd3',
+        $row['name_f'] . ' ' . $row['name_l'],
         'paul.craciunoiu@gmail.com',
-        date('Y-m-d H:i:s', time()),
-        date('Y-m-d H:i:s', time()),
+        time(),
+        time(),
+        0
     ));
 }
 echo $count . " users migrated \n";
+
+
+/* migrate users */
+$statement = $db_2_link->prepare("INSERT IGNORE INTO roles_users(user_id, role_id)
+    VALUES (?, ?);");
+
+$count = 0;
+foreach ($rows as $row) {
+    $count += $statement->execute(array(
+        $row['user_id'],
+        1
+    ));
+}
+echo $count . " users added to login role \n";
 
 echo "Done.\n";
 } catch (PDOException $e) {

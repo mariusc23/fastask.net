@@ -254,7 +254,7 @@ input[type="text"], input[type="password"] {
     display: block;
     list-style: none;
     padding: 0 1em;
-    margin: 0.5em 0;
+    margin: .5em 0;
     text-decoration: none;
 }
 
@@ -304,7 +304,7 @@ input[type="text"], input[type="password"] {
 }
 .task-table .row .td {
     float: left;
-    padding: 0.3em 0.5em;
+    padding: .3em .5em;
     height: 1.4em;
     margin: 0;
 }
@@ -340,7 +340,7 @@ input[type="text"], input[type="password"] {
 }
 .task-table .md {
     padding: 0;
-    margin: 0.35em 0.1em;
+    margin: .35em .1em;
 }
 .task-table .p {
     width: 12px;
@@ -389,6 +389,8 @@ input[type="text"], input[type="password"] {
     position: absolute;
     overflow: visible;
     z-index: 1;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
 }
 .loadbar .text span {
     background: url('img/loadbar.gif') no-repeat right;
@@ -457,7 +459,7 @@ input[type="text"], input[type="password"] {
 }
 .task-table .followers li {
     list-style: none;
-    padding: 0 0.25em;
+    padding: 0 .25em;
     margin: 0;
 }
 .task-table .followers li:first-child:hover {
@@ -494,7 +496,7 @@ input[type="text"], input[type="password"] {
     width: 100%;
     bottom: 0;
     list-style: none;
-    padding: 0.5em 0 0 0;
+    padding: .5em 0 0 0;
     text-align: center;
 }
 .pager li {
@@ -504,7 +506,7 @@ input[type="text"], input[type="password"] {
 .pager a, .pager span {
     text-align: center;
     display: inline-block;
-    padding: 0 0.5em;
+    padding: 0 .5em;
     margin: 0;
     text-decoration: none;
     color: #000;
@@ -541,7 +543,7 @@ input[type="text"], input[type="password"] {
 .work-box .title {
     text-align: center;
     margin: 12px auto 0 auto;
-    padding-bottom: 0.3em;
+    padding-bottom: .3em;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
@@ -549,7 +551,7 @@ input[type="text"], input[type="password"] {
 .work-box label {
     cursor: pointer;
     display: inline-block;
-    padding: 0.3em;
+    padding: .3em;
 }
 
 .work-box div.label {
@@ -634,7 +636,7 @@ input[type="text"], input[type="password"] {
     background: #eee;
 }
 .work-box .priority {
-    padding: 0.3em;
+    padding: .3em;
 }
 .work-box .priority span {
     cursor: pointer;
@@ -744,7 +746,7 @@ input[type="text"], input[type="password"] {
 .profile-box .title {
     text-align: center;
     margin: 16px auto 0 auto;
-    padding-bottom: 0.3em;
+    padding-bottom: .3em;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
@@ -753,7 +755,7 @@ input[type="text"], input[type="password"] {
     cursor: pointer;
     position: relative;
     display: inline-block;
-    padding: 0.3em;
+    padding: .3em;
 }
 
 .profile-box .info-box {
@@ -796,7 +798,7 @@ input[type="text"], input[type="password"] {
 }
 
 .profile-box .links a {
-    padding: 0.2em 1em;
+    padding: .2em 1em;
 }
 
 /*****************************************************************************/
@@ -819,7 +821,7 @@ input[type="text"], input[type="password"] {
 .planner-box .title {
     text-align: center;
     margin: 16px auto 0 auto;
-    padding-bottom: 0.3em;
+    padding-bottom: .3em;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
@@ -841,19 +843,25 @@ input[type="text"], input[type="password"] {
 
 .planner-table .row {
     clear: both;
+    padding: 0 .5em;
     height: 30px;
-    padding: 0 0.5em;
 }
 .planner-table .row .td {
     float: left;
     margin: 0;
 }
+.planner-table .row:hover {
+    padding-left: 0;
+}
 .planner-table .row:hover .text {
+    padding-left: .5em;
     background: #e9f0e6;
     height: auto;
     position: absolute;
     overflow: visible;
     z-index: 1;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
 }
 .planner-table .text {
     display: block;
@@ -912,7 +920,7 @@ input[type="text"], input[type="password"] {
 .trash-box .title {
     text-align: center;
     margin: 16px auto 0 auto;
-    padding-bottom: 0.3em;
+    padding-bottom: .3em;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
@@ -935,18 +943,24 @@ input[type="text"], input[type="password"] {
 .trash-table .row {
     clear: both;
     height: 30px;
-    padding: 0 0.5em;
+    padding: 0 .5em;
 }
 .trash-table .row .td {
     float: left;
     margin: 0;
 }
+.trash-table .row:hover {
+    padding-left: 0;
+}
 .trash-table .row:hover .text {
+    padding-left: .5em;
     background: #e9f0e6;
     height: auto;
     position: absolute;
     overflow: visible;
     z-index: 1;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-right-radius: 10px;
 }
 .trash-table .text {
     display: block;

@@ -118,7 +118,12 @@ class Controller_User extends Controller_Template {
         $view = $this->template->content = View::factory('user/register');
  
         // if posted data
-        if ($_POST) {
+        if ($_POST
+            // TODO: remove this when open registration
+            && isset($_POST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead'])
+            && $_POST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead']
+            == '401087fe3ca6f9bb9643fd32744f9ad58da7979d'
+        ) {
             $user = ORM::factory('user');
  
             // validate data

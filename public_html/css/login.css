@@ -66,6 +66,13 @@ input[type="text"]
     font-size: 80%;
 }
 
+.login ul a {
+    font-size: 100%;
+    position: static;
+    margin-left: 0;
+    top: 0;
+}
+
 #forgot {
     color: #949393;
 }
