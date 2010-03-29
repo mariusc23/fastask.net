@@ -24,7 +24,10 @@ if (isset($title)) {
 <div id="content" role="main">
 <?php if (!isset($okjs)): ?>
 <div class="nojs">
-    You must enable javascript to use Tasklist.
+    <script type="text/javascript">
+        document.write("Loading...");
+    </script>
+    <noscript>You must enable javascript to use Tasklist.</noscript>
 </div>
 <?php endif; ?>
 <?php print $content ?>

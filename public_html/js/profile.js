@@ -74,23 +74,26 @@ $('.save', PROFILE_BOX).click(function() {
     return false;
 });
 
-$('input[name="next"]', PROFILE_BOX).click(function () {
+$('.submit', PROFILE_BOX).click(function () {
     var steps = PROFILE_FORM.find('.steps').children(),
         current_step = steps.index(steps.filter('.on'))
         change_password = PROFILE_FORM
                 .find('input[name="change_password"]').val();
     if (current_step == 0) {
         $('input[name="current_password"]', PROFILE_FORM).val(change_password);
+        $('.info', PROFILE_BOX).hide();
         $('.lstep', PROFILE_BOX).html('New password: ');
     } else if (current_step == 1) {
         $(this).val('save');
         $('input[name="password"]', PROFILE_FORM).val(change_password);
+        $('.info', PROFILE_BOX).hide();
         $('.lstep', PROFILE_BOX).html('Confirm new password: ');
     } else if (current_step == 2) {
         $('input[name="password_confirm"]', PROFILE_FORM).val(change_password);
         $('.save', PROFILE_BOX).click();
         current_step = -1;
         $('.lstep', PROFILE_BOX).html('Change password: ');
+        $('.info', PROFILE_BOX).show();
     }
     $('input[name="change_password"]', PROFILE_FORM).val('');
     steps
@@ -98,6 +101,13 @@ $('input[name="next"]', PROFILE_BOX).click(function () {
         .eq(current_step + 1).addClass('on');
 
     return false;
+});
+
+$('input[name="change_password"]', PROFILE_BOX).keyup(function (e) {
+    if (e.keyCode == 13) {
+        $('.submit', PROFILE_BOX).click();
+        return false;
+    }
 });
 
 } // end init_profile

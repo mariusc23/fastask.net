@@ -1028,22 +1028,36 @@ input[type="text"], input[type="password"] {
     background-position: -266px 0;
 }
 
-/* jqModal styling */
+/*****************************************************************************/
+/*
+/* Modal window styling
+/*
+/*****************************************************************************/
 .jqmWindow {
     display: none;
     position: fixed;
-    top: 17%;
+    top: 50px;
     left: 50%;
-    margin-left: -300px;
-    width: 600px;
+    margin-left: -350px;
+    width: 250px;
     background: #eee;
     color: #333;
     border: 1px solid black;
     padding: 12px;
+    -moz-box-shadow: 1px 1px 12px #000;
+    -webkit-box-shadow: 1px 1px 12px #000;
+    -moz-border-radius: 16px;
+    -webkit-border-radius: 16px;
 }
 
 .jqmOverlay {
     background: #000;
+}
+
+.jqmClose {
+    position: absolute;
+    top: 0px;
+    right: 12px;
 }
 
 /*****************************************************************************/

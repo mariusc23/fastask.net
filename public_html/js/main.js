@@ -65,7 +65,7 @@ var
         'my tasks',
         'assignments',
         'command',
-        'self-esteem',
+        'archive',
         'search'
     ]
     , DEFAULT_TITLES = [
@@ -192,7 +192,9 @@ function dispatch_response(type, t_row, target,
             break;
         case 'status':
             if (response.status) {
-                t_row.addClass('done');
+                if (t_type != 3) {
+                    t_row.addClass('done');
+                }
             } else {
                 t_row.removeClass('done');
             }
@@ -262,7 +264,9 @@ function dispatch_error(type, t_row, target,
                 t_row.removeClass('done');
                 target.attr('checked', '');
             } else {
-                t_row.addClass('done');
+                if (t_type != 3) {
+                    t_row.addClass('done');
+                }
                 target.attr('checked', 'checked');
             }
             break;
@@ -604,7 +608,9 @@ function build_task_json(json_task) {
     if (json_task.status) {
         html_task.children('.s').children('input')
             .attr('checked', 'checked')
-        html_task.addClass('done');
+        if (t_type != 3) {
+            html_task.addClass('done');
+        }
     }
     html_task.children('.s').children('input')
         .bind('click', handle_status);
@@ -1055,7 +1061,7 @@ function task_error_ajax(response, text_status, error) {
     }
         error_html = error + '<br/>' + text_status + '<br/>' +
             response + '<br/>' + error;
-    error_html += '<a href="#" class="jqmClose">Close</a>';
+    error_html += '<a href="#" class="jqmClose">x</a>';
     $('.error_dialog').html(error_html);
     $('.error_trigger').click();
     $('.error_dialog').focus();
@@ -1065,7 +1071,7 @@ function task_error_response(response) {
     var response_arr = response.replace(/\\\"/g, '"').replace(/\\\'/g, "'").split('@#')
     var error_html = '<h2>Error: ' + response_arr[0] + '</h2>';
     if (response_arr[1]) error_html += '<pre>' + response_arr[1] + '</pre>';
-    error_html += '<a href="#" class="jqmClose">Close</a>';
+    error_html += '<a href="#" class="jqmClose">x</a>';
     $('.error_dialog').html(error_html);
     $('.error_trigger').click();
     $('.error_dialog').focus();
@@ -1126,11 +1132,10 @@ $(document).ready(function() {
      * Init
      */
     get_users();
-
     $('#content').html('\
     <a href="#" class="modal_trigger jqModal hide">Show error</a> \
     <div class="jqmWindow modal_dialog"> \
-        <a href="#" class="jqmClose">Close</a> \
+        <a href="#" class="jqmClose">x</a> \
         <div class="text"></div> \
     </div> \
     <div class="task-box box" id="main"> \
@@ -1142,7 +1147,7 @@ $(document).ready(function() {
                 <a href="#t=1"></a><span class="c"></span></div> \
             <div class="icon command" title="command center"> \
                 <a href="#t=2"></a><span class="c"></span></div> \
-            <div class="icon archive" title="self-esteem box (archive)"> \
+            <div class="icon archive" title="archive"> \
                 <a href="#t=3"></a><span class="c"></span></div> \
         </div> \
         <div class="groups"><h1 class="title"><a href="#t=0">my tasks</a>\
