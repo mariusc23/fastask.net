@@ -58,6 +58,7 @@ class Controller_Task extends Controller {
         $task->status = 0;
         $task->trash = 0;
         $task->created = time();
+        $task->num_followers = 0;
 
         $group = $this->handle_text($task, $post['text']);
         $group_arr = array();
@@ -68,17 +69,23 @@ class Controller_Task extends Controller {
             ));
         }
 
+        // use array of follower ids
+        $followers = array();
+        foreach ($_POST['follower'] as $f_id) {
+            $follower = new Model_User(intval($f_id));
+            if ($follower->loaded()) {
+                $followers[] = $follower;
+                $task->num_followers++;
+            }
+        }
+
         if (!$task->save()) {
             $this->request->status = 500;
             return ;
         }
 
-        // use array of follower ids
-        foreach ($_POST['follower'] as $f_id) {
-            $follower = new Model_User(intval($f_id));
-            if ($follower->loaded()) {
-                $task->add('followers', $follower);
-            }
+        foreach ($followers as $follower) {
+            $task->add('followers', $follower);
         }
 
         $group_controller = new Controller_Group($this->request);
@@ -121,6 +128,7 @@ class Controller_Task extends Controller {
             }
 
             if (!$this->task->add('followers', $user)) {
+                print 'z';
                 $this->request->status = 500;
                 $this->request->response = json_encode(array(
                     'error' => $user->username . 'is already following this task',
@@ -129,7 +137,7 @@ class Controller_Task extends Controller {
             } else {
                 $this->task->num_followers++;
                 // save it
-                if (!$this->task->save($this->id)) {
+                if (!$this->task->save()) {
                     $this->request->status = 500;
                     return ;
                 }
@@ -312,6 +320,7 @@ class Controller_Task extends Controller {
             return ;
         }
         $this->task->due = Model_Task::format_due_in($_POST['due']);
+        $this->task->planned = ($this->task->due < TIMESTAMP_PLANNED) ? 1 : 0;
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
@@ -322,6 +331,7 @@ class Controller_Task extends Controller {
         $this->request->response = json_encode(array(
             'due' => $this->task->due,
             'due_out' => $due_out,
+            'planned' => $this->task->planned,
         ));
     }
 
@@ -392,8 +402,8 @@ class Controller_Task extends Controller {
                     $this->request->status = 500;
                     return ;
                 }
+                $group->num_tasks++;
             }
-            $group->num_tasks++;
 
             if (!$group->save()) {
                 $this->request->status = 500;

@@ -111,39 +111,6 @@ var
 /*****************************************************************************/
 
 /**
- * Changing task priority
- */
-$('.p', $('#main')).live('click', function() {
-    update_row('priority', $(this));
-    return false;
-});
-
-/**
- * Changing task status
- */
-$('.s input', $('#main')).live('click', function() {
-    update_row('status', $(this));
-});
-
-/**
- * Delete task
- * #main, #plan, #trash
- */
-$('.del a', $('#main')).live('click', function() {
-    update_row('delete', $(this));
-    return false;
-});
-$('.del a', $('#plan')).live('click', function() {
-    update_row('delete', $(this));
-    return false;
-});
-$('.del a', $('#trash')).live('click', function() {
-    update_row('undelete', $(this));
-    return false;
-});
-
-
-/**
  * Extracts data from a row
  */
 function extract_data(type, t_row, target) {
@@ -267,7 +234,12 @@ function dispatch_response(type, t_row, target,
                 response.text = group.html() + ': ' + response.text;
             }
             update_groups(response.groups);
+            finish_edit(TASK_BOX, target, response.text);
+            break;
         case 'due':
+            if (response.planned) {
+                reset_timeout($('#plan'));
+            }
             finish_edit(TASK_BOX, target, response.due_out);
             break;
         case 'follower_add':
@@ -384,56 +356,6 @@ function unset_loading(elem) {
 
 
 /**
- * Changing tabs
- */
-$('.tabs a', $('#main')).live('click', function () {
-    var type = parseInt(get_url_param('t', $(this).attr('href')));
-    url_update_hash('t', type);
-    return false;
-});
-
-/**
- * Task Box Pager updates the url hash
- * Parameter: p
- */
-$('.pager a', $('#main')).live('click', function() {
-    var page = parseInt(get_url_param('p', $(this).attr('href')));
-    if (last_search_q.length > 0) {
-        search_page = page;
-        do_search(last_search_q);
-        last_search_q = search_val;
-    } else {
-        url_update_hash('p', page);
-    }
-    return false;
-});
-
-
-/**
- * Planner/Trash Pager updates the url hash
- * Parameter: u
- */
-$('.pager a', $('#plan')).live('click', function() {
-    var page = parseInt(get_url_param('u', $(this).attr('href')));
-    url_update_hash('u', page);
-    return false;
-});
-$('.pager a', $('#trash')).live('click', function() {
-    var page = parseInt(get_url_param('v', $(this).attr('href')));
-    url_update_hash('v', page);
-    return false;
-});
-
-/**
- * Groups update the url hash
- */
-$('.groups a').live('click', function() {
-    var group = parseInt(get_url_param('g', $(this).attr('href')));
-    url_update_hash('g', group, true);
-    return false;
-});
-
-/**
  * Timeouts helpers
  */
 function clear_timeout(elem) {
@@ -446,9 +368,7 @@ function clear_timeout(elem) {
 function reset_timeout(elem) {
     clear_timeout(elem);
     var id = elem[0].id;
-    if (!t_editing[id]) {
-        expecting[id] = 1;
-    }
+    expecting[id] = 1;
     tasklist_timeout = setTimeout(function() {
         get_tasklist();
     }, TASKLIST_TIMEOUT);
@@ -564,7 +484,8 @@ function build_tasklist(response, textStatus, request) {
             if (response.tasks[i].trash) {
                 html_task.appendTo($('#trash').children('.trash-table'));
             } else {
-                html_task.children().eq(1).addClass('plan');
+                html_task.children().eq(1).addClass('plan')
+                    .bind('click', handle_plan_action);
                 html_task.appendTo($('#plan').children('.planner-table'));
             }
         } else {
@@ -585,6 +506,7 @@ function build_tasklist(response, textStatus, request) {
             pager.remove();
         }
         pager = $(response.pager).appendTo(TASK_BOX);
+        pager.children('a').bind('click', handle_pager_main);
     }
     if (expecting.plan) {
         pager = $('.pager', $('#plan'));
@@ -592,6 +514,7 @@ function build_tasklist(response, textStatus, request) {
             pager.remove();
         }
         pager = $(response.pl_pager).appendTo($('#plan'));
+        pager.children('a').bind('click', handle_pager_plan);
     }
     if (expecting.trash) {
         pager = $('.pager', $('#trash'));
@@ -599,8 +522,43 @@ function build_tasklist(response, textStatus, request) {
             pager.remove();
         }
         pager = $(response.tr_pager).appendTo($('#trash'));
+        pager.children('a').bind('click', handle_pager_trash);
     }
 }
+
+
+/**
+ * Task Box Pager updates the url hash
+ * Parameter: p
+ */
+function handle_pager_main(e) {
+    var page = parseInt(get_url_param('p', $(this).attr('href')));
+    if (last_search_q.length > 0) {
+        search_page = page;
+        do_search(last_search_q);
+        last_search_q = search_val;
+    } else {
+        url_update_hash('p', page);
+    }
+    return false;
+}
+
+/**
+ * Planner/Trash Pager updates the url hash
+ * Parameter: u
+ */
+function handle_pager_plan(e) {
+    var page = parseInt(get_url_param('u', $(this).attr('href')));
+    url_update_hash('u', page);
+    return false;
+}
+
+function handle_pager_trash(e) {
+    var page = parseInt(get_url_param('v', $(this).attr('href')));
+    url_update_hash('v', page);
+    return false;
+}
+
 
 function build_task_json_min(json_task) {
     var task, task_group, html_text;
@@ -625,6 +583,13 @@ function build_task_json_min(json_task) {
         .end()
         .children('input[name="user_id"]').val(json_task.user_id)
     ;
+    if (json_task.trash) {
+        html_task.children('.del')
+            .bind('click', handle_undelete);
+    } else {
+        html_task.children('.del')
+            .bind('click', handle_delete);
+    }
     return html_task;
 }
 
@@ -633,11 +598,13 @@ function build_task_json(json_task) {
     html_task = ROW_TEMPLATE.clone();
     if (json_task.status) {
         html_task.children('.s').children('input')
-            .attr('checked', 'checked');
+            .attr('checked', 'checked')
+            .bind('click', handle_status);
         html_task.addClass('done');
     }
     html_task.children('.p')
-        .addClass('pri_' + json_task.priority);
+        .addClass('pri_' + json_task.priority)
+        .bind('click', handle_priority);
     html_text = html_task.children('.text');
     if (json_task.group) {
         task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
@@ -657,30 +624,65 @@ function build_task_json(json_task) {
         }
     }
     html_text.children('.editable')
-        .append(json_task.text);
+        .append(json_task.text)
+        .bind('click', replace_html)
+        .children('a').bind('click', handle_editable_click);
+
     html_task.children('.due').children('.editable')
-        .html(json_task.due_out);
+        .html(json_task.due_out)
+        .bind('click', replace_html);
     var html_followers = FOLLOWERS_TEMPLATE.clone();
     for (var i in json_task.followers) {
         html_followers.find('input.u' +
             json_task.followers[i].id).attr('checked', 'checked');
     }
-    html_followers.appendTo(html_task.children('.followers'));
+    html_followers.appendTo(html_task.children('.followers'))
+        .find('input').bind('click', handle_follow_action);
     html_task.children('.del')
         .children('input[name="task_id"]').val(json_task.id)
         .end()
         .children('input[name="user_id"]').val(json_task.user_id)
+        .end()
+        .children('a').bind('click', handle_delete);
     ;
     return html_task;
 }
+
+/**
+ * Changing task priority
+ */
+function handle_priority(e) {
+    update_row('priority', $(this));
+    return false;
+}
+
+/**
+ * Changing task status
+ */
+function handle_status(e) {
+    update_row('status', $(this));
+}
+
+/**
+ * Delete task
+ * #main, #plan, #trash
+ */
+function handle_delete(e) {
+    update_row('delete', $(this));
+    return false;
+}
+
+function handle_undelete(e) {
+    update_row('undelete', $(this));
+    return false;
+}
+
 
 /*****************************************************************************/
 /*
 /* EDITABLE FIELDS
 /*
 /*****************************************************************************/
-$('.editable').live('click', replace_html);
-
 /* enter/escape actions inside form */
 $('form.inplace input').live('keydown', function(e) {
     if (e.keyCode == 13) {
@@ -761,6 +763,7 @@ function cancel_edit_task(ref, new_text) {
 function finish_edit(TASK_BOX, ref, text) {
     editable = EDITABLE_BLANK.clone().html(text);
     editable.width(ref.next().attr('rel') + 'px');
+    editable.bind('click', replace_html);
     ref.parents('.td')
         .children('form.inplace')
             .remove()
@@ -808,7 +811,7 @@ function plain_text(text) {
 /* GROUP MANAGEMENT
 /*
 /*****************************************************************************/
-$('.editable a').live('click', function (e) {
+function handle_editable_click(e) {
     if ($(this).hasClass('g')) {
         var id = $(this).attr('href').substr(3);
         url_update_hash('g', id, true);
@@ -817,7 +820,7 @@ $('.editable a').live('click', function (e) {
         window.location.href = $(this).attr('href');
         return false;
     }
-});
+}
 
 $('.title a', $('#main')).live('click', function () {
     url_update_hash('p', 1, true);
@@ -861,7 +864,18 @@ function update_groups(groups) {
         template.append(html_g);
     }
     template.appendTo($('.groups', $('#main')));
+    $('.groups a').bind('click', handle_change_group);
 }
+
+/**
+ * Groups update the url hash
+ */
+function handle_change_group(e) {
+    var group = parseInt(get_url_param('g', $(this).attr('href')));
+    url_update_hash('g', group, true);
+    return false;
+}
+
 
 
 /*****************************************************************************/
@@ -872,13 +886,13 @@ function update_groups(groups) {
 /**
  * Share with someone else
  */
-$('.followers input', $('#main')).live('click', function() {
+function handle_follow_action(e) {
     if ($(this).is(':checked')) {
         update_row('follower_remove', $(this));
     } else {
         update_row('follower_add', $(this));
     }
-});
+}
 
 /**
  * Gets and builds the list of users in JSON
@@ -917,7 +931,7 @@ function get_users() {
 /* SEARCHING
 /*
 /*****************************************************************************/
-$('input[name="search"]').live('keyup', function () {
+function handle_search_action(e) {
     search_page = 1;
     clearTimeout(search_timeout);
     var search_val = $(this).val();
@@ -935,7 +949,7 @@ $('input[name="search"]').live('keyup', function () {
     search_timeout = setTimeout(function() {
         do_search(search_val)
     }, SEARCH_TIMEOUT);
-});
+}
 
 function do_search(search_val) {
     if (undefined == search_val ||
@@ -949,11 +963,13 @@ function do_search(search_val) {
         ,
         dataType: 'json',
         beforeSend: function() {
+            $('.search .search-s').show();
             return set_loading(TASK_BOX);
         },
         error: function (response, text_status, error) {
             last_search_q = search_val;
             unset_loading(TASK_BOX);
+            $('.search .search-s').hide();
             if (response.status == 404) {
                 $('.task-table', $('#main')).html('');
                 DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
@@ -981,6 +997,7 @@ function do_search(search_val) {
             } else {
                 task_error_response(response);
             }
+            $('.search .search-s').show();
             unset_loading(TASK_BOX);
         }
     });
@@ -991,7 +1008,7 @@ function do_search(search_val) {
 /* PLANNER
 /*
 /*****************************************************************************/
-$('.plan a', $('#plan')).live('click', function (e) {
+function handle_plan_action(e) {
     var target = $(this);
     if (e.shiftKey) {
         $('.modal_dialog .text').html('Type date and press ENTER or TAB: \
@@ -1010,7 +1027,7 @@ $('.plan a', $('#plan')).live('click', function (e) {
     }
     update_row('plan', target);
     return false;
-});
+}
 
 /*****************************************************************************/
 /*
@@ -1131,6 +1148,15 @@ $(document).ready(function() {
         <!-- pager? --> \
     </div><!-- /.task-box -->');
     TASK_BOX = $('#main');
+    $('input[name="search"]').bind('keyup', handle_search_action);
+    /**
+    * Changing tabs
+    */
+    $('.tabs a', $('#main')).click(function () {
+        var type = parseInt(get_url_param('t', $(this).attr('href')));
+        url_update_hash('t', type);
+        return false;
+    });
     tasklist_refresh_timeout = setInterval(refresh_all, REFRESH_TIMEOUT);
 
     // Initialize history plugin.
