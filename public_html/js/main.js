@@ -233,7 +233,7 @@ function dispatch_response(type, t_row, target,
         case 'undelete':
             t_row.fadeOut('slow', function() {
                 $(this).remove();
-                if (response.task.plan) {
+                if (response.task.planned) {
                     reset_timeout($('#plan'));
                 } else {
                     reset_timeout(TASK_BOX);
@@ -249,7 +249,7 @@ function dispatch_response(type, t_row, target,
             });
             break;
         case 'plan':
-            if (response.plan) {
+            if (response.planned) {
                 break;
             }
             t_row.fadeOut('slow', function() {
@@ -507,8 +507,15 @@ function get_tasklist() {
                 unset_loading($('#trash'));
             }
             if (response.status == 404) {
+                $('.title', $('#main'))
+                    .html(DEFAULT_TITLES[t_type]);
+                ;
                 DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
                 $('.task-table', TASK_BOX).html('');
+                $('.tabs .icon', $('#main'))
+                    .removeClass('active')
+                    .eq(t_type).addClass('active')
+                ;
                 return ;
             }
             return false;
@@ -552,13 +559,13 @@ function build_tasklist(response, textStatus, request) {
         $('.task-table', TASK_BOX).html('');
     }
     for (var i in response.tasks) {
-        if (response.tasks[i].plan || response.tasks[i].trash) {
+        if (response.tasks[i].planned || response.tasks[i].trash) {
             html_task = build_task_json_min(response.tasks[i]);
-            if (response.tasks[i].plan) {
+            if (response.tasks[i].trash) {
+                html_task.appendTo($('#trash').children('.trash-table'));
+            } else {
                 html_task.children().eq(1).addClass('plan');
                 html_task.appendTo($('#plan').children('.planner-table'));
-            } else {
-                html_task.appendTo($('#trash').children('.trash-table'));
             }
         } else {
             html_task = build_task_json(response.tasks[i]);
@@ -883,7 +890,7 @@ function get_users() {
         dataType: 'json',
         async: false,
         error: function (response, text_status, error) {
-            alert('Error getting users.')
+            console.log('Error getting users.');
             return false;
         },
         success: function(response, textStatus, request) {
@@ -1124,7 +1131,7 @@ $(document).ready(function() {
         <!-- pager? --> \
     </div><!-- /.task-box -->');
     TASK_BOX = $('#main');
-    tasklist_refresh_timeout = setInterval(get_tasklist, REFRESH_TIMEOUT);
+    tasklist_refresh_timeout = setInterval(refresh_all, REFRESH_TIMEOUT);
 
     // Initialize history plugin.
     // The callback is called at once by present location.hash.

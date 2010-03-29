@@ -64,7 +64,7 @@ class Controller_Tasklist extends Controller_Template {
             ));
         }
 
-        if (!isset($_GET['s'])
+        if ($count && !isset($_GET['s'])
             && isset($_GET['ep']) && $_GET['ep']) {
             $tasks = $this->get_tasks($_GET, $pagination)->as_array();
         }
@@ -144,7 +144,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', TIMESTAMP_PLANNED)
+                ->where('planned', '=', 0)
                 ->where('group_id','=', $g_id)
                 ->execute()->get('count');
             ;
@@ -159,14 +159,8 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '!=', $this->user->id)
                         ->where('follower_id', '=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', TIMESTAMP_PLANNED)
-                        ->and_where_open()
-                            ->where('status', '=', 0)
-                            ->or_where_open()
-                                ->where('status', '=', 1)
-                                ->where('lastmodified', '>', $yesterday)
-                            ->or_where_close()
-                        ->and_where_close()
+                        ->where('planned', '=', 0)
+                        ->where('status', '=', 0)
                         ->execute()->get('count');
                 case 2:
                     // command center, my tasks assigned to others
@@ -177,14 +171,8 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '=', $this->user->id)
                         ->where('follower_id', '!=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', TIMESTAMP_PLANNED)
-                        ->and_where_open()
-                            ->where('status', '=', 0)
-                            ->or_where_open()
-                                ->where('status', '=', 1)
-                                ->where('lastmodified', '>', $yesterday)
-                            ->or_where_close()
-                        ->and_where_close()
+                        ->where('planned', '=', 0)
+                        ->where('status', '=', 0)
                         ->execute()->get('count');
                 case 3:
                     // archive
@@ -209,14 +197,8 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', TIMESTAMP_PLANNED)
-                ->and_where_open()
-                    ->where('status', '=', 0)
-                    ->or_where_open()
-                        ->where('status', '=', 1)
-                        ->where('lastmodified', '>', $yesterday)
-                    ->or_where_close()
-                ->and_where_close()
+                ->where('planned', '=', 0)
+                ->where('status', '=', 0)
                 ->execute()->get('count');
         }
     }
@@ -234,7 +216,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', TIMESTAMP_PLANNED)
+                ->where('planned', '=', 0)
                 ->where('group_id','=', $g_id)
                 ->order_by('status','asc')
                 ->order_by('priority','asc')
@@ -253,14 +235,8 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '!=', $this->user->id)
                         ->where('follower_id', '=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', TIMESTAMP_PLANNED)
-                        ->and_where_open()
-                            ->where('status', '=', 0)
-                            ->or_where_open()
-                                ->where('status', '=', 1)
-                                ->where('lastmodified', '>', $yesterday)
-                            ->or_where_close()
-                        ->and_where_close()
+                        ->where('planned', '=', 0)
+                        ->where('status', '=', 0)
                         ->order_by('status','asc')
                         ->order_by('priority','asc')
                         ->order_by('due','asc')
@@ -276,14 +252,8 @@ class Controller_Tasklist extends Controller_Template {
                         ->where('user_id', '=', $this->user->id)
                         ->where('follower_id', '!=', $this->user->id)
                         ->where('trash', '=', 0)
-                        ->where('due', '>', TIMESTAMP_PLANNED)
-                        ->and_where_open()
-                            ->where('status', '=', 0)
-                            ->or_where_open()
-                                ->where('status', '=', 1)
-                                ->where('lastmodified', '>', $yesterday)
-                            ->or_where_close()
-                        ->and_where_close()
+                        ->where('planned', '=', 0)
+                        ->where('status', '=', 0)
                         ->order_by('status','asc')
                         ->order_by('priority','asc')
                         ->order_by('due','asc')
@@ -318,14 +288,8 @@ class Controller_Tasklist extends Controller_Template {
                     ->on('follow_task.task_id', '=', 'tasks.id')
                 ->where('trash', '=', 0)
                 ->where('follower_id', '=', $this->user->id)
-                ->where('due', '>', TIMESTAMP_PLANNED)
-                ->and_where_open()
-                    ->where('status', '=', 0)
-                    ->or_where_open()
-                        ->where('status', '=', 1)
-                        ->where('lastmodified', '>', $yesterday)
-                    ->or_where_close()
-                ->and_where_close()
+                ->where('planned', '=', 0)
+                ->where('status', '=', 0)
                 ->order_by('status','asc')
                 ->order_by('priority','asc')
                 ->order_by('due','asc')
@@ -349,7 +313,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->where('follower_id', '=', $this->user->id)
                     ->where('trash', '=', 0)
                     ->where('status', '=', 0)
-                    ->where('due', '<=', TIMESTAMP_PLANNED)
+                    ->where('planned', '=', 1)
                     ->execute()->get('count');
             case 'trash':
                 return DB::select(DB::expr('COUNT(id) AS count'))
@@ -376,7 +340,8 @@ class Controller_Tasklist extends Controller_Template {
                     ->where('follower_id', '=', $this->user->id)
                     ->where('trash', '=', 0)
                     ->where('status', '=', 0)
-                    ->where('due', '<=', TIMESTAMP_PLANNED)
+                    ->where('planned', '=', 1)
+                    ->order_by('status', 'asc')
                     ->order_by('priority', 'asc')
                     ->limit($pagination->items_per_page)
                     ->offset($pagination->offset)
@@ -415,9 +380,9 @@ class Controller_Tasklist extends Controller_Template {
         $this->sphinxclient->SetLimits($search_offset, $per_page, SPHINX_MAXRESULTS);
         //$this->sphinxclient->SetMatchMode(SPH_MATCH_EXTENDED2);
         //$this->sphinxclient->SetRankingMode(SPHINX_RANKER);
-        $this->sphinxclient->SetSortMode(SPH_SORT_EXTENDED, 'status asc priority asc due asc');
+        $this->sphinxclient->SetSortMode(SPH_SORT_EXTENDED, 'status asc priority asc planned asc due asc');
         $this->sphinxclient->SetArrayResult(true);
-        //$this->sphinxclient->SetFilter('followers', array($this->user->id));
+        $this->sphinxclient->SetFilter('followers', array($this->user->id));
 
         $results = $this->sphinxclient->Query(
             mb_ereg_replace('-', '\-', $search_query), SPHINX_INDEX);

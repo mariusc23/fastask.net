@@ -14,7 +14,7 @@ class Model_Task extends ORM {
     }
 
     public static function format_task(&$task, $user) {
-        $task->due_out = self::format_due_out($task->due);
+        $task->due_out = self::format_due_out($task);
         $task->text = self::format_text_out($task, $user);
     }
 
@@ -28,7 +28,11 @@ class Model_Task extends ORM {
         return $data;
     }
 
-    public static function format_due_out($t_unix_date) {
+    public static function format_due_out($task) {
+        if ($task->planned) {
+            return 'plan';
+        }
+        $t_unix_date = $task->due;
         $t_now = time();
         $span = Date::span($t_unix_date, $t_now);
 
@@ -47,26 +51,29 @@ class Model_Task extends ORM {
             if ($span2[$i] > 0) break;
         }
         // $highest = $i;
-        if ($t_unix_date < TIMESTAMP_PLANNED) {
-            $difference = 'plan';
-        } elseif ($i > 5) {
+        if ($i > 5) {
+            // output: {years}yr{months}mo
             $difference .= "{$span2[$i]}yr{$span2[$i-1]}mo";
         } elseif ($i > 4) {
+            // output: {months}mo
             $difference .= "{$span2[$i]}mo";
         } elseif ($i > 3) {
-            // weeks to days
+            // weeks
             $days = $span2[$i] * 7 + $span2[$i-1];
+            // output: {days}:{hours}
             $difference .= "{$days}:{$span2[$i-2]}";
         } elseif ($i > 2) {
-            // days
-            //$difference .= $span2[$i] . ':' . $span2[$i-1];
+            // day of the week
             if ($t_unix_date < $t_now) {
                 $difference = 'last ';
             }
+            // [last] {DOTW}
             $difference .= date('D', $t_unix_date);
         } elseif ($i > 1) {
-            $difference .= $span2[$i];
-        } elseif ($i > 1) {
+            // output: {hours}
+            $difference .= "{$span2[$i]}h";
+        } elseif ($i > 0) {
+            // output: mins [ago]
             $difference = 'mins';
             if ($t_unix_date < $t_now) {
                 $difference .= ' ago';

@@ -81,6 +81,12 @@ function url_update_hash(param, val, erase_page) {
     if ((undefined !== params.g && params.g != t_group) || 
         (undefined !== params.t && params.t != t_type)) {
         params.p = 1;
+        if (undefined !== params.t && params.t != t_type) {
+            delete params.g;
+        }
+        if (undefined !== params.g && params.g != t_group) {
+            delete params.t;
+        }
     }
     // collapse params to string
     for (var i in params) {

@@ -51,6 +51,7 @@ class Controller_Task extends Controller {
         } else {
             $task->due = Model_Task::format_due_in(trim($_POST['due']));
         }
+        $task->planned = ($task->due < TIMESTAMP_PLANNED) ? 1 : 0;
 
         $task->priority = $post['priority'];
         $task->user_id = $this->user->id;
@@ -84,7 +85,7 @@ class Controller_Task extends Controller {
         $task->reload();
         $this->task = $task;
         $json = array_merge($group_arr,
-            array('id' => $this->task->id),
+            array('id' => $this->task->id, 'planned' => $this->task->planned),
             $group_controller->json_groups($type)
         );
         $this->request->response = json_encode($json);
@@ -283,20 +284,19 @@ class Controller_Task extends Controller {
             $due = $_POST['due'];
             $this->task->due = Model_Task::format_due_in($due);
         }
+        $this->task->planned = ($this->task->due < TIMESTAMP_PLANNED) ? 1 : 0;
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
         // reload the task
         $this->task->reload();
-        $due_out = Model_Task::format_due_out($this->task->due);
+        $due_out = Model_Task::format_due_out($this->task);
         $json = array(
             'due' => $this->task->due,
             'due_out' => $due_out,
         );
-        if ($due_out == 'plan') {
-            $json['plan'] = 1;
-        }
+        $json['planned'] = $this->task->planned;
         $this->request->response = json_encode($json);
     }
 
@@ -318,7 +318,7 @@ class Controller_Task extends Controller {
         }
         // reload the task
         $this->task->reload();
-        $due_out = Model_Task::format_due_out($this->task->due);
+        $due_out = Model_Task::format_due_out($this->task);
         $this->request->response = json_encode(array(
             'due' => $this->task->due,
             'due_out' => $due_out,
@@ -345,8 +345,6 @@ class Controller_Task extends Controller {
 
         if ($task->trash == 1) {
             $json_task['trash'] = 1;
-        } elseif ($task->due < TIMESTAMP_PLANNED) {
-            $json_task['plan'] = 1;
         }
 
         $json_task['followers'] = array();
