@@ -36,11 +36,8 @@ class Controller_Task extends Controller {
         }
 
         if (!$_POST['follower'] || !is_array($_POST['follower'])
-            || (count($_POST['follower']) == 1 &&
-                !in_array($this->user->id, $_POST['follower']))
-            ) {
-            $json['errors'][] = 'You must be assigned to the '
-                . 'tasks you create so you can see them.';
+            || (count($_POST['follower']) == 0)) {
+            $json['errors'][] = 'Someone must be assigned to this task.';
             $this->request->response = json_encode($json);
             $this->request->status = 400;
             return ;
