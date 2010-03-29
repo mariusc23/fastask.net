@@ -27,7 +27,7 @@ var
             <input type="hidden" name="current_password" value="" /> \
             <input type="hidden" name="password" value="" /> \
             <input type="hidden" name="password_confirm" value="" /> \
-            <input type="submit" name="next" value="next" /> \
+            <a class="submit">next</a> \
             <span class="info-box"> \
                 <span class="info">Enter current password.</span> \
                 <span class="steps"><span class="on" href="#">1</span> &rsaquo; \

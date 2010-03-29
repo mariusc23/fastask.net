@@ -134,6 +134,7 @@ input[type="text"], input[type="password"] {
     background: url('/css/img/menu-bg.png') repeat-x;
     float: left;
     padding: 15px;
+    cursor: pointer;
 }
 .task-box .tabs .icon:hover
 , .task-box .tabs .icon.active {
@@ -527,8 +528,8 @@ input[type="text"], input[type="password"] {
     top: 0;
     left: 50%;
     margin-left: 340px;
-    height: 300px;
-    min-height: 300px;
+    height: 310px;
+    min-height: 310px;
     padding: 12px;
     width: 246px;
     -moz-box-shadow: 1px 1px 12px #000;
@@ -571,11 +572,14 @@ input[type="text"], input[type="password"] {
 , .work-box .share {
     position: relative;
 }
+.work-box .due {
+    top: -3px;
+}
 .work-box .due-icon {
     position: absolute;
     display: block;
     background: url('/css/img/sprite.png') no-repeat -302px 0;
-    bottom: 9px;
+    bottom: 8px;
     left: 102px;
     width: 14px;
     height: 14px;
@@ -587,7 +591,7 @@ input[type="text"], input[type="password"] {
     background: url('/css/img/sprite.png') no-repeat -244px 0;
     width: 10px;
     height: 13px;
-    bottom: 6px;
+    bottom: 8px;
     right: 2px;
     padding: 0;
     z-index: 1500;
@@ -626,7 +630,7 @@ input[type="text"], input[type="password"] {
     line-height: 1.45em;
     height: 18px;
     overflow: hidden;
-    top: 4px;
+    top: 2px;
     position: relative;
 }
 .work-box .share:hover ul {
@@ -635,8 +639,9 @@ input[type="text"], input[type="password"] {
 .work-box .share input[type="text"] {
     background: #eee;
 }
-.work-box .priority {
+.work-box .priority > span:first-child {
     padding: .3em;
+    cursor: default;
 }
 .work-box .priority span {
     cursor: pointer;
@@ -682,7 +687,7 @@ input[type="text"], input[type="password"] {
     position: absolute;
     bottom: 14px;
     left: 14px;
-    background: url('/css/img/sprite.png') no-repeat -316px 0;
+    background: url('/css/img/sprite.png') no-repeat -317px 0;
     border: 0;
     text-indent: -9999px;
     cursor: pointer;
@@ -690,14 +695,14 @@ input[type="text"], input[type="password"] {
     height: 31px;
 }
 .work-box input[name="add"]:hover {
-    background-position: -316px -31px;
+    background-position: -317px -31px;
 }
 .work-box input[name="plan"] {
     display: block;
     position: absolute;
     bottom: 14px;
     left: 138px;
-    background: url('/css/img/sprite.png') no-repeat -440px 0;
+    background: url('/css/img/sprite.png') no-repeat -441px 0;
     border: 0;
     text-indent: -9999px;
     cursor: pointer;
@@ -705,7 +710,7 @@ input[type="text"], input[type="password"] {
     height: 31px;
 }
 .work-box input[name="plan"]:hover {
-    background-position: -440px -31px;
+    background-position: -441px -31px;
 }
 
 .work-box .clear {
@@ -778,10 +783,13 @@ input[type="text"], input[type="password"] {
     width: 188px;
 }
 
-.profile-box input[type="submit"] {
+.profile-box .submit {
     cursor: pointer;
+    display: block;
+    text-align: center;
     position: absolute;
-    top: 1.6em;
+    color: #000;
+    top: 23px;
     right: -40px;
     background: #d2e8c8;
     border: 0;

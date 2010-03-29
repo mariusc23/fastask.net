@@ -1150,8 +1150,8 @@ $(document).ready(function() {
     /**
     * Changing tabs
     */
-    $('.tabs a', $('#main')).click(function () {
-        var type = parseInt(get_url_param('t', $(this).attr('href')));
+    $('.tabs .icon', $('#main')).click(function () {
+        var type = parseInt(get_url_param('t', $(this).children('a').attr('href')));
         url_update_hash('t', type);
         return false;
     });
