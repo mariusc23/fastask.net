@@ -631,8 +631,9 @@ function build_task_json(json_task) {
     }
     html_text.children('.editable')
         .append(json_task.text)
-        .bind('click', replace_html)
-        .children('a').bind('click', handle_editable_click);
+        .bind('click', replace_html);
+    html_text.find('a')
+        .bind('click', handle_editable_click);
 
     html_task.children('.due').children('.editable')
         .html(json_task.due_out)

@@ -579,6 +579,9 @@ input[type="text"], input[type="password"] {
     width: 234px;
     border: 1px solid #d2e8c8;
 }
+.work-box .groups_auto {
+    width: 234px;
+}
 .work-box input[type="text"] {
     width: 108px;
 }
@@ -1054,6 +1057,7 @@ input[type="text"], input[type="password"] {
     border: 1px solid #ccc;
     border-top: none;
     margin-top: -1px;
+    z-index: 10000;
 }
 
 .autocomplete li {
