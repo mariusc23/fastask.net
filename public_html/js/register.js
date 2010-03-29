@@ -46,10 +46,10 @@ function passwordStrength(password) {
 
 
 $(document).ready(function() {
-    var   in_username = $('input[name="username"]')
-        , in_email = $('input[name="email"]')
-        , in_password = $('input[name="password"]')
-        , in_password_confirm = $('input[name="password_confirm"]')
+    var   in_username = $('.register input[name="username"]')
+        , in_email = $('.register input[name="email"]')
+        , in_password = $('.register input[name="password"]')
+        , in_password_confirm = $('.register input[name="password_confirm"]')
         , password_indication = {
             'text'     : ['Very Weak', 'Weak', 'Better',
                 'Medium', 'Strong', 'Strongest'],
@@ -62,6 +62,7 @@ $(document).ready(function() {
      */
     $('#content .nojs').hide();
     $('#content .register').show();
+    $('#content .login').show();
 
 
     in_password.keyup(function () {
