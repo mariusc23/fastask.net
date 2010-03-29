@@ -400,7 +400,10 @@ class Controller_Task extends Controller {
         if (isset($t_arr[1])) {
             $text = trim($t_arr[1]);
             $t_arr[0] = trim($t_arr[0]);
-            $group = ORM::factory('group')->where('name', '=', $t_arr[0])->find();
+            $group = ORM::factory('group')
+                ->where('user_id', '=', $this->user->id)
+                ->where('name', '=', $t_arr[0])
+                ->find();
             // if not found, create group
             if (!$group->loaded()) {
                 $group = $group_controller->_add(array(
