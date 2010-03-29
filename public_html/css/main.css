@@ -185,7 +185,7 @@ input[type="text"], input[type="password"] {
     height: 22px;
 }
 .task-box .tabs .icon.archive a {
-    background-position: -68px 0;
+    background-position: -67px 0;
     width: 23px;
 }
 .task-box .tabs .icon.my-tasks:hover a
@@ -202,7 +202,7 @@ input[type="text"], input[type="password"] {
 }
 .task-box .tabs .icon.archive:hover a
 , .task-box .tabs .icon.archive.active a {
-    background-position: -68px -31px;
+    background-position: -67px -31px;
 }
 .task-box .tabs a {
 }
