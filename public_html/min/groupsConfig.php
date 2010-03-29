@@ -31,6 +31,10 @@ return array(
             'minifier' => array('Minify_Packer', 'minify')
         ))
     ),//*/
-    'js' => array('//js/jquery.min.js', '//js/jqModal.js', '//js/jquery.history.js', '//js/main.js'),
+    'js' => array('//js/jquery.min.js', '//js/jqModal.js', '//js/jquery.history.js',
+        '//js/hash.js', '//js/workbox.js', '//js/profile.js', '//js/left.js',
+        '//js/main.js'),
+    'lr' => array('//js/jquery.min.js', '//js/login.js', '//js/register.js'),
     'css' => array('//css/main.css'),
+
 );
