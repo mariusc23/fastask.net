@@ -1081,12 +1081,10 @@ $('body').keydown(function(e) {
 function resize() {
     var t_height = 0, reload = false;
     tasks_per_page = parseInt(
-        ($('#main').height() - TASK_TABLE_MINUS)
-        / TASK_TABLE_ROW_HEIGHT
+        (($('#main').height() - TASK_TABLE_MINUS) / TASK_TABLE_ROW_HEIGHT)
     );
     pl_tasks_per_page = parseInt(
-        ($('#plan').height() - PL_TASK_TABLE_MINUS)
-        / TASK_TABLE_ROW_HEIGHT
+        (($('#plan').height() - PL_TASK_TABLE_MINUS) / TASK_TABLE_ROW_HEIGHT)
     );
     $('.loading').each(function() {
         $(this).height($(this).parent().height() + 'px');
