@@ -16,20 +16,14 @@ function on_hash_change(hash) {
     ;
     if (page != t_page || pl_page != t_pl_page || tr_page != t_tr_page
         || group != t_group || type != t_type) {
-        if (page != t_page || group != t_group) {
+        if (page != t_page || group != t_group || type != t_type) {
             expecting.main = 1;
-        } else {
-            expecting.main = 0;
         }
         if (pl_page != t_pl_page) {
             expecting.plan = 1;
-        } else {
-            expecting.plan = 0;
         }
         if (tr_page != t_tr_page) {
             expecting.trash = 1;
-        } else {
-            expecting.trash = 0;
         }
         t_page = page;
         t_pl_page = pl_page;
@@ -81,8 +75,8 @@ function url_update_hash(param, val, erase_page) {
     }
     // update value
     params[param] = val;
-    if (erase_page && params.page) {
-        delete params.page;
+    if (erase_page && params.p) {
+        delete params.p;
     }
     if ((undefined !== params.g && params.g != t_group) || 
         (undefined !== params.t && params.t != t_type)) {

@@ -108,38 +108,10 @@ class Controller_Tasklist extends Controller_Template {
         $tasks = array_merge($tasks, $planner_tasks, $trash_tasks);
 
 
+        $task_controller = new Controller_Task($this->request);
         $columns = $tasks[0]->list_columns();
         foreach ($tasks as $task) {
-            $json_task = array();
-            Model_Task::format_task($task, $this->user);
-
-            foreach ($columns as $k => $v) {
-                $json_task[$k] = $task->$k;
-            }
-            $json_task['due_out'] = $task->due_out;
-
-            if ($task->trash == 1) {
-                $json_task['trash'] = 1;
-            }
-            if ($task->due < TIMESTAMP_PLANNED) {
-                $json_task['plan'] = 1;
-            }
-
-            $json_task['followers'] = array();
-            foreach ($task->followers->find_all() as $follower) {
-                $json_task['followers'][] = array(
-                    'id' => $follower->id,
-                    'username' => $follower->username,
-                );
-            }
-
-            if ($task->group_id > 0) {
-                $json_task['group'] = array(
-                    'id' => $task->group->id,
-                    'name' => $task->group->name,
-                );
-            }
-
+            $json_task = $task_controller->jsonify($task, $columns);
             $json['tasks'][] = $json_task;
         }
         if ($count) {
@@ -456,7 +428,9 @@ class Controller_Tasklist extends Controller_Template {
 
             $tasks = array();
             if (isset($results)) foreach ($results as $sphinx_task) {
-                $tasks[] = new Model_Task($sphinx_task['id']);
+                $task = new Model_Task($sphinx_task['id']);
+                $task->due = TIMESTAMP_PLANNED + 1;
+                $tasks[] = $task;
             }
         }
         if (!$count) {

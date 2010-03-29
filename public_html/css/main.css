@@ -76,6 +76,7 @@ a:hover {
     top: 0;
     padding: 1em 0;
     right: 0;
+    z-index: 10000;
 }
 
 .spin {
@@ -594,10 +595,10 @@ input[type="text"], input[type="password"] {
     list-style: none;
     line-height: 1em;
     position: absolute;
-    top: 33px;
+    top: 35px;
     display: none;
     background: #fff;
-    width: 108px;
+    width: 112px;
     padding: 0;
     border: 1px solid #ccc;
     z-index: 1000;
@@ -1009,7 +1010,7 @@ input[type="text"], input[type="password"] {
     position: absolute;
     list-style: none;
     background: #fff;
-    width: 255px;
+    width: 150px;
     padding: 0;
     border: 1px solid #ccc;
     border-top: none;

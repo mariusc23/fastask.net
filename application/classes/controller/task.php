@@ -207,12 +207,20 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return ;
         }
-        $this->task->trash = 1;
+        $json = array('task' => array());
+        if (isset($_GET['undo'])) {
+            $this->task->trash = 0;
+        } else {
+            $this->task->trash = 1;
+        }
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
             return ;
         }
-        $this->request->response = '{}';
+
+        $columns = $this->task->list_columns();
+        $json['task'] = $this->jsonify($this->task, $columns);
+        $this->request->response = json_encode($json);
     }
 
 
@@ -325,6 +333,38 @@ class Controller_Task extends Controller {
         $this->request->response = 'hello, world!';
     }
 
+
+    public function jsonify($task, $columns) {
+        $json_task = array();
+        Model_Task::format_task($task, $this->user);
+
+        foreach ($columns as $k => $v) {
+            $json_task[$k] = $task->$k;
+        }
+        $json_task['due_out'] = $task->due_out;
+
+        if ($task->trash == 1) {
+            $json_task['trash'] = 1;
+        } elseif ($task->due < TIMESTAMP_PLANNED) {
+            $json_task['plan'] = 1;
+        }
+
+        $json_task['followers'] = array();
+        foreach ($task->followers->find_all() as $follower) {
+            $json_task['followers'][] = array(
+                'id' => $follower->id,
+                'username' => $follower->username,
+            );
+        }
+
+        if ($task->group_id > 0) {
+            $json_task['group'] = array(
+                'id' => $task->group->id,
+                'name' => $task->group->name,
+            );
+        }
+        return $json_task;
+    }
 
     /**
      * Parses the text and creates a group. Also removes a group if

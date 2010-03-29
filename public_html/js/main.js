@@ -11,6 +11,7 @@ var
         'priority': '/task/pri/',
         'status': '/task/s/',
         'delete': '/task/d/',
+        'undelete': '/task/d/',
         'plan': '/task/plan/',
         'text': '/task/text/',
         'due': '/task/due/',
@@ -65,25 +66,24 @@ var
         'assignments',
         'command',
         'self-esteem',
+        'search'
     ]
     , DEFAULT_TITLES = [
         '<a href="#t=0">' + DEFAULT_TITLES_PLAIN[0] + '</a>',
         '<a href="#t=1">' + DEFAULT_TITLES_PLAIN[1] + '</a>',
         '<a href="#t=2">' + DEFAULT_TITLES_PLAIN[2] + '</a>',
         '<a href="#t=3">' + DEFAULT_TITLES_PLAIN[3] + '</a>',
+        '<a href="#s=1">' + DEFAULT_TITLES_PLAIN[4] + '</a>',
     ]
     , CURRENT_USER
 /*-------------- VARIABLES --------------*/
     , hash_last = ''
     , tasks_per_page
+    , pl_tasks_per_page
     , search_timeout = false
     , tasklist_refresh_timeout = false
     , resize_timeout = false
-    , tasklist_timeout = {
-        'main': true,
-        'plan': true,
-        'trash': true,
-    }
+    , tasklist_timeout
     , t_editing = {
         'main': false,
         'plan': false,
@@ -127,12 +127,21 @@ $('.s input', $('#main')).live('click', function() {
 
 /**
  * Delete task
- * Works for both #plan and #main
+ * #main, #plan, #trash
  */
-$('.del a').live('click', function() {
+$('.del a', $('#main')).live('click', function() {
     update_row('delete', $(this));
     return false;
 });
+$('.del a', $('#plan')).live('click', function() {
+    update_row('delete', $(this));
+    return false;
+});
+$('.del a', $('#trash')).live('click', function() {
+    update_row('undelete', $(this));
+    return false;
+});
+
 
 /**
  * Extracts data from a row
@@ -150,7 +159,10 @@ function extract_data(type, t_row, target) {
             data.next = (current + 1) % 3
             break;
         case 'status':
+        case 'undelete':
+            data.send.undo = 1;
         case 'delete':
+            break;
         case 'plan':
             if (plan_custom) {
                 data.send.due = plan_custom;
@@ -218,17 +230,22 @@ function dispatch_response(type, t_row, target,
                 t_row.removeClass('done');
             }
             break;
+        case 'undelete':
+            t_row.fadeOut('slow', function() {
+                $(this).remove();
+                if (response.task.plan) {
+                    reset_timeout($('#plan'));
+                } else {
+                    reset_timeout(TASK_BOX);
+                }
+            });
+            break;
         case 'delete':
             t_row.fadeOut('slow', function() {
-                /*$('.trash_tasks .tlist').prepend('<tr><td><a class="ed showhover" href="?e=' + t_id + '">e</a>\
-                    <span class="hide"> \
-                        <span class="remind">' + t_remind + '</span> \
-                        <span class="due">' + t_due + '</span> \
-                        <span class="user_id">' + t_user_id + '</span> \
-                        <span class="priority">' + t_priority + '</span> \
-                    </span> \
-                </td><td>' + t_description + '</td></tr>');*/
                 $(this).remove();
+                var html_task = build_task_json_min(response.task);
+                html_task.prependTo($('#trash').children('.trash-table'));
+                reset_timeout($('#trash'));
             });
             break;
         case 'plan':
@@ -367,6 +384,15 @@ function unset_loading(elem) {
 
 
 /**
+ * Changing tabs
+ */
+$('.tabs a', $('#main')).live('click', function () {
+    var type = parseInt(get_url_param('t', $(this).attr('href')));
+    url_update_hash('t', type);
+    return false;
+});
+
+/**
  * Task Box Pager updates the url hash
  * Parameter: p
  */
@@ -375,6 +401,7 @@ $('.pager a', $('#main')).live('click', function() {
     if (last_search_q.length > 0) {
         search_page = page;
         do_search(last_search_q);
+        last_search_q = search_val;
     } else {
         url_update_hash('p', page);
     }
@@ -411,21 +438,18 @@ $('.groups a').live('click', function() {
  */
 function clear_timeout(elem) {
     var id = elem[0].id;
-    if (tasklist_timeout[id]) {
-        clearTimeout(tasklist_timeout[id]);
+    if (tasklist_timeout) {
+        clearTimeout(tasklist_timeout);
         clearTimeout(tasklist_refresh_timeout);
     }
 }
 function reset_timeout(elem) {
     clear_timeout(elem);
     var id = elem[0].id;
-    tasklist_timeout[id] = setTimeout(function() {
-        expecting['trash'] = 0;
-        expecting['plan'] = 0;
-        expecting['main'] = 0;
-        if (!t_editing[id]) {
-            expecting[id] = 1;
-        }
+    if (!t_editing[id]) {
+        expecting[id] = 1;
+    }
+    tasklist_timeout = setTimeout(function() {
         get_tasklist();
     }, TASKLIST_TIMEOUT);
     clearTimeout(tasklist_refresh_timeout);
@@ -487,7 +511,6 @@ function get_tasklist() {
                 $('.task-table', TASK_BOX).html('');
                 return ;
             }
-
             return false;
         },
         success: function(response, textStatus, request) {
@@ -505,6 +528,10 @@ function get_tasklist() {
             if (expecting.trash) {
                 unset_loading($('#trash'));
             }
+            // done, expecting nothing now
+            expecting.main = 0;
+            expecting.plan = 0;
+            expecting.trash = 0;
         }
     });
 }
@@ -524,83 +551,22 @@ function build_tasklist(response, textStatus, request) {
         $('.notasks', TASK_BOX).remove();
         $('.task-table', TASK_BOX).html('');
     }
-    var task, task_group, html_text;
     for (var i in response.tasks) {
-        json_task = response.tasks[i]
-        if (json_task.plan || json_task.trash) {
-            html_task = ROW_TEMPLATE_MIN.clone();
-            if (json_task.status) {
-                html_task.addClass('done');
-            }
-            html_text = html_task.children('.text');
-            if (json_task.group) {
-                task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
-                    + json_task.group.id)
-                    .html(json_task.group.name);
-                // for ASSIGNMENTS, not allowed to change group
-                task_group
-                    .prependTo(html_text);
-                json_task.text = ': ' + json_task.text;
-            }
-            html_text
-                .append(json_task.text);
-            html_task.children('.del')
-                .children('input[name="task_id"]').val(json_task.id)
-                .end()
-                .children('input[name="user_id"]').val(json_task.user_id)
-            ;
-            if (json_task.plan) {
+        if (response.tasks[i].plan || response.tasks[i].trash) {
+            html_task = build_task_json_min(response.tasks[i]);
+            if (response.tasks[i].plan) {
                 html_task.children().eq(1).addClass('plan');
                 html_task.appendTo($('#plan').children('.planner-table'));
             } else {
                 html_task.appendTo($('#trash').children('.trash-table'));
             }
         } else {
-            html_task = ROW_TEMPLATE.clone();
-            if (json_task.status) {
-                html_task.children('.s').children('input')
-                    .attr('checked', 'checked');
-                html_task.addClass('done');
-            }
-            html_task.children('.p')
-                .addClass('pri_' + json_task.priority);
-            html_text = html_task.children('.text');
-            if (json_task.group) {
-                task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
-                    + json_task.group.id)
-                    .html(json_task.group.name);
-                // for ASSIGNMENTS, not allowed to change group
-                if (t_type == 1) {
-                    task_group.html(task_group.html() + ': ')
-                        .prependTo(html_text);
-                    html_text.addClass('nogroup');
-                } else {
-                    task_group
-                        .prependTo(html_task.children('.text')
-                            .children('.editable')
-                        );
-                    json_task.text = ': ' + json_task.text;
-                }
-            }
-            html_text.children('.editable')
-                .append(json_task.text);
-            html_task.children('.due').children('.editable')
-                .html(json_task.due_out);
-            var html_followers = FOLLOWERS_TEMPLATE.clone();
-            for (var i in json_task.followers) {
-                html_followers.find('input.u' +
-                    json_task.followers[i].id).attr('checked', 'checked');
-            }
-            html_followers.appendTo(html_task.children('.followers'));
-            html_task.children('.del')
-                .children('input[name="task_id"]').val(json_task.id)
-                .end()
-                .children('input[name="user_id"]').val(json_task.user_id)
-            ;
+            html_task = build_task_json(response.tasks[i]);
             html_task.appendTo(TASK_BOX.children('.task-table'));
-            if (t_type == 1 && json_task.group) {
+            if (t_type == 1 && response.tasks[i].group) {
+                html_text = html_task.children('.text');
                 html_text.find('.editable').width(
-                    html_text.width() - task_group.width()
+                    html_text.width() - html_text.find('.g').width()
                     - ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT
                 );
             }
@@ -627,6 +593,78 @@ function build_tasklist(response, textStatus, request) {
         }
         pager = $(response.tr_pager).appendTo($('#trash'));
     }
+}
+
+function build_task_json_min(json_task) {
+    var task, task_group, html_text;
+    html_task = ROW_TEMPLATE_MIN.clone();
+    if (json_task.status) {
+        html_task.addClass('done');
+    }
+    html_text = html_task.children('.text');
+    if (json_task.group) {
+        task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+            + json_task.group.id)
+            .html(json_task.group.name);
+        // for ASSIGNMENTS, not allowed to change group
+        task_group
+            .prependTo(html_text);
+        json_task.text = ': ' + json_task.text;
+    }
+    html_text
+        .append(json_task.text);
+    html_task.children('.del')
+        .children('input[name="task_id"]').val(json_task.id)
+        .end()
+        .children('input[name="user_id"]').val(json_task.user_id)
+    ;
+    return html_task;
+}
+
+function build_task_json(json_task) {
+    var task, task_group, html_text;
+    html_task = ROW_TEMPLATE.clone();
+    if (json_task.status) {
+        html_task.children('.s').children('input')
+            .attr('checked', 'checked');
+        html_task.addClass('done');
+    }
+    html_task.children('.p')
+        .addClass('pri_' + json_task.priority);
+    html_text = html_task.children('.text');
+    if (json_task.group) {
+        task_group = TASK_GROUP_TEMPLATE.clone().attr('href', '#g='
+            + json_task.group.id)
+            .html(json_task.group.name);
+        // for ASSIGNMENTS, not allowed to change group
+        if (t_type == 1) {
+            task_group.html(task_group.html() + ': ')
+                .prependTo(html_text);
+            html_text.addClass('nogroup');
+        } else {
+            task_group
+                .prependTo(html_task.children('.text')
+                    .children('.editable')
+                );
+            json_task.text = ': ' + json_task.text;
+        }
+    }
+    html_text.children('.editable')
+        .append(json_task.text);
+    html_task.children('.due').children('.editable')
+        .html(json_task.due_out);
+    var html_followers = FOLLOWERS_TEMPLATE.clone();
+    for (var i in json_task.followers) {
+        html_followers.find('input.u' +
+            json_task.followers[i].id).attr('checked', 'checked');
+    }
+    html_followers.appendTo(html_task.children('.followers'));
+    html_task.children('.del')
+        .children('input[name="task_id"]').val(json_task.id)
+        .end()
+        .children('input[name="user_id"]').val(json_task.user_id)
+    ;
+    return html_task;
 }
 
 /*****************************************************************************/
@@ -879,7 +917,6 @@ $('input[name="search"]').live('keyup', function () {
     if (search_val.length < SEARCH_MINLENGTH) {
         if (search_val.length <= 0) {
             last_search_q = '';
-            get_tasklist();
         }
         return true;
     }
@@ -894,6 +931,10 @@ $('input[name="search"]').live('keyup', function () {
 });
 
 function do_search(search_val) {
+    if (undefined == search_val ||
+        search_val.length <= 0) {
+        return;
+    }
     $.ajax({
         type: 'GET',
         url: TASKLIST_URL + 'n=' + tasks_per_page
@@ -907,17 +948,29 @@ function do_search(search_val) {
             last_search_q = search_val;
             unset_loading(TASK_BOX);
             if (response.status == 404) {
+                $('.task-table', $('#main')).html('');
                 DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
-                $('.task-table', TASK_BOX).html('');
                 return ;
             }
-
             return false;
         },
         success: function(response, textStatus, request) {
             last_search_q = search_val;
             if (request.status == 200) {
+                $('.task-table', $('#main')).html('');
+                expecting.main = 1;
+                expecting.plan = 0;
+                expecting.trash = 0;
                 build_tasklist(response, textStatus, request);
+                expecting.main = 0;
+                var   url_g = '#t=' + t_group
+                    , title_g = DEFAULT_TITLES_PLAIN[4];
+                ;
+                $('.title', $('#main'))
+                    .html('<a href="' + url_g + '">'
+                        + title_g
+                        + '</a>');
+                ;
             } else {
                 task_error_response(response);
             }
