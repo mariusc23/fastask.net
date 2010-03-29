@@ -179,7 +179,7 @@ class Controller_User extends Controller_Template {
             // validate data
             $post = $user->validate_change($_POST);
             $pass_check = 1;
-            if (isset($_POST['current_password'])) {
+            if (isset($_POST['current_password']) && $_POST['current_password']) {
                 if (Auth::instance()->login($this->user->username,
                     trim($_POST['current_password']))) {
                     $pass_check = 2;
@@ -218,6 +218,7 @@ class Controller_User extends Controller_Template {
                     return ;
                 }
             } else {
+print 'z' . ' ' .$pass_check;
                 // show the registration errors
                 $this->request->status = 400;
                 $json['errors'][] = 'Failed to process your request.';
