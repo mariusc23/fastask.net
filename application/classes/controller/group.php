@@ -8,77 +8,44 @@ class Controller_Group extends Controller {
         $this->user = Auth::instance()->get_user();
     }
 
-    public function json_groups($type = 0) {
-        $yesterday = time() - SECONDS_IN_DAY;
-        switch (intval($type)) {
-        case 1:
-            // assignments
-            $groups = ORM::factory('group')
-                ->distinct(true)
-                ->join('tasks')
-                    ->on('tasks.group_id', '=', 'groups.id')
-                ->join('follow_task')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('tasks.user_id', '!=', $this->user->id)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('trash', '=', 0)
-                ->where('planned', '=', 0)
-                ->where('status', '=', 0)
-                ->order_by('name', 'asc')
-                ->find_all()
-            ;
-            break;
-        case 2:
-            // command center
-            $groups = ORM::factory('group')
-                ->distinct(true)
-                ->join('tasks')
-                    ->on('tasks.group_id', '=', 'groups.id')
-                ->join('follow_task')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('tasks.user_id', '=', $this->user->id)
-                ->where('follower_id', '!=', $this->user->id)
-                ->where('trash', '=', 0)
-                ->where('planned', '=', 0)
-                ->where('status', '=', 0)
-                ->order_by('name', 'asc')
-                ->find_all()
-            ;
-            break;
-        case 3:
-            // archive
-            $groups = ORM::factory('group')
-                ->distinct(true)
-                ->join('tasks')
-                    ->on('tasks.group_id', '=', 'groups.id')
-                ->join('follow_task')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('follower_id', '=', $this->user->id)
-                ->where('trash', '=', 0)
-                ->where('status', '=', 1)
-                ->order_by('name', 'asc')
-                ->find_all()
-            ;
-            break;
-        case 0:
-        default:
-            // just get my groups
-            $groups = ORM::factory('group')
-                ->distinct(true)
-                ->join('tasks')
-                    ->on('tasks.group_id', '=', 'groups.id')
-                ->join('follow_task')
-                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('tasks.user_id', '=', $this->user->id)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('trash', '=', 0)
-                ->where('planned', '=', 0)
-                ->where('status', '=', 0)
-                ->order_by('name', 'asc')
-                ->find_all()
-            ;
+    public function groups_counts($type = 0) {
+        $counts = DB::select(DB::expr('COUNT(groups.id) AS count'))
+            ->select(DB::expr('groups.id'))
+            ->from('groups')
+            ->join('tasks')
+                ->on('tasks.group_id', '=', 'groups.id');
+        $params = array('t' => $type);
+
+        $tasklist_controller = new Controller_Tasklist($this->request);
+        $tasklist_controller->user = $this->user;
+        $tasklist_controller->orm_chain_tasks($counts, $params, false);
+
+        $counts = $counts
+            ->group_by('groups.id')
+            ->execute();
+        $counts_keyed = array();
+        foreach ($counts as $count) {
+            $counts_keyed[$count['id']] = $count['count'];
         }
+        return $counts_keyed;
+    }
+
+
+    public function json_groups($type = 0) {
+        $groups = ORM::factory('group')
+            ->join('tasks')
+                ->on('tasks.group_id', '=', 'groups.id');
+        $params = array('t' => $type);
+
+        $tasklist_controller = new Controller_Tasklist($this->request);
+        $tasklist_controller->user = $this->user;
+        $tasklist_controller->orm_chain_tasks($groups, $params, false);
+
+        $groups = $groups
+                ->order_by('name', 'asc')
+            ->find_all();
+
+        $groups_counts = $this->groups_counts($type);
 
         $json = array('groups' => array());
         $users = array($this->user->id => $this->user, );
@@ -87,7 +54,7 @@ class Controller_Group extends Controller {
 
             $json_group['id'] = $group->id;
             $json_group['name'] = $group->name;
-            $json_group['num_tasks'] = $group->num_tasks;
+            $json_group['num_tasks'] = $groups_counts[$group->id];
             $json_group['user_id'] = $group->user->id;
             if (!isset($users[$group->user->id])) {
                 // find the user

@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 class Controller_Tasklist extends Controller_Template {
     public $template = 'base/template';
-    private $user = null;
+    public $user = null;
     private $sphinxclient = null;
 
     /**
@@ -136,170 +136,101 @@ class Controller_Tasklist extends Controller_Template {
     }
 
     public function get_count($params) {
-        $yesterday = time() - SECONDS_IN_DAY;
-        if (isset($params['g']) && intval($params['g'])) {
-            $g_id = $params['g'];
-            // my tasks are:
-            // ONLY followed by me
-            return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
-                ->distinct(true)
-                ->join('follow_task')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('trash', '=', 0)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('planned', '=', 0)
-                ->where('group_id','=', $g_id)
-                ->execute()->get('count');
-            ;
-        } elseif (isset($params['t']) && $params['t']) {
-            switch (intval($params['t'])) {
-                case 1:
-                    // assignments
-                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('user_id', '!=', $this->user->id)
-                        ->where('follower_id', '=', $this->user->id)
-                        ->where('trash', '=', 0)
-                        ->where('planned', '=', 0)
-                        ->where('status', '=', 0)
-                        ->execute()->get('count');
-                case 2:
-                    // command center, my tasks assigned to others
-                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('user_id', '=', $this->user->id)
-                        ->where('follower_id', '!=', $this->user->id)
-                        ->where('trash', '=', 0)
-                        ->where('planned', '=', 0)
-                        ->where('status', '=', 0)
-                        ->execute()->get('count');
-                case 3:
-                    // archive
-                    return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('trash', '=', 0)
-                        ->where('follower_id', '=', $this->user->id)
-                        ->where('status', '=', 1)
-                        ->execute()->get('count');
-                    ;
-                default:
-                    return null;
-            }
-        } else {
-            // count items
-            return DB::select(DB::expr('COUNT(id) AS count'))->from('tasks')
-                ->distinct(true)
-                ->join('follow_task')
-                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('trash', '=', 0)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('planned', '=', 0)
-                ->where('status', '=', 0)
-                ->execute()->get('count');
-        }
+        $tasks = DB::select(DB::expr('COUNT(id) AS count'))->from('tasks');
+        $this->orm_chain_tasks($tasks, $params, false);
+        $tasks = $tasks
+            ->execute()->get('count');
+        return $tasks;
     }
 
 
     public function get_tasks($params, $pagination) {
-        $yesterday = time() - SECONDS_IN_DAY;
+        $tasks = ORM::factory('task');
+        $this->orm_chain_tasks($tasks, $params);
+        $tasks = $tasks
+            ->limit($pagination->items_per_page)
+            ->offset($pagination->offset)
+            ->find_all();
+        return $tasks;
+    }
+
+    public function orm_chain_tasks(&$tasks, &$params, $order = true) {
+        if (!isset($params['t'])) {
+            $params['t'] = 0;
+        }
+        $tasks
+            ->distinct(true)
+            ->join('follow_task')
+                ->on('follow_task.task_id', '=', 'tasks.id')
+            ->where('trash', '=', 0)
+            ->where('planned', '=', 0)
+        ;
         if (isset($params['g']) && intval($params['g'])) {
             $g_id = $params['g'];
-            // my tasks are:
-            // ONLY followed by me
-            return ORM::factory('task')
-                ->distinct(true)
-                ->join('follow_task')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('trash', '=', 0)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('planned', '=', 0)
-                ->where('group_id','=', $g_id)
-                ->order_by('status','asc')
-                ->order_by('priority','asc')
-                ->order_by('due','asc')
-                ->limit($pagination->items_per_page)
-                ->offset($pagination->offset)
-                ->find_all();
-        } elseif (isset($params['t']) && $params['t']) {
-            switch (intval($params['t'])) {
-                case 1:
-                    // assignments
-                    return ORM::factory('task')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('user_id', '!=', $this->user->id)
-                        ->where('follower_id', '=', $this->user->id)
-                        ->where('trash', '=', 0)
-                        ->where('planned', '=', 0)
-                        ->where('status', '=', 0)
-                        ->order_by('status','asc')
-                        ->order_by('priority','asc')
-                        ->order_by('due','asc')
-                        ->limit($pagination->items_per_page)
-                        ->offset($pagination->offset)
-                        ->find_all();
-                case 2:
-                    // command center, my tasks assigned to others
-                    return ORM::factory('task')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('user_id', '=', $this->user->id)
-                        ->where('follower_id', '!=', $this->user->id)
-                        ->where('trash', '=', 0)
-                        ->where('planned', '=', 0)
-                        ->where('status', '=', 0)
-                        ->order_by('status','asc')
-                        ->order_by('priority','asc')
-                        ->order_by('due','asc')
-                        ->limit($pagination->items_per_page)
-                        ->offset($pagination->offset)
-                        ->find_all();
-                case 3:
-                    // archive stuff that is done AND followed by me
-                    return ORM::factory('task')
-                        ->distinct(true)
-                        ->join('follow_task')
-                            ->on('follow_task.task_id', '=', 'tasks.id')
-                        ->where('trash', '=', 0)
-                        ->where('follower_id', '=', $this->user->id)
-                        ->where('status', '=', 1)
-                        ->order_by('status','asc')
-                        ->order_by('priority','asc')
-                        ->order_by('due','asc')
-                        ->limit($pagination->items_per_page)
-                        ->offset($pagination->offset)
-                        ->find_all();
-                default:
-                    return null;
-            }
-        } else {
-            // my tasks are:
-            // created by me AND followed by me
-            return ORM::factory('task')
-                ->distinct(true)
-                ->join('follow_task')
-                    ->on('follow_task.follower_id', '=', 'tasks.user_id')
-                    ->on('follow_task.task_id', '=', 'tasks.id')
-                ->where('trash', '=', 0)
-                ->where('follower_id', '=', $this->user->id)
-                ->where('planned', '=', 0)
-                ->where('status', '=', 0)
-                ->order_by('status','asc')
-                ->order_by('priority','asc')
-                ->order_by('due','asc')
-                ->limit($pagination->items_per_page)
-                ->offset($pagination->offset)
-                ->find_all();
+            $tasks = $tasks->where('group_id','=', $g_id);
         }
+        switch (intval($params['t'])) {
+            case 1:
+                // assignments, others' tasks followed by me
+                $tasks
+                    ->where('status', '=', 0)
+                    ->where('tasks.user_id', '!=', $this->user->id)
+                    ->where('follower_id', '=', $this->user->id)
+                ;
+                if ($order) {
+                    $tasks
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                    ;
+                }
+                break;
+            case 2:
+                // command center, my tasks assigned to others
+                $tasks
+                    ->where('status', '=', 0)
+                    ->where('tasks.user_id', '=', $this->user->id)
+                    ->where('follower_id', '!=', $this->user->id)
+                ;
+                if ($order) {
+                    $tasks
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                    ;
+                }
+                ;
+                break;
+            case 3:
+                // archive stuff that is done AND followed by me
+                $tasks
+                    ->where('status', '=', 1)
+                    ->where('follower_id', '=', $this->user->id)
+                ;
+                if ($order) {
+                    $tasks
+                        ->order_by('lastmodified','desc')
+                    ;
+                }
+                break;
+            default:
+                // my tasks are:
+                // created by me AND followed by me
+                $tasks
+                        ->on('follow_task.follower_id', '=', 'tasks.user_id')
+                    ->where('follower_id', '=', $this->user->id)
+                    ->where('status', '=', 0)
+                ;
+                if ($order) {
+                    $tasks
+                        ->order_by('status','asc')
+                        ->order_by('priority','asc')
+                        ->order_by('due','asc')
+                    ;
+                }
+                break;
+        }
+        return $tasks;
     }
 
     /**
