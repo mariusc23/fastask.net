@@ -183,7 +183,7 @@ $('.work-box input[type="submit"]').live('click', function () {
         },
         success: function(response) {
             update_groups(response.groups);
-            if (response.plan) {
+            if (response.planned) {
                 expecting.plan = 1;
             } else {
                 expecting.main = 1;

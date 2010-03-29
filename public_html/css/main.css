@@ -102,6 +102,11 @@ input[type="text"], input[type="password"] {
     font-size: 80%;
 }
 
+.text .g {
+    color: #56991a;
+    text-decoration: none;
+}
+
 /*****************************************************************************/
 /*
 /* Task box
@@ -384,9 +389,6 @@ input[type="text"], input[type="password"] {
     display: inline;
     width: 445px;
 }
-.task-table .text .g {
-    color: #56991a;
-}
 .text.nogroup form.inplace {
     display: inline;
 }
@@ -581,6 +583,7 @@ input[type="text"], input[type="password"] {
 }
 .work-box .groups_auto {
     width: 234px;
+    top: 122px;
 }
 .work-box input[type="text"] {
     width: 108px;
@@ -1058,6 +1061,7 @@ input[type="text"], input[type="password"] {
     border-top: none;
     margin-top: -1px;
     z-index: 10000;
+    height: auto;
 }
 
 .autocomplete li {
@@ -1072,7 +1076,4 @@ input[type="text"], input[type="password"] {
 
 .work-box label.text {
     position: relative;
-}
-.groups_auto {
-    bottom: -28px;
 }
