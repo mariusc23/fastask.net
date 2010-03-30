@@ -12,4 +12,6 @@ Regards,
 the Tasklist team
 ';
 
+$additional_headers = "From: Tasklist Team <tasklist@craciunoiu.net>\r\n" .
+    "Reply-To: Tasklist Team <tasklist@craciunoiu.net>\r\n";
 ?>

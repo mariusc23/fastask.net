@@ -218,7 +218,6 @@ class Controller_User extends Controller_Template {
                     return ;
                 }
             } else {
-print 'z' . ' ' .$pass_check;
                 // show the registration errors
                 $this->request->status = 400;
                 $json['errors'][] = 'Failed to process your request.';
@@ -296,7 +295,8 @@ print 'z' . ' ' .$pass_check;
                     . $user->username . SITE_SEPARATOR
                     . 'password reset code',
                 // message
-                $message
+                $message,
+                $additional_headers
             );
             $view->title = 'Thank you, '. $user->username;
             $view->message = '
