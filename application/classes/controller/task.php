@@ -29,7 +29,9 @@ class Controller_Task extends Controller {
 
         if (!$post->check()) {
             $json['errors'][] = 'Invalid data posted.';
-            $json['errors_post'][] = $post['errors'];
+            if ($post['errors']) {
+                $json['errors_post'] = $post['errors'];
+            }
             $this->request->response = json_encode($json);
             $this->request->status = 400;
             return ;
