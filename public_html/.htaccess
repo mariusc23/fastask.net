@@ -19,3 +19,12 @@ RewriteCond %{REQUEST_FILENAME} !-d
 
 # Rewrite all other URLs to index.php/URL
 RewriteRule .* index.php/$0 [PT]
+
+# Turn on Expires and mark all static content to expire in a week
+ExpiresActive On
+ExpiresDefault A0
+<FilesMatch "\.(jpg|jpeg|png|gif|js|css|ico)$">
+ ExpiresDefault A2592000
+ FileETag None
+</FilesMatch>
+
