@@ -438,12 +438,12 @@ input[type="text"], input[type="password"] {
     margin-left: -64px;
     padding-left: 67px;
     padding-right: 120px;
-    -moz-box-shadow: 0px 2px 2px #999;
-    -webkit-box-shadow: 0px 2px 2px #999;
+    -moz-box-shadow: 0px 2px 2px #d7ddd5;
+    -webkit-box-shadow: 0px 2px 2px #d7ddd5;
 }
 .task-table .row:hover {
-    -moz-box-shadow: 0px -1px 2px #999;
-    -webkit-box-shadow: 0px -1px 2px #999;
+    -moz-box-shadow: 0px -1px 2px #d7ddd5;
+    -webkit-box-shadow: 0px -1px 2px #d7ddd5;
 }
 .task-table .row:hover .s,
 .task-table .row:hover .p,
@@ -931,8 +931,8 @@ input[type="text"], input[type="password"] {
 }
 .planner-table .row:hover {
     padding-left: 0;
-    -moz-box-shadow: 0px -1px 2px #999;
-    -webkit-box-shadow: 0px -1px 2px #999;
+    -moz-box-shadow: 0px -1px 2px #d7ddd5;
+    -webkit-box-shadow: 0px -1px 2px #d7ddd5;
 }
 .planner-table .row:hover .text {
     padding-left: .5em;
@@ -943,8 +943,8 @@ input[type="text"], input[type="password"] {
     z-index: 1;
     width: 239px;
     padding-right: 35px;
-    -moz-box-shadow: 0px 2px 2px #999;
-    -webkit-box-shadow: 0px 2px 2px #999;
+    -moz-box-shadow: 0px 2px 2px #d7ddd5;
+    -webkit-box-shadow: 0px 2px 2px #d7ddd5;
 }
 .planner-table .row:hover .del,
 .planner-table .row:hover .plan {
@@ -1039,8 +1039,8 @@ input[type="text"], input[type="password"] {
 }
 .trash-table .row:hover {
     padding-left: 0;
-    -moz-box-shadow: 0px -1px 2px #999;
-    -webkit-box-shadow: 0px -1px 2px #999;
+    -moz-box-shadow: 0px -1px 2px #d7ddd5;
+    -webkit-box-shadow: 0px -1px 2px #d7ddd5;
 }
 .trash-table .row:hover .text {
     padding-left: .5em;
@@ -1051,8 +1051,8 @@ input[type="text"], input[type="password"] {
     z-index: 1;
     width: 249px;
     padding-right: 25px;
-    -moz-box-shadow: 0px 2px 2px #999;
-    -webkit-box-shadow: 0px 2px 2px #999;
+    -moz-box-shadow: 0px 2px 2px #d7ddd5;
+    -webkit-box-shadow: 0px 2px 2px #d7ddd5;
 }
 .trash-table .row:hover .del {
     z-index: 100;
