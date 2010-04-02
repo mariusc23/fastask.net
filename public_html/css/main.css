@@ -358,12 +358,16 @@ input[type="text"], input[type="password"] {
     width: 13px;
     padding: 0;
     margin: 5px 9px 0 12px;
+    position: absolute;
+    left: 0;
 }
 .task-table .md {
     padding: 0;
     margin: .35em .1em;
 }
 .task-table .p {
+    position: absolute;
+    left: 34px;
     width: 12px;
     height: 2em;
 }
@@ -386,8 +390,10 @@ input[type="text"], input[type="password"] {
 .task-table .text span {
     margin: 0 3px;
     position: absolute;
+    left: 64px;
     display: inline;
     width: 445px;
+    line-height: 2.5em;
 }
 .text.nogroup form.inplace {
     display: inline;
@@ -401,22 +407,43 @@ input[type="text"], input[type="password"] {
 .task-table .row:nth-child(2n) {
     background: #f5fcf4;
 }
+.task-table .row .text {
+    padding-top: 0;
+}
 .task-table .row:hover .text span {
     background: #e9f0e6;
     height: auto;
     position: absolute;
     overflow: visible;
     z-index: 1;
-    -moz-border-radius-bottomright: 10px;
-    -webkit-border-bottom-right-radius: 10px;
+    width: 453px;
+    margin-left: -64px;
+    padding-left: 67px;
+    padding-right: 120px;
+    -moz-box-shadow: 0px 2px 2px #999;
+    -webkit-box-shadow: 0px 2px 2px #999;
+}
+.task-table .row:hover {
+    -moz-box-shadow: 0px -1px 2px #999;
+    -webkit-box-shadow: 0px -1px 2px #999;
+}
+.task-table .row:hover .s,
+.task-table .row:hover .p,
+.task-table .row:hover .due,
+.task-table .row:hover .del,
+.task-table .row:hover .followers
+ {
+    z-index: 100;
 }
 .loadbar .text span {
     background: url('img/loadbar.gif') no-repeat right;
 }
 .task-table .row:hover.loadbar .text span {
-    background: #e9f0e6 url('img/loadbar.gif') no-repeat right;
+    background: #e9f0e6 url('img/loadbar.gif') no-repeat 469px;
 }
 .task-table .due {
+    position: absolute;
+    left: 515px;
     width: 65px;
     padding: 0;
     margin: 0;
@@ -429,6 +456,8 @@ input[type="text"], input[type="password"] {
     width: 12px;
     height: 2em;
     margin: 0 9px 0 16px;
+    position: absolute;
+    left: 592px;
 }
 .task-table .del a {
     display: block;
@@ -445,9 +474,10 @@ input[type="text"], input[type="password"] {
     background-position: -244px 0;
 }
 .task-table .followers {
-    position: relative;
+    position: absolute;
     height: 2em;
     width: 10px;
+    left: 616px;
 }
 .task-table .followers > a {
     display: block;
@@ -875,6 +905,7 @@ input[type="text"], input[type="password"] {
     clear: both;
     padding: 0 .5em;
     height: 30px;
+    line-height: 2.5em;
 }
 .planner-table .row .td {
     float: left;
@@ -882,6 +913,8 @@ input[type="text"], input[type="password"] {
 }
 .planner-table .row:hover {
     padding-left: 0;
+    -moz-box-shadow: 0px -1px 2px #999;
+    -webkit-box-shadow: 0px -1px 2px #999;
 }
 .planner-table .row:hover .text {
     padding-left: .5em;
@@ -890,8 +923,14 @@ input[type="text"], input[type="password"] {
     position: absolute;
     overflow: visible;
     z-index: 1;
-    -moz-border-radius-bottomright: 10px;
-    -webkit-border-bottom-right-radius: 10px;
+    width: 239px;
+    padding-right: 35px;
+    -moz-box-shadow: 0px 2px 2px #999;
+    -webkit-box-shadow: 0px 2px 2px #999;
+}
+.planner-table .row:hover .del,
+.planner-table .row:hover .plan {
+    z-index: 100;
 }
 .planner-table .text {
     display: block;
@@ -974,6 +1013,7 @@ input[type="text"], input[type="password"] {
     clear: both;
     height: 30px;
     padding: 0 .5em;
+    line-height: 2.5em;
 }
 .trash-table .row .td {
     float: left;
@@ -981,6 +1021,8 @@ input[type="text"], input[type="password"] {
 }
 .trash-table .row:hover {
     padding-left: 0;
+    -moz-box-shadow: 0px -1px 2px #999;
+    -webkit-box-shadow: 0px -1px 2px #999;
 }
 .trash-table .row:hover .text {
     padding-left: .5em;
@@ -989,8 +1031,13 @@ input[type="text"], input[type="password"] {
     position: absolute;
     overflow: visible;
     z-index: 1;
-    -moz-border-radius-bottomright: 10px;
-    -webkit-border-bottom-right-radius: 10px;
+    width: 249px;
+    padding-right: 25px;
+    -moz-box-shadow: 0px 2px 2px #999;
+    -webkit-box-shadow: 0px 2px 2px #999;
+}
+.trash-table .row:hover .del {
+    z-index: 100;
 }
 .trash-table .text {
     display: block;
