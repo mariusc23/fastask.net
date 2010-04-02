@@ -501,6 +501,9 @@ function build_tasklist(response, textStatus, request) {
                     html_text.width() - html_text.find('.g').width()
                     - ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT
                 );
+                html_text.children('.editable').css(
+                    'text-indent', (html_text.children('.g').width() + 5)
+                        + 'px');
             }
         }
     }
@@ -710,7 +713,7 @@ $('form.inplace input').live('keydown', function(e) {
     }
     else if (e.keyCode == 27) {
         // esc pressed
-        cancel_edit_task($(this));
+        $(this).focusout();
         return false;
     }
 });
@@ -776,6 +779,10 @@ function cancel_edit_task(ref, new_text) {
 function finish_edit(TASK_BOX, ref, text) {
     editable = EDITABLE_BLANK.clone().html(text);
     editable.width(ref.next().attr('rel') + 'px');
+    if (t_type == 1 && ref.parents('.td').children('.g').length > 0) {
+        editable.css('text-indent',
+            (ref.parents('.td').children('.g').width()) + 'px');
+    }
     editable.bind('click', replace_html);
     ref.parents('.td')
         .children('form.inplace')

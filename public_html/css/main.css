@@ -395,6 +395,16 @@ input[type="text"], input[type="password"] {
     width: 445px;
     line-height: 2.5em;
 }
+.task-table .text.nogroup .g {
+    left: 62px;
+    top: 3px;
+    position: relative;
+}
+.task-table .text form {
+    position: relative;
+    top: 3px;
+    left: 60px;
+}
 .text.nogroup form.inplace {
     display: inline;
 }
@@ -410,13 +420,21 @@ input[type="text"], input[type="password"] {
 .task-table .row .text {
     padding-top: 0;
 }
+/*
+.task-table .text.nogroup span {
+    text-indent: 50px;
+}
+*/
+.task-table .row:hover .nogroup .g {
+    z-index: 100;
+}
 .task-table .row:hover .text span {
     background: #e9f0e6;
     height: auto;
     position: absolute;
     overflow: visible;
     z-index: 1;
-    width: 453px;
+    width: 453px !important;
     margin-left: -64px;
     padding-left: 67px;
     padding-right: 120px;
