@@ -754,6 +754,7 @@ input[type="text"], input[type="password"] {
     left: 50%;
     margin-left: 340px;
     min-height: 257px;
+    height: 100%;
     padding: 12px;
     width: 246px;
     -moz-box-shadow: 1px 1px 12px #000;
@@ -839,9 +840,9 @@ input[type="text"], input[type="password"] {
     position: fixed;
     top: 0;
     left: 50%;
-    margin-left: -610px;
+    margin-left: -620px;
     height: 50%;
-    width: 260px;
+    width: 280px;
     -moz-box-shadow: 1px 12px 12px #000;
     -webkit-box-shadow: 1px 12px 12px #000;
     background: #fff;
@@ -896,19 +897,19 @@ input[type="text"], input[type="password"] {
     display: block;
     height: 2em;
     overflow: hidden;
-    width: 210px;
+    width: 235px;
 }
 
 .planner-table .del
 , .planner-table .plan {
     position: absolute;
-    left: 240px;
+    left: 262px;
     width: 12px;
     height: 2em;
     margin: 0;
 }
 .planner-table .plan {
-    left: 220px;
+    left: 245px;
 }
 .planner-table .del a
 , .planner-table .plan a {
@@ -938,9 +939,9 @@ input[type="text"], input[type="password"] {
     position: fixed;
     top: 50%;
     left: 50%;
-    margin-left: -610px;
+    margin-left: -620px;
     height: 50%;
-    width: 260px;
+    width: 280px;
     -moz-box-shadow: 1px 12px 12px #000;
     -webkit-box-shadow: 1px 12px 12px #000;
     background: #fff;
@@ -995,22 +996,17 @@ input[type="text"], input[type="password"] {
     display: block;
     height: 2em;
     overflow: hidden;
-    width: 210px;
+    width: 250px;
 }
 
-.trash-table .del
-, .trash-table .plan {
+.trash-table .del {
     position: absolute;
-    left: 240px;
+    left: 260px;
     width: 12px;
     height: 2em;
     margin: 0;
 }
-.trash-table .plan {
-    left: 220px;
-}
-.trash-table .del a
-, .trash-table .plan a {
+.trash-table .del a {
     display: block;
     width: 12px;
     margin-top: 5px;

@@ -10,6 +10,7 @@ if (isset($title)) {
 <head>
 <title><?php print $title; ?></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link type="image/x-icon" href="<?php print Url::site('favicon.png') ?>" rel="shortcut icon">
 <?php if ($model == 'user' && $action == 'reset'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'login'): ?>
