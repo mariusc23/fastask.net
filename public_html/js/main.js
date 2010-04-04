@@ -1108,7 +1108,6 @@ function get_users() {
         type: 'GET',
         url: USERS_URL,
         dataType: 'json',
-        async: false,
         error: function (response, text_status, error) {
             console.log('Error getting users.');
             return false;
