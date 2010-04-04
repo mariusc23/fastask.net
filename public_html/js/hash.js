@@ -12,9 +12,8 @@ function on_hash_change(hash) {
         , pl_page = parseInt(get_url_param('u', window.location.href))
         , group = parseInt(get_url_param('g', window.location.href))
         , type = parseInt(get_url_param('t', window.location.href))
-        , tr_page = parseInt(get_url_param('v', window.location.href))
     ;
-    if (page != t_page || pl_page != t_pl_page || tr_page != t_tr_page
+    if (page != t_page || pl_page != t_pl_page
         || group != t_group || type != t_type) {
         if (page != t_page || group != t_group || type != t_type) {
             list_handler.expect(0);
@@ -22,12 +21,8 @@ function on_hash_change(hash) {
         if (pl_page != t_pl_page) {
             list_handler.expect(1);
         }
-        if (tr_page != t_tr_page) {
-            list_handler.expect(2);
-        }
         t_page = page;
         t_pl_page = pl_page;
-        t_tr_page = tr_page;
         t_group = group;
         t_type = type;
         list_handler.get_tasklist();

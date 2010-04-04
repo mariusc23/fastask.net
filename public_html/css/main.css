@@ -209,8 +209,6 @@ input[type="text"], input[type="password"] {
 , .task-box .tabs .icon.archive.active a {
     background-position: -67px -31px;
 }
-.task-box .tabs a {
-}
 .task-box .title {
     text-align: center;
     padding: 15px 0 5px 0;
@@ -775,7 +773,7 @@ input[type="text"], input[type="password"] {
     border: 0;
     text-indent: -9999px;
     cursor: pointer;
-    width: 52px;
+    width: 51px;
     height: 31px;
 }
 .work-box input[name="plan"]:hover {
@@ -881,60 +879,113 @@ input[type="text"], input[type="password"] {
 
 /*****************************************************************************/
 /*
-/* Planner box
+/* Mini box
 /*
 /*****************************************************************************/
-.planner-box {
+.mini-box {
     position: fixed;
     top: 0;
     left: 50%;
     margin-left: -620px;
-    height: 50%;
+    height: 100%;
     width: 280px;
     -moz-box-shadow: 1px 12px 12px #000;
     -webkit-box-shadow: 1px 12px 12px #000;
     background: #fff;
 }
 
-.planner-box .title {
+.mini-box .pager {
+    bottom: 25px;
+}
+
+.mini-box .title {
     text-align: center;
-    margin: 16px auto 0 auto;
-    padding-bottom: .3em;
+    float: left;
+    width: 176px;
+    padding: 15px 0 5px 0;
+    margin: 0;
+    height: 36px;
     font-family: Georgia, freeserif, serif;
     font-size: 26px;
     font-weight: normal;
 }
 
-.planner-box .row:nth-child(2n) {
+.mini-box .row:nth-child(2n) {
     background: #f5fcf4;
 }
 
-.planner-box .row:hover {
+.mini-box .row:hover {
     background-color: #e9f0e6;
 }
 
-.planner-table {
+.mini-box .tabs .icon {
+    background: url('/css/img/menu-bg.png') repeat-x;
+    float: left;
+    padding: 15px;
+    cursor: pointer;
+    position: relative;
+}
+
+.mini-box .icon .c {
+    font-size: 8px;
+    color: #a2a2a2;
+    display: block;
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    text-align: center;
+    width: 100%;
+}
+.mini-box .tabs .icon:hover
+, .mini-box .tabs .icon.active {
+    background: #fbfbfb;
+}
+.mini-box .tabs .icon a {
+    text-align: center;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: block;
+    background: url('/css/img/sprite.png') no-repeat -124px -31px;
+}
+.mini-box .tabs .icon.planner {
+    -moz-border-radius-bottomleft: 16px;
+    -webkit-border-bottom-left-radius: 16px;
+}
+.mini-box .tabs .icon.trash a {
+    background-position: -146px -31px;
+}
+.mini-box .tabs .icon.planner:hover a
+, .mini-box .tabs .icon.planner.active a {
+    background-position: -168px -31px;
+}
+.mini-box .tabs .icon.trash:hover a
+, .mini-box .tabs .icon.trash.active a {
+    background-position: -190px -31px;
+}
+
+.table {
     margin: 0;
     padding: 0;
     width: 100%;
 }
 
-.planner-table .row {
+.mini-box .row {
     clear: both;
     padding: 0 .5em;
     height: 30px;
     line-height: 2.5em;
 }
-.planner-table .row .td {
+.mini-box .row .td {
     float: left;
     margin: 0;
 }
-.planner-table .row:hover {
+.mini-box .row:hover {
     padding-left: 0;
     -moz-box-shadow: 0px -1px 2px #d7ddd5;
     -webkit-box-shadow: 0px -1px 2px #d7ddd5;
 }
-.planner-table .row:hover .text {
+.mini-box .row:hover .text {
     padding-left: .5em;
     background: #e9f0e6;
     height: auto;
@@ -946,30 +997,30 @@ input[type="text"], input[type="password"] {
     -moz-box-shadow: 0px 2px 2px #d7ddd5;
     -webkit-box-shadow: 0px 2px 2px #d7ddd5;
 }
-.planner-table .row:hover .del,
-.planner-table .row:hover .plan {
+.mini-box .row:hover .del,
+.mini-box .row:hover .plan {
     z-index: 100;
 }
-.planner-table .text {
+.mini-box .text {
     display: block;
     height: 2em;
     overflow: hidden;
     width: 235px;
 }
 
-.planner-table .del
-, .planner-table .plan {
+.mini-box .del
+, .mini-box .plan {
     position: absolute;
     left: 262px;
     width: 12px;
     height: 2em;
     margin: 0;
 }
-.planner-table .plan {
+.mini-box .plan {
     left: 245px;
 }
-.planner-table .del a
-, .planner-table .plan a {
+.mini-box .del a
+, .mini-box .plan a {
     display: block;
     width: 12px;
     margin-top: 5px;
@@ -977,115 +1028,16 @@ input[type="text"], input[type="password"] {
     text-indent: -9999px;
     background: url('/css/img/sprite.png') no-repeat -254px -31px;
 }
-.planner-table .plan a {
+.mini-box .plan a {
     background: url('/css/img/sprite.png') no-repeat -266px -31px;
 }
-.planner-table .row:hover .del a {
+.mini-box .row:hover .del a {
     background-position: -254px 0;
 }
-.planner-table .row:hover .plan a {
-    background-position: -266px 0;
+.mini-box .row:hover .undo a {
+    background: url('/css/img/sprite.png') no-repeat -492px 0;
 }
-
-/*****************************************************************************/
-/*
-/* Trash box
-/*
-/*****************************************************************************/
-.trash-box {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    margin-left: -620px;
-    height: 50%;
-    width: 280px;
-    -moz-box-shadow: 1px 12px 12px #000;
-    -webkit-box-shadow: 1px 12px 12px #000;
-    background: #fff;
-}
-
-.trash-box .title {
-    text-align: center;
-    margin: 16px auto 0 auto;
-    padding-bottom: .3em;
-    font-family: Georgia, freeserif, serif;
-    font-size: 26px;
-    font-weight: normal;
-}
-
-.trash-box .row:nth-child(2n) {
-    background: #f5fcf4;
-}
-
-.trash-box .row:hover {
-    background-color: #e9f0e6;
-}
-
-.trash-table {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-}
-
-.trash-table .row {
-    clear: both;
-    height: 30px;
-    padding: 0 .5em;
-    line-height: 2.5em;
-}
-.trash-table .row .td {
-    float: left;
-    margin: 0;
-}
-.trash-table .row:hover {
-    padding-left: 0;
-    -moz-box-shadow: 0px -1px 2px #d7ddd5;
-    -webkit-box-shadow: 0px -1px 2px #d7ddd5;
-}
-.trash-table .row:hover .text {
-    padding-left: .5em;
-    background: #e9f0e6;
-    height: auto;
-    position: absolute;
-    overflow: visible;
-    z-index: 1;
-    width: 249px;
-    padding-right: 25px;
-    -moz-box-shadow: 0px 2px 2px #d7ddd5;
-    -webkit-box-shadow: 0px 2px 2px #d7ddd5;
-}
-.trash-table .row:hover .del {
-    z-index: 100;
-}
-.trash-table .text {
-    display: block;
-    height: 2em;
-    overflow: hidden;
-    width: 250px;
-}
-
-.trash-table .del {
-    position: absolute;
-    left: 260px;
-    width: 12px;
-    height: 2em;
-    margin: 0;
-}
-.trash-table .del a {
-    display: block;
-    width: 12px;
-    margin-top: 5px;
-    height: 13px;
-    text-indent: -9999px;
-    background: url('/css/img/sprite.png') no-repeat -254px -31px;
-}
-.trash-table .plan a {
-    background: url('/css/img/sprite.png') no-repeat -266px -31px;
-}
-.trash-table .row:hover .del a {
-    background-position: -254px 0;
-}
-.trash-table .row:hover .plan a {
+.mini-box .row:hover .plan a {
     background-position: -266px 0;
 }
 

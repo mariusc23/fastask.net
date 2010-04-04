@@ -6,28 +6,26 @@
 /**
  * Called from main.js at end of setup
  */
-function init_planner() {
+function init_minibox() {
 
 var
 /*-------------- CONSTANTS --------------*/
       PLANNER_BOX = $('\
-    <div id="plan" class="planner-box box" rel="1"> \
+    <div id="mini" class="mini-box box" rel="1"> \
     <div class="loading"></div> \
     <h1 class="title">planner</h1> \
-    <div class="planner-table table" cellspacing="0"> \
+    <div class="tabs"> \
+        <div class="icon planner" title="stuff witout a due date"> \
+            <a href="#l=1"></a><span class="c"></span></div> \
+        <div class="icon trash" title="bleh, garbage"> \
+            <a href="#l=2"></a><span class="c"></span></div> \
     </div> \
-    </div><!-- planner-box -->')
-      TRASH_BOX = $('\
-    <div id="trash" class="trash-box box" rel="2"> \
-    <div class="loading"></div> \
-    <h1 class="title">trash</h1> \
-    <div class="trash-table table" cellspacing="0"> \
+    <div class="table" cellspacing="0"> \
     </div> \
     </div><!-- planner-box -->')
 /*-------------- VARIABLES --------------*/
 ;
 
 PLANNER_BOX.appendTo('#content');
-TRASH_BOX.appendTo('#content');
 
 } // end init_planner

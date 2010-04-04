@@ -79,29 +79,27 @@ class Controller_Tasklist extends Controller_Template {
 
         $json = array('tasks' => array());
 
+        $planner_count = $this->get_min_count('planner');
+        $trash_count = $this->get_min_count('trash');
+
         $planner_tasks = array();
-        $planner_count = 0;
-        if (isset($_GET['eu']) && $_GET['eu']) {
-            $planner_count = $this->get_min_count('planner');
-
-            $planner_pagination = Pagination::factory(array(
-                'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
-                'total_items'    => $planner_count,
-                'items_per_page' => $pl_per_page,
-            ));
-            $planner_tasks = $this->get_min_tasks($planner_pagination, 'planner')->as_array();
-        }
         $trash_tasks = array();
-        $trash_count = 0;
-        if (isset($_GET['ev']) && $_GET['ev']) {
-            $trash_count = $this->get_min_count('trash');
-
-            $trash_pagination = Pagination::factory(array(
-                'current_page'   => array('source' => 'query_string', 'key' => 'v', 'output' => 'hash'),
-                'total_items'    => $trash_count,
-                'items_per_page' => $pl_per_page,
-            ));
-            $trash_tasks = $this->get_min_tasks($trash_pagination, 'trash')->as_array();
+        if ($_GET['eu']) {
+            if ($_GET['tr'] == 1) {
+                $planner_pagination = Pagination::factory(array(
+                    'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
+                    'total_items'    => $planner_count,
+                    'items_per_page' => $pl_per_page,
+                ));
+                $planner_tasks = $this->get_min_tasks($planner_pagination, 'planner')->as_array();
+            } else {
+                $trash_pagination = Pagination::factory(array(
+                    'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
+                    'total_items'    => $trash_count,
+                    'items_per_page' => $pl_per_page,
+                ));
+                $trash_tasks = $this->get_min_tasks($trash_pagination, 'trash')->as_array();
+            }
         }
 
         if (!isset($tasks[0])
@@ -125,14 +123,14 @@ class Controller_Tasklist extends Controller_Template {
         if ($count[$old_t]) {
             $json['pager'] = $pagination->render();
         }
-        if ($planner_count) {
+        if ($planner_tasks) {
             $json['pl_pager'] = $planner_pagination->render();
-        }
-        if ($trash_count) {
-            $json['tr_pager'] = $trash_pagination->render();
+        } elseif ($trash_tasks) {
+            $json['pl_pager'] = $trash_pagination->render();
         }
         $group_controller = new Controller_Group($this->request);
         $json['counts'] = $count;
+        $json['counts_left'] = array($planner_count, $trash_count);
         $json = array_merge(
             $json,
             $group_controller->json_groups($type)

@@ -6,7 +6,7 @@ var
     , RESIZE_TIMEOUT = 1000
     , TASK_TABLE_ROW_HEIGHT = 30
     , TASK_TABLE_MINUS = 100
-    , PL_TASK_TABLE_MINUS = 75
+    , PL_TASK_TABLE_MINUS = 100
     , ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT = 20
     , TEXT_INDENT_ADJUSTMENT = 5
     , INITIAL_URL = window.location.href
@@ -49,8 +49,7 @@ var
     , tasklist_timeout
     , t_editing = {
         'main': false,
-        'plan': false,
-        'trash': false,
+        'mini': false,
     }
     , t_page = get_url_param('p', INITIAL_URL)
     , t_pl_page = get_url_param('u', INITIAL_URL)
@@ -69,9 +68,9 @@ var
 /*
 /*****************************************************************************/
 
-function RowHandler(task_box, planner_box, trash_box, TGT) {
+function RowHandler(task_box, mini_box, TGT) {
     // constants
-    this.LISTS = [task_box, planner_box, trash_box];
+    this.LISTS = [task_box, mini_box];
     this.SAVE = {
         'priority': '/task/pri/',
         'status': '/task/s/',
@@ -191,9 +190,7 @@ function RowHandler(task_box, planner_box, trash_box, TGT) {
             case 'undelete':
                 this.t_row.fadeOut('slow', function() {
                     $(this).remove();
-                    if (row_handler.response.task.planned) {
-                        list_handler.reset_timeout(1);
-                    } else {
+                    if (!row_handler.response.task.planned) {
                         list_handler.reset_timeout(0);
                     }
                 });
@@ -201,12 +198,6 @@ function RowHandler(task_box, planner_box, trash_box, TGT) {
             case 'delete':
                 this.t_row.fadeOut('slow', function() {
                     $(this).remove();
-                    list_handler.response = row_handler.response;
-                    var html_task =
-                        list_handler.build_task_json_min(0);
-                    html_task.prependTo(row_handler
-                        .LISTS[2].children('.trash-table'));
-                    list_handler.reset_timeout(2);
                 });
                 break;
             case 'plan':
@@ -265,7 +256,6 @@ function RowHandler(task_box, planner_box, trash_box, TGT) {
                 break;
             case 'delete':
             case 'plan':
-            case 'trash':
                 break;
             case 'text':
             case 'due':
@@ -523,7 +513,8 @@ function ListHandler(row_handler,
     this.TASK_GROUP_TEMPLATE = row_handler.TASK_GROUP_TEMPLATE;
 
     // change
-    this.expecting = [1, 1, 1];
+    this.expecting = [1, 1];
+    this.expect_what = 1;
 
     /**
      * Timeouts helpers
@@ -591,10 +582,9 @@ function ListHandler(row_handler,
             type: 'GET',
             url: this.LIST_URL + 'g=' + t_group
                 + '&t=' + t_type + '&p=' + t_page
-                + '&u=' + t_pl_page + '&v=' + t_tr_page
+                + '&u=' + t_pl_page + '&tr=' + this.expect_what
                 + '&ep=' + this.expecting[0] + '&n=' + tasks_per_page
                 + '&eu=' + this.expecting[1] + '&m=' + pl_tasks_per_page
-                + '&ev=' + this.expecting[2] + '&o=' + pl_tasks_per_page
             ,
             dataType: 'json',
             beforeSend: function() {
@@ -642,6 +632,14 @@ function ListHandler(row_handler,
                         list_handler.expecting[i] = 0;
                     }
                 }
+                $('.tabs .icon', list_handler.LISTS[0])
+                    .removeClass('active')
+                    .eq(t_type).addClass('active')
+                ;
+                $('.tabs .icon', list_handler.LISTS[1])
+                    .removeClass('active')
+                    .eq(list_handler.expect_what - 1).addClass('active')
+                ;
             }
         });
     };
@@ -666,7 +664,8 @@ function ListHandler(row_handler,
                 || this.response.tasks[i].trash) {
                 html_task = this.build_task_json_min(i);
                 if (this.response.tasks[i].trash) {
-                    html_task.appendTo(this.LISTS[2].children('.table'));
+                    html_task.appendTo(this.LISTS[1].children('.table'));
+                    html_task.find('.del').addClass('undo');
                 } else {
                     html_task.children().eq(1).addClass('plan')
                         .bind('click', handle_plan_action);
@@ -698,7 +697,7 @@ function ListHandler(row_handler,
 
             // update small numbers for the tabs
             for (var k in this.response.counts) {
-                $('.tabs .c').eq(k).html(this.response.counts[k]);
+                $('.tabs .c', this.LISTS[0]).eq(k).html(this.response.counts[k]);
             }
         }
         if (this.expecting[1]) {
@@ -707,15 +706,11 @@ function ListHandler(row_handler,
                 pager.remove();
             }
             pager = $(this.response.pl_pager).appendTo(this.LISTS[1]);
-            pager.children('a').bind('click', handle_pager_plan);
-        }
-        if (this.expecting[2]) {
-            pager = $('.pager', this.LISTS[2]);
-            if (pager.length > 0) {
-                pager.remove();
+            pager.children('a').bind('click', handle_pager_mini);
+
+            for (var k in this.response.counts_left) {
+                $('.tabs .c', this.LISTS[1]).eq(k).html(this.response.counts_left[k]);
             }
-            pager = $(this.response.tr_pager).appendTo(this.LISTS[2]);
-            pager.children('a').bind('click', handle_pager_trash);
         }
     }
 
@@ -850,7 +845,6 @@ function ListHandler(row_handler,
                     $('.task-table', $('#main')).html('');
                     list_handler.expect(0);
                     list_handler.unexpect(1);
-                    list_handler.unexpect(2);
                     list_handler.build_tasklist(response, textStatus, request);
                     list_handler.unexpect(0);
                     var   url_g = '#t=' + t_group
@@ -907,20 +901,15 @@ function ListHandler(row_handler,
     }
 
     /**
-    * Planner/Trash Pager updates the url hash
+    * Mini Box Pager updates the url hash
     * Parameter: u, v
     */
-    handle_pager_plan = function(e) {
+    handle_pager_mini = function(e) {
         var page = parseInt(get_url_param('u', $(this).attr('href')));
         url_update_hash('u', page);
         return false;
     }
 
-    handle_pager_trash = function(e) {
-        var page = parseInt(get_url_param('v', $(this).attr('href')));
-        url_update_hash('v', page);
-        return false;
-    }
     /**
     * Changing task priority
     */
@@ -938,7 +927,7 @@ function ListHandler(row_handler,
 
     /**
     * Delete task
-    * #main, #plan, #trash
+    * #main, #mini
     */
     handle_delete = function(e) {
         row_handler.update_row('delete', $(this));
@@ -982,6 +971,14 @@ function ListHandler(row_handler,
         return false;
     });
 
+    $('.tabs .icon', this.LISTS[1]).click(function () {
+        var type = parseInt(get_url_param('l', $(this).children('a').attr('href')));
+        list_handler.expect(1);
+        list_handler.expect_what = type;
+        list_handler.get_tasklist();
+        return false;
+    });
+
     /**
      * Resizing the window causes tables to resize
      */
@@ -1009,15 +1006,12 @@ function ListHandler(row_handler,
         }
 
         list_handler.unexpect(1);
-        if ($('.planner-table', list_handler.LISTS[1]).height() !=
+        if ($('.table', list_handler.LISTS[1]).height() !=
             pl_tasks_per_page * list_handler.TASK_TABLE_ROW_HEIGHT) {
-            $('.planner-table', list_handler.LISTS[1])
-                .height(pl_tasks_per_page * list_handler.TASK_TABLE_ROW_HEIGHT);
-            $('.trash-table', list_handler.LISTS[2])
+            $('.table', list_handler.LISTS[1])
                 .height(pl_tasks_per_page * list_handler.TASK_TABLE_ROW_HEIGHT);
             reload = true;
             list_handler.expect(1);
-            list_handler.expect(2);
         }
 
         if (!hash_last) reload = true;
@@ -1045,10 +1039,6 @@ $('.title a', $('#main')).live('click', function () {
 });
 
 function update_groups(groups) {
-    $('.tabs .icon', $('#main'))
-        .removeClass('active')
-        .eq(t_type).addClass('active')
-    ;
     if (!t_group) {
         $('.title', $('#main'))
             .html(DEFAULT_TITLES[t_type]);
@@ -1134,7 +1124,7 @@ function get_users() {
 
 /*****************************************************************************/
 /*
-/* PLANNER
+/* MINI BOX
 /*
 /*****************************************************************************/
 function handle_plan_action(e) {
@@ -1241,10 +1231,10 @@ function init_continue() {
     $.historyInit(on_hash_change, INITIAL_URL);
     $('.modal_dialog').jqm();
     init_profile();
-    init_planner();
+    init_minibox();
     init_workbox();
 
-    row_handler = new RowHandler($('#main'), $('#plan'), $('#trash'),
+    row_handler = new RowHandler($('#main'), $('#mini'),
         TASK_GROUP_TEMPLATE
     );
     list_handler = new ListHandler(row_handler,

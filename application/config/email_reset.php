@@ -20,8 +20,7 @@ The Tasklist Team
 ';
 
 $additional_headers = "From: Tasklist Team <tasklist@craciunoiu.net>\r\n" .
-    "Reply-To: Tasklist Team <tasklist@craciunoiu.net>\r\n" .
-    "Bcc: paul@craciunoiu.net\r\n";
+    "Reply-To: Tasklist Team <tasklist@craciunoiu.net>\r\n";
 
 Kohana::$log->add('password_reset_email',
     "Reset password for {$user->username}. Email sent to: {$user->email}\n");
