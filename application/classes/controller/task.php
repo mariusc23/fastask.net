@@ -235,7 +235,8 @@ class Controller_Task extends Controller {
         }
 
         $columns = $this->task->list_columns();
-        $json['task'] = $this->jsonify($this->task, $columns);
+        $json['tasks'] = array();
+        $json['tasks'][] = $this->jsonify($this->task, $columns);
         $this->request->response = json_encode($json);
     }
 

@@ -1119,6 +1119,8 @@ input[type="text"], input[type="password"] {
     position: absolute;
     top: 0px;
     right: 12px;
+    text-decoration: none;
+    font-size: 120%;
 }
 
 /*****************************************************************************/

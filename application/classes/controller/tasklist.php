@@ -281,8 +281,7 @@ class Controller_Tasklist extends Controller_Template {
                     ->where('trash', '=', 0)
                     ->where('status', '=', 0)
                     ->where('planned', '=', 1)
-                    ->order_by('status', 'asc')
-                    ->order_by('priority', 'asc')
+                    ->order_by('lastmodified', 'desc')
                     ->limit($pagination->items_per_page)
                     ->offset($pagination->offset)
                     ->find_all();

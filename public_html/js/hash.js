@@ -17,20 +17,20 @@ function on_hash_change(hash) {
     if (page != t_page || pl_page != t_pl_page || tr_page != t_tr_page
         || group != t_group || type != t_type) {
         if (page != t_page || group != t_group || type != t_type) {
-            expecting.main = 1;
+            list_handler.expect(0);
         }
         if (pl_page != t_pl_page) {
-            expecting.plan = 1;
+            list_handler.expect(1);
         }
         if (tr_page != t_tr_page) {
-            expecting.trash = 1;
+            list_handler.expect(2);
         }
         t_page = page;
         t_pl_page = pl_page;
         t_tr_page = tr_page;
         t_group = group;
         t_type = type;
-        get_tasklist();
+        list_handler.get_tasklist();
     }
 }
 

@@ -184,11 +184,11 @@ $('.work-box input[type="submit"]').live('click', function () {
         success: function(response) {
             update_groups(response.groups);
             if (response.planned) {
-                expecting.plan = 1;
+                list_handler.expect(1);
             } else {
-                expecting.main = 1;
+                list_handler.expect(0);
             }
-            get_tasklist();
+            list_handler.get_tasklist();
             SPINWHEEL.hide();
         }
     });

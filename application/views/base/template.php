@@ -35,7 +35,15 @@ if (isset($title)) {
 </div><!-- /#content -->
 
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
-<script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
+<!--script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script-->
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/jqModal.js"></script>
+<script type="text/javascript" src="/js/jquery.history.js"></script>
+<script type="text/javascript" src="/js/hash.js"></script>
+<script type="text/javascript" src="/js/workbox.js"></script>
+<script type="text/javascript" src="/js/profile.js"></script>
+<script type="text/javascript" src="/js/left.js"></script>
+<script type="text/javascript" src="/js/main.js"></script>
 <?php elseif (($model == 'user' && $action == 'login') ||
      ($model == 'user' && $action == 'register')): ?>
 <script type="text/javascript" src="<?php print URL::site('min/?g=lr'); ?>"></script>
