@@ -3,7 +3,7 @@
 return array (
     'driver' => 'ORM',
     'hash_method' => 'sha1',
-    'salt_pattern' => '7, 12',
+    'salt_pattern' => '7, 12, 13, 29, 31',
     'lifetime' => 43200,
     'session_key' => 'tasklist_user',
     'users' => array
