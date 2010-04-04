@@ -60,15 +60,24 @@ $('.save', PROFILE_BOX).click(function() {
         url: PROFILE_BOX.find('form').attr('action'),
         data: form_data,
         beforeSend: function() {
-            set_loading(PROFILE_BOX);
+            $('.loading', PROFILE_BOX).show();
+            notif_handler.start();
         },
         error: function (response, text_status, error) {
-            unset_loading(PROFILE_BOX);
-            return task_error_ajax(response, text_status, error);
+            $('.loading', PROFILE_BOX).hide();
+            notif_handler.add(2, 'Could not update your profile');
         },
         success: function(response) {
+            if ($('input[name="password_confirm"]').val().length > 0) {
+                notif_handler.add(4);
+            } else {
+                notif_handler.add(4, 'Profile updated');
+            }
+            $('input[name="password"]', PROFILE_BOX).val('');
+            $('input[name="password_confirm"]', PROFILE_BOX).val('');
+            $('input[name="current_password"]', PROFILE_BOX).val('');
             $('input[name="change_password"]', PROFILE_BOX).val('');
-            unset_loading(PROFILE_BOX);
+            $('.loading', PROFILE_BOX).hide();
         }
     });
     return false;

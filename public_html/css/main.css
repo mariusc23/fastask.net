@@ -390,7 +390,7 @@ input[type="text"], input[type="password"] {
     position: absolute;
     left: 64px;
     display: inline;
-    width: 445px;
+    width: 455px;
     line-height: 2.5em;
 }
 .task-table .text.nogroup .g {
@@ -412,19 +412,26 @@ input[type="text"], input[type="password"] {
 .done .text span {
     text-decoration: line-through;
 }
-.task-table .row:nth-child(2n) {
+.task-table .row.ok {
+    background: #e0facf;
+}
+.task-table .row.err {
+    background: #fbe9e9;
+}
+.row:nth-child(2n) {
     background: #f5fcf4;
 }
 .task-table .row .text {
     padding-top: 0;
 }
-/*
-.task-table .text.nogroup span {
-    text-indent: 50px;
-}
-*/
 .task-table .row:hover .nogroup .g {
     z-index: 100;
+}
+.task-table .row.ok:hover .text span {
+    background: #e0facf;
+}
+.task-table .row.err:hover .text span {
+    background: #fbe9e9;
 }
 .task-table .row:hover .text span {
     background: #e9f0e6;
@@ -455,7 +462,7 @@ input[type="text"], input[type="password"] {
     background: url('img/loadbar.gif') no-repeat right;
 }
 .task-table .row:hover.loadbar .text span {
-    background: #e9f0e6 url('img/loadbar.gif') no-repeat 469px;
+    background: url('img/loadbar.gif') no-repeat 469px;
 }
 .task-table .due {
     position: absolute;
@@ -485,6 +492,12 @@ input[type="text"], input[type="password"] {
 }
 .task-table .row:hover .del a {
     background-position: -254px 0;
+}
+.task-table .row.deleted {
+    color: #999;
+}
+.task-table .row.deleted:hover .del a {
+    background-position: -492px 0;
 }
 .task-table .row:hover .followers > a {
     background-position: -244px 0;
@@ -544,9 +557,6 @@ input[type="text"], input[type="password"] {
 }
 .task-table .followers:hover ul {
     display: block;
-}
-.task-table .row:hover {
-    background-color: #e9f0e6;
 }
 
 
@@ -719,6 +729,8 @@ input[type="text"], input[type="password"] {
     height: 20px;
     width: 66px;
     padding: 0 3px 3px 3px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 .work-box .priority .p.p-1 {
     width: 46px;
@@ -727,15 +739,17 @@ input[type="text"], input[type="password"] {
 .work-box .priority > span:first-child {
     margin-right: 10px;
 }
+.work-box .priority .p-1:hover {
+    background-color: #fcedeb;
+}
+.work-box .priority .p-2:hover {
+    background-color: #fceeca;
+}
 .work-box .priority .p-1.s {
     background-color: #f5e6e4;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
 }
 .work-box .priority .p-2.s {
     background-color: #faeac2;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
 }
 
 .work-box .img {
@@ -895,7 +909,7 @@ input[type="text"], input[type="password"] {
 }
 
 .mini-box .pager {
-    bottom: 25px;
+    bottom: 35px;
 }
 
 .mini-box .title {
@@ -913,9 +927,11 @@ input[type="text"], input[type="password"] {
 .mini-box .row:nth-child(2n) {
     background: #f5fcf4;
 }
-
-.mini-box .row:hover {
-    background-color: #e9f0e6;
+.mini-box .row.ok {
+    background: #e0facf;
+}
+.mini-box .row.err {
+    background: #fbe9e9;
 }
 
 .mini-box .tabs .icon {
@@ -985,6 +1001,13 @@ input[type="text"], input[type="password"] {
     -moz-box-shadow: 0px -1px 2px #d7ddd5;
     -webkit-box-shadow: 0px -1px 2px #d7ddd5;
 }
+
+.mini-box .row.ok:hover .text {
+    background: #e0facf;
+}
+.mini-box .row.err:hover .text {
+    background: #fbe9e9;
+}
 .mini-box .row:hover .text {
     padding-left: .5em;
     background: #e9f0e6;
@@ -992,8 +1015,8 @@ input[type="text"], input[type="password"] {
     position: absolute;
     overflow: visible;
     z-index: 1;
-    width: 239px;
-    padding-right: 35px;
+    width: 235px;
+    padding-right: 39px;
     -moz-box-shadow: 0px 2px 2px #d7ddd5;
     -webkit-box-shadow: 0px 2px 2px #d7ddd5;
 }
@@ -1019,6 +1042,12 @@ input[type="text"], input[type="password"] {
 .mini-box .plan {
     left: 245px;
 }
+.mini-box .row.deleted {
+    color: #999;
+}
+.mini-box .row.deleted:hover .del a {
+    background-position: -492px 0;
+}
 .mini-box .del a
 , .mini-box .plan a {
     display: block;
@@ -1039,6 +1068,82 @@ input[type="text"], input[type="password"] {
 }
 .mini-box .row:hover .plan a {
     background-position: -266px 0;
+}
+
+/*****************************************************************************/
+/*
+/* Notifications
+/*
+/*****************************************************************************/
+.notification {
+    position: fixed;
+    left: 50%;
+    bottom: 0;
+    margin-left: -628px;
+    min-height: 40px;
+    height: auto;
+    width: 300px;
+    z-index: 1000;
+}
+
+.notification .top {
+    background: url('/css/img/sprite.png') no-repeat -570px 0;
+    padding: 12px 20px 0;
+    height: 28px;
+    z-index: 1010;
+    position: relative;
+    cursor: pointer;
+}
+
+.notification .adding {
+    display: none;
+    padding-right: 100px;
+    background: url('img/loadbar.gif') no-repeat right;
+}
+
+.notification ul {
+    position: relative;
+    top: -10px;
+    background: #fff;
+    padding: 15px 0 0;
+    margin: 0 12px 0 8px;
+    list-style: none;
+    line-height: 2em;
+    z-index: 1001;
+    display: none;
+}
+
+.notification li {
+    padding: 0 13px;
+}
+
+.notification li:nth-child(2n) {
+    background: #f5fcf4;
+}
+.notification .icon {
+    display: inline-block;
+    height: 13px;
+    width: 13px;
+    margin: 0 15px 0 5px;
+    background: url('/css/img/sprite.png') no-repeat -504px 0;
+}
+
+.notification .icon.d {
+    background-position: -254px 0;
+    width: 12px;
+}
+.notification .icon.u {
+    background-position: -530px 0;
+}
+.notification .icon.p {
+    background-position: -543px 0;
+}
+.notification .icon.s {
+    background-position: -556px 0;
+}
+.notification .icon.e {
+    background-position: -492px 0;
+    width: 12px;
 }
 
 /*****************************************************************************/

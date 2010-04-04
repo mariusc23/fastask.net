@@ -129,7 +129,7 @@ class Controller_Task extends Controller {
 
         // already has the follower, bad request
         // adding a user
-        if (isset($_POST['r']) && $_POST['r']) {
+        if (isset($_POST['a']) && $_POST['a']) {
             if ($this->task->has('followers', $user)) {
                 $this->request->status = 400;
                 return ;

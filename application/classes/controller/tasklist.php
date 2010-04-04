@@ -131,12 +131,16 @@ class Controller_Tasklist extends Controller_Template {
         $group_controller = new Controller_Group($this->request);
         $json['counts'] = $count;
         $json['counts_left'] = array($planner_count, $trash_count);
+        //$json['cache_counts'] = $this->get_cache_counts();
         $json = array_merge(
             $json,
             $group_controller->json_groups($type)
         );
 
         $this->request->response = json_encode($json);
+
+        // update cache
+        //$this->set_cache_counts($json['counts'], $json['counts_left']);
     }
 
     public function get_count($params) {
@@ -296,6 +300,34 @@ class Controller_Tasklist extends Controller_Template {
                     ->offset($pagination->offset)
                     ->find_all();
         }
+    }
+
+    public function get_cache_counts() {
+        $user_cache = $this->user->caches
+            ->where('key', '=', CACHE_COUNTS)
+            ->find();
+        if (!$user_cache->loaded()) {
+            $user_cache = new Model_Usercache();
+            $user_cache->user_id = $this->user->id;
+            $user_cache->key = CACHE_COUNTS;
+            $user_cache->value = serialize(array());
+            $user_cache->save();
+        }
+        return unserialize($user_cache->value);
+    }
+
+    public function set_cache_counts($counts, $counts_left) {
+        $counts_all = serialize(array_merge($counts, $counts_left));
+        $user_cache = $this->user->caches
+            ->where('key', '=', CACHE_COUNTS)
+            ->find();
+        if (!$user_cache->loaded()) {
+            $user_cache = new Model_Usercache();
+            $user_cache->user_id = $this->user->id;
+            $user_cache->key = CACHE_COUNTS;
+        }
+        $user_cache->value = $counts_all;
+        $user_cache->save();
     }
 
     public function search($query, $per_page) {

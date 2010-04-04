@@ -1,6 +1,7 @@
 <?php
 
 define('IN_PRODUCTION', TRUE);
+error_reporting(E_ALL ^ E_NOTICE);
 define('SITE_SEPARATOR', ' - ');
 define('SITE_NAME', 'Tasklist');
 
@@ -33,3 +34,6 @@ define('USERNAME_REGEX', '/[a-z]{3,50}/i');
 
 // notification codes
 define('NOTIFICATION_PASSWORD_RESET', 1);
+
+// cache types
+define('CACHE_COUNTS', 1);

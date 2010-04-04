@@ -17,6 +17,8 @@ if (isset($title)) {
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'register'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/register.css'); ?>" rel="stylesheet" media="screen" />
+<?php elseif ($model == 'errors'): ?>
+<link type="text/css" href="<?php print Url::site('min/f=css/errors.css'); ?>" rel="stylesheet" media="screen" />
 <?php else: ?>
 <link type="text/css" href="<?php print Url::site('min/?g=css'); ?>" rel="stylesheet" media="screen" />
 <?php endif; ?>
@@ -35,7 +37,8 @@ if (isset($title)) {
 </div><!-- /#content -->
 
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
-<!--script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script-->
+<script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
+<!--
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
@@ -44,7 +47,8 @@ if (isset($title)) {
 <script type="text/javascript" src="/js/profile.js"></script>
 <script type="text/javascript" src="/js/left.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
-
+-->
+<?php //elseif ($model == 'errors'): ?>
 <?php elseif (($model == 'user' && $action == 'login') ||
      ($model == 'user' && $action == 'register')): ?>
 <script type="text/javascript" src="<?php print URL::site('min/?g=lr'); ?>"></script>

@@ -176,17 +176,24 @@ $('.work-box input[type="submit"]').live('click', function () {
         data: form_data + '&' + target.attr('name') + '=1' + '&t=' + t_type,
         beforeSend: function() {
             SPINWHEEL.show();
+            notif_handler.start();
         },
         error: function (response, text_status, error) {
             SPINWHEEL.hide();
-            return task_error_ajax(response, text_status, error);
+            if (target.attr('name') == 'add') {
+                notif_handler.add(2, 'Failed to add task');
+            } else {
+                notif_handler.add(2, 'Failed to plan task');
+            }
         },
         success: function(response) {
             update_groups(response.groups);
             if (response.planned) {
                 list_handler.expect(1);
+                notif_handler.add(3, 'Task planned');
             } else {
                 list_handler.expect(0);
+                notif_handler.add(0);
             }
             list_handler.get_tasklist();
             SPINWHEEL.hide();
@@ -206,6 +213,7 @@ function manage_share(the_input) {
     if (the_input.is(':checked') &&
         the_input.parents('ul').find(':checked').length <= 1) {
         the_input.attr('checked', '');
+        notif_handler.add(2);
     }
 
     if (!the_input.is(':checked')) {

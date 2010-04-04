@@ -6,7 +6,7 @@ var
     , RESIZE_TIMEOUT = 1000
     , TASK_TABLE_ROW_HEIGHT = 30
     , TASK_TABLE_MINUS = 100
-    , PL_TASK_TABLE_MINUS = 100
+    , PL_TASK_TABLE_MINUS = 110
     , ASSIGNMENT_EDITABLE_WIDTH_ADJUSTMENT = 20
     , TEXT_INDENT_ADJUSTMENT = 5
     , INITIAL_URL = window.location.href
@@ -58,13 +58,15 @@ var
     , t_group = get_url_param('g', INITIAL_URL)
     , t_type = get_url_param('t', INITIAL_URL)
     , last_search_q = ''
+    , plan_custom = false
     , row_handler
     , list_handler
+    , notif_handler
 ;
 
 /*****************************************************************************/
 /*
-/* DISPATCHERS FOR PRIORITY, STATUS, DELETE
+/* ROW HANDLER. MANAGES CHANGES FOR A SINGLE ROW IN A TASKLIST.
 /*
 /*****************************************************************************/
 
@@ -119,6 +121,11 @@ function RowHandler(task_box, mini_box, TGT) {
             case 'undelete':
                 this.data.send.undo = 1;
             case 'delete':
+                if (this.t_row.hasClass('deleted')) {
+                    this.data.send.undo = 1;
+                    this.type = 'undelete';
+                }
+                notif_handler.start();
                 break;
             case 'plan':
                 if (plan_custom) {
@@ -141,13 +148,16 @@ function RowHandler(task_box, mini_box, TGT) {
                 break;
             case 'follower_add':
                 this.data.method = 'POST';
-                this.data.send = {'u': this.target.val()};
+                this.data.send = {
+                    'u': this.target.val(), 'a': 1
+                };
                 break;
             case 'follower_remove':
+                if (0 === this.t_row.find('.followers ul input:checked').length) {
+                    notif_handler.start();
+                }
                 this.data.method = 'POST';
-                this.data.send = {
-                    'u': this.target.val(), 'r': 1
-                };
+                this.data.send = {'u': this.target.val()};
                 break;
             default:
                 return false;
@@ -155,6 +165,27 @@ function RowHandler(task_box, mini_box, TGT) {
         return true;
     };
 
+
+    /*****************************************************************************/
+    /*
+    /* DISPATCHERS
+    /*
+    /*****************************************************************************/
+    this.dispatch_color = function(error) {
+        var   this_row = this.t_row, timeout = 't' + this.task_id
+            , class = 'ok';
+        if (undefined !== error) {
+            class = 'err';
+        }
+        this_row.addClass(class)
+
+        clearTimeout(jQuery.data(this.LISTS[this.box_num], timeout));
+        jQuery.data(this.LISTS[this.box_num], timeout,
+            setTimeout(function() {
+                this_row.removeClass(class);
+            }, TASKLIST_TIMEOUT)
+        );
+    }
     /**
      * Handles the JSON response for a row
      * @param type shortly, which column was edited
@@ -188,17 +219,15 @@ function RowHandler(task_box, mini_box, TGT) {
                 }
                 break;
             case 'undelete':
-                this.t_row.fadeOut('slow', function() {
-                    $(this).remove();
-                    if (!row_handler.response.task.planned) {
-                        list_handler.reset_timeout(0);
-                    }
-                });
+                this.t_row.removeClass('deleted');
+                if (!this.response.task.planned) {
+                    list_handler.reset_timeout(0);
+                }
+                notif_handler.add(5);
                 break;
             case 'delete':
-                this.t_row.fadeOut('slow', function() {
-                    $(this).remove();
-                });
+                this.t_row.addClass('deleted');
+                notif_handler.add(1);
                 break;
             case 'plan':
                 if (this.response.planned) {
@@ -231,8 +260,13 @@ function RowHandler(task_box, mini_box, TGT) {
                 break;
             case 'follower_add':
             case 'follower_remove':
+                notif_handler.finish();
                 break;
         }
+
+        // color this row
+        // positive color
+        this.dispatch_color();
         return true;
     };
 
@@ -254,14 +288,26 @@ function RowHandler(task_box, mini_box, TGT) {
                     this.target.attr('checked', 'checked');
                 }
                 break;
+            case 'undelete':
+                notif_handler.add(2, 'Could not undo deletion.');
+                break;
             case 'delete':
+                notif_handler.add(2, 'Could not delete.');
+                break;
             case 'plan':
+                notif_handler.add(2, 'Could not plan.');
                 break;
             case 'text':
+                notif_handler.add(2, 'Could not update text.');
+                break;
             case 'due':
+                notif_handler.add(2, 'Could not update due date.');
                 break;
             case 'follower_add':
+                notif_handler.add(2, 'Could not add to sharing.');
+                break;
             case 'follower_remove':
+                notif_handler.add(2);
                 if (this.target.is(':checked')) {
                     this.target.attr('checked', '');
                 } else {
@@ -269,6 +315,10 @@ function RowHandler(task_box, mini_box, TGT) {
                 }
                 break;
         }
+
+        // color this row
+        // negative color
+        this.dispatch_color(true);
         return true;
     };
 
@@ -467,6 +517,92 @@ function RowHandler(task_box, mini_box, TGT) {
     /* end of code for editable fields */
 }
 
+function NotificationHandler() {
+    this.NOTIF_BOX = $('<div class="notification"> \
+        <div class="top"><span>Notifications</span> \
+            <span class="adding">:: Adding...</span></div> \
+        <ul></ul> \
+    </div><!-- /.notification -->');
+    this.NOTIFICATIONS = [
+        $('<li><span class="icon a"></span><span>Task added</span></li>'),
+        $('<li><span class="icon d"></span><span>Task deleted</span></li>'),
+        $('<li><span class="icon u"></span><span>Cannot unassign everyone</span></li>'),
+        $('<li><span class="icon p"></span><span>Task moved to planner</span></li>'),
+        $('<li><span class="icon s"></span><span>Password changed</span></li>'),
+        $('<li><span class="icon e"></span><span>Task undeleted</span></li>')
+    ];
+    this.MAX_COUNT = 5;
+    this.HIDE_TIMEOUT = 2500;
+    this.INDICATOR = $('.top .adding', this.NOTIF_BOX);
+
+    // change
+    this.notif_list = $('ul', this.NOTIF_BOX);
+    this.last_item = null;
+    this.count = 0;
+    this.showing = 0;
+    this.showing_list = 0;
+
+    this.start = function() {
+        this.INDICATOR.show();
+    };
+
+    this.finish = function() {
+        this.INDICATOR.hide();
+    };
+
+    this.add = function(type, text) {
+        var first_item, this_item;
+        if (undefined === type) {
+            type = 0;
+        }
+        this.last_item = this.NOTIFICATIONS[type].clone();
+        if (undefined !== text) {
+            this.last_item.children().eq(-1).html(text);
+        }
+        this.count++;
+        if (this.count > this.MAX_COUNT) {
+            first_item = this.notif_list.children().eq(-1);
+            clearTimeout(jQuery.data(first_item, 'timeout'));
+            first_item.remove();
+            this.count--;
+        }
+
+        this_item = this.last_item;
+        jQuery.data(this.last_item, 'timeout', setTimeout(function() {
+            if (1 === notif_handler.showing_list) {
+                return;
+            }
+            this_item.hide();
+            notif_handler.showing--;
+            // if nothing else showing hide the list too
+            if (0 === notif_handler.showing) {
+                this_item.parent().hide();
+            }
+        }, this.HIDE_TIMEOUT));
+
+        this.notif_list.prepend(this.last_item);
+        this.showing++;
+        this.notif_list.show();
+        this.finish();
+    };
+
+    $('#content').append(this.NOTIF_BOX);
+    $('.top', this.NOTIF_BOX).click(function() {
+        if (0 === notif_handler.count) return;
+        var items = notif_handler.notif_list.children();
+        $.each(items, function(i, item) {
+            clearTimeout(jQuery.data(item, 'timeout'));
+        });
+        notif_handler.showing_list = 1 - notif_handler.showing_list;
+        if (notif_handler.showing_list) {
+            items.show();
+            notif_handler.notif_list.show();
+        } else {
+            items.hide();
+            notif_handler.notif_list.hide();
+        }
+    });
+}
 
 function ListHandler(row_handler,
     TT, REFT, REST, ST,
@@ -515,6 +651,7 @@ function ListHandler(row_handler,
     // change
     this.expecting = [1, 1];
     this.expect_what = 1;
+    this.search_val = ''
 
     /**
      * Timeouts helpers
@@ -601,29 +738,32 @@ function ListHandler(row_handler,
                         list_handler.unset_loading(i);
                     }
                 }
-                if (list_handler.expecting[0]
-                    && list_handler.request.status == 404) {
-                    $('.title', list_handler.LISTS[0])
-                        .html(list_handler.DEFAULT_TITLES[t_type]);
-                    ;
-                    list_handler.DEFAULT_NO_TASKS.insertBefore(
-                        $('.task-table', list_handler.LISTS[0]));
-                    $('.task-table', list_handler.LISTS[0]).html('');
-                    $('.tabs .icon', list_handler.LISTS[0])
-                        .removeClass('active')
-                        .eq(t_type).addClass('active')
-                    ;
+                if (request.status == 404) {
+                    if (list_handler.expecting[0]) {
+                        $('.title', list_handler.LISTS[0])
+                            .html(list_handler.DEFAULT_TITLES[t_type]);
+                        ;
+                        list_handler.DEFAULT_NO_TASKS.insertBefore(
+                            $('.task-table', list_handler.LISTS[0]));
+                        $('.task-table', list_handler.LISTS[0]).html('');
+                        $('.tabs .icon', list_handler.LISTS[0])
+                            .removeClass('active')
+                            .eq(t_type).addClass('active')
+                        ;
+                    } else if (list_handler.expecting[1]) {
+                        if (list_handler.expect_what == 1) {
+                            notif_handler.add(2, 'No tasks found in planner');
+                        } else {
+                            notif_handler.add(2, 'No tasks found in trash');
+                        }
+                    }
                 }
             },
             success: function(response, textStatus, request) {
-                //if (request.status == 200) {
                 list_handler.response = response;
                 list_handler.textStatus = textStatus;
                 list_handler.request = request;
                 list_handler.build_tasklist();
-                //} else {
-                    //task_error_response(response);
-                //}
 
                 for (var i in list_handler.expecting) {
                     if (list_handler.expecting[i]) {
@@ -660,8 +800,10 @@ function ListHandler(row_handler,
         }
 
         for (var i in this.response.tasks) {
-            if (this.response.tasks[i].planned
-                || this.response.tasks[i].trash) {
+            if (!last_search_q &&
+                (this.response.tasks[i].planned
+                || this.response.tasks[i].trash)
+            ) {
                 html_task = this.build_task_json_min(i);
                 if (this.response.tasks[i].trash) {
                     html_task.appendTo(this.LISTS[1].children('.table'));
@@ -813,53 +955,56 @@ function ListHandler(row_handler,
     /* SEARCHING
     /*
     /*****************************************************************************/
-    this.do_search = function(search_val) {
-        if (undefined == search_val ||
-            search_val.length <= 0) {
+    this.do_search = function() {
+        if (undefined == this.search_val ||
+            this.search_val.length <= 0) {
             return;
         }
+        list_handler.expect(0);
+        list_handler.unexpect(1);
         $.ajax({
             type: 'GET',
-            url: TASKLIST_URL + 'n=' + tasks_per_page
-                + '&p=' + search_page + '&s=' + search_val
+            url: this.LIST_URL + 'n=' + tasks_per_page
+                + '&p=' + search_page + '&s=' + this.search_val
+                + '&u=' + t_pl_page + '&tr=' + this.expect_what
+                + '&ep=' + this.expecting[0] + '&n=' + tasks_per_page
+                + '&eu=' + this.expecting[1] + '&m=' + pl_tasks_per_page
             ,
             dataType: 'json',
             beforeSend: function() {
-                $('.search .search-s').show();
-                return this.set_loading(0);
+                $('.search-s', list_handler.LISTS[0]).show();
+                list_handler.set_loading(0);
             },
             error: function (response, text_status, error) {
-                last_search_q = search_val;
-                this.unset_loading(0);
-                $('.search .search-s').hide();
+                last_search_q = list_handler.search_val;
+                list_handler.unset_loading(0);
+                $('.search-s', list_handler.LISTS[0]).hide();
                 if (response.status == 404) {
-                    $('.task-table', $('#main')).html('');
-                    DEFAULT_NO_TASKS.insertBefore($('.task-table', TASK_BOX));
+                    $('.table', list_handler.LISTS[0]).html('');
+                    DEFAULT_NO_TASKS.insertBefore($('.table', list_handler.LISTS[0]));
                     return ;
                 }
+                notif_handler.add(2, 'Error while searching');
                 return false;
             },
             success: function(response, textStatus, request) {
-                last_search_q = search_val;
-                if (request.status == 200) {
-                    $('.task-table', $('#main')).html('');
-                    list_handler.expect(0);
-                    list_handler.unexpect(1);
-                    list_handler.build_tasklist(response, textStatus, request);
-                    list_handler.unexpect(0);
-                    var   url_g = '#t=' + t_group
-                        , title_g = DEFAULT_TITLES_PLAIN[4];
-                    ;
-                    $('.title', $('#main'))
-                        .html('<a href="' + url_g + '">'
-                            + title_g
-                            + '</a>');
-                    ;
-                } else {
-                    task_error_response(response);
-                }
-                $('.search .search-s').show();
-                this.unset_loading(0);
+                last_search_q = list_handler.search_val;
+                $('.table', list_handler.LISTS[0]).html('');
+                list_handler.response = response;
+                list_handler.textStatus = textStatus;
+                list_handler.request = request;
+                list_handler.build_tasklist();
+                var   url_g = '#t=' + t_group
+                    , title_g = DEFAULT_TITLES_PLAIN[4];
+                ;
+                $('.title', list_handler.LISTS[0])
+                    .html('<a href="' + url_g + '">'
+                        + title_g
+                        + '</a>');
+                ;
+
+                $('.search-s', list_handler.LISTS[0]).hide();
+                list_handler.unset_loading(0);
             }
         });
     }
@@ -871,6 +1016,7 @@ function ListHandler(row_handler,
         if (search_val.length < SEARCH_MINLENGTH) {
             if (search_val.length <= 0) {
                 last_search_q = '';
+                list_handler.get_tasklist();
             }
             return true;
         }
@@ -880,7 +1026,8 @@ function ListHandler(row_handler,
         list_handler.clear_timeout();
 
         search_timeout = setTimeout(function() {
-            do_search(search_val)
+            list_handler.search_val = search_val;
+            list_handler.do_search()
         }, SEARCH_TIMEOUT);
     }
 
@@ -892,8 +1039,8 @@ function ListHandler(row_handler,
         var page = parseInt(get_url_param('p', $(this).attr('href')));
         if (last_search_q.length > 0) {
             search_page = page;
-            do_search(last_search_q);
-            last_search_q = search_val;
+            list_handler.do_search(last_search_q);
+            last_search_q = list_handler.search_val;
         } else {
             url_update_hash('p', page);
         }
@@ -955,9 +1102,9 @@ function ListHandler(row_handler,
      */
     handle_follow_action = function(e) {
         if ($(this).is(':checked')) {
-            row_handler.update_row('follower_remove', $(this));
-        } else {
             row_handler.update_row('follower_add', $(this));
+        } else {
+            row_handler.update_row('follower_remove', $(this));
         }
     }
 
@@ -1151,31 +1298,9 @@ function handle_plan_action(e) {
 
 /*****************************************************************************/
 /*
-/* ERROR HANDLING
+/* MODAL HANDLING
 /*
 /*****************************************************************************/
-function task_error_ajax(response, text_status, error) {
-    var error_html = '';
-    if (response && response.status == 404) {
-        error_html += response.responseText;
-    }
-        error_html = error + '<br/>' + text_status + '<br/>' +
-            response + '<br/>' + error;
-    error_html += '<a href="#" class="jqmClose">x</a>';
-    $('.error_dialog').html(error_html);
-    $('.error_trigger').click();
-    $('.error_dialog').focus();
-}
-
-function task_error_response(response) {
-    var response_arr = response.replace(/\\\"/g, '"').replace(/\\\'/g, "'").split('@#')
-    var error_html = '<h2>Error: ' + response_arr[0] + '</h2>';
-    if (response_arr[1]) error_html += '<pre>' + response_arr[1] + '</pre>';
-    error_html += '<a href="#" class="jqmClose">x</a>';
-    $('.error_dialog').html(error_html);
-    $('.error_trigger').click();
-    $('.error_dialog').focus();
-}
 
 $('body').keydown(function(e) {
     if ((e.keyCode == 27) &&
@@ -1223,7 +1348,8 @@ function init_continue() {
         <div class="task-table table" cellspacing="0"> \
         </div> \
         <!-- pager? --> \
-    </div><!-- /.task-box -->');
+    </div><!-- /.task-box --> \
+    ');
     //tasklist_refresh_timeout = setInterval(refresh_all, REFRESH_TIMEOUT);
 
     // Initialize history plugin.
@@ -1249,6 +1375,8 @@ function init_continue() {
         PL_TASK_TABLE_MINUS,
         FOLLOWERS_TEMPLATE
     );
+
+    notif_handler = new NotificationHandler();
 
     list_handler.resize();
 }
