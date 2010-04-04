@@ -13,5 +13,5 @@ return array(
 	'range'        => '<em>:field</em> must be within the range of <em>:param1</em> to :param2',
     'username_available' => '<em>:field</em> is already taken',
     'email_available' => '<em>:field</em> is already taken',
-    'invalid' => 'We have no record of this :field, <a href="/user/register">click here to register</a>.',
+    'invalid' => '<em>:field</em> or password incorrect',
 );

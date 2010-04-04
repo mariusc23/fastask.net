@@ -66,6 +66,6 @@ $email = isset($_POST['email']) ? $_POST['email']
 ?>
 
 <a id="account" href="/user/login/">Already have an account? Log in!<br/>
-    * Password must be at least 6 characters.</a>
+    * Password must be at least 5 characters.</a>
 
 </div>

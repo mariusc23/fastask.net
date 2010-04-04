@@ -15,7 +15,7 @@ class Model_User extends Model_Auth_User {
             ->rules('password_confirm', $this->_rules['password_confirm'])
             ->rule('username', 'min_length', array(3))
             ->rule('username', 'max_length', array(50))
-            ->rule('password', 'min_length', array(6))
+            ->rule('password', 'min_length', array(5))
             ->rule('password', 'max_length', array(50))
             ->rule('username', 'alpha_dash')
             ->filter('username', 'trim')
@@ -36,24 +36,11 @@ class Model_User extends Model_Auth_User {
     }
 
     public function validate_change($array) {
-        // Initialize the validation library and setup rules
         $array = Validate::factory($array)
             ->rule('email', 'email')
             ->rule('name', 'max_length', array(100))
-            //->rules('password', $this->_rules['password'])
-            //->rules('password_confirm', $this->_rules['password_confirm'])
-            //->rule('password', 'min_length', array(6))
-            //->rule('password', 'max_length', array(50))
             ->filter('name', 'trim')
-            //->filter('password', 'trim')
-            //->filter('password_confirm', 'trim')
         ;
-        // run username callbacks from parent
-        //foreach($this->_callbacks['username'] as $callback){
-            //$array->callback('username', array($this, $callback));
-        //}
-
-        // run email callbacks
 
         return $array;
     }
