@@ -182,8 +182,10 @@ $(document).ready(function() {
     });
     $('.register input[type="password"]').focus(function() {
         $(this).parents('label').children('.info-icon').children().addClass('on');
+        $('.strength .info-icon span').show();
     }).blur(function () {
         if ($(this).parents('label').find('.invalid').length > 0) return;
         $(this).parents('label').children('.info-icon').children().removeClass('on');
+        $('.strength .info-icon span').hide();
     });
 });

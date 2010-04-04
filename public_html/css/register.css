@@ -187,6 +187,17 @@ span.on.s-5 {
 .strength {
     color: #949393;
 }
+.strength .info-icon {
+    position: relative;
+}
+.strength .info-icon span {
+    position: absolute;
+    width: 180px;
+    text-align: center;
+    right: 0;
+    top: 0;
+    line-height: 2em;
+}
 
 #account {
     background: #eee;
