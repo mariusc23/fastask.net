@@ -120,17 +120,19 @@ class Controller_Tasklist extends Controller_Template {
             $json_task = $task_controller->jsonify($task, $columns);
             $json['tasks'][] = $json_task;
         }
+        $json['pager'] = array();
         if ($count[$old_t]) {
-            $json['pager'] = $pagination->render();
+            $json['pager'][0] = $pagination->render();
         }
         if ($planner_tasks) {
-            $json['pl_pager'] = $planner_pagination->render();
+            $json['pager'][1] = $planner_pagination->render();
         } elseif ($trash_tasks) {
-            $json['pl_pager'] = $trash_pagination->render();
+            $json['pager'][1] = $trash_pagination->render();
         }
         $group_controller = new Controller_Group($this->request);
-        $json['counts'] = $count;
-        $json['counts_left'] = array($planner_count, $trash_count);
+        $json['counts'] = array();
+        $json['counts'][0] = $count;
+        $json['counts'][1] = array($planner_count, $trash_count);
         //$json['cache_counts'] = $this->get_cache_counts();
         $json = array_merge(
             $json,
@@ -140,7 +142,7 @@ class Controller_Tasklist extends Controller_Template {
         $this->request->response = json_encode($json);
 
         // update cache
-        //$this->set_cache_counts($json['counts'], $json['counts_left']);
+        //$this->set_cache_counts($json['counts'][0], $json['counts'][1]);
     }
 
     public function get_count($params) {

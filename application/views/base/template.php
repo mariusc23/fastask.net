@@ -37,17 +37,20 @@ if (isset($title)) {
 </div><!-- /#content -->
 
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
-<script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
-<!--
+<!--script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script-->
+
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
-<script type="text/javascript" src="/js/hash.js"></script>
+<script type="text/javascript" src="/js/constants.js"></script>
+<script type="text/javascript" src="/js/url.js"></script>
+<script type="text/javascript" src="/js/notification.js"></script>
+<script type="text/javascript" src="/js/row.js"></script>
+<script type="text/javascript" src="/js/list.js"></script>
 <script type="text/javascript" src="/js/workbox.js"></script>
 <script type="text/javascript" src="/js/profile.js"></script>
-<script type="text/javascript" src="/js/left.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
--->
+
 <?php //elseif ($model == 'errors'): ?>
 <?php elseif (($model == 'user' && $action == 'login') ||
      ($model == 'user' && $action == 'register')): ?>

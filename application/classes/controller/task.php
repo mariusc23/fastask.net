@@ -224,7 +224,7 @@ class Controller_Task extends Controller {
             return ;
         }
         $json = array('task' => array());
-        if (isset($_GET['undo'])) {
+        if (isset($_POST['undo'])) {
             $this->task->trash = 0;
         } else {
             $this->task->trash = 1;
