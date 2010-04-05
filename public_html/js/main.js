@@ -171,18 +171,18 @@ function RowHandler(task_box, mini_box, TGT) {
     /* DISPATCHERS
     /*
     /*****************************************************************************/
-    this.dispatch_color = function(error) {
+    this.dispatch_markrow = function(error) {
         var   this_row = this.t_row, timeout = 't' + this.task_id
-            , class = 'ok';
+            , cls = 'ok';
         if (undefined !== error) {
-            class = 'err';
+            cls = 'err';
         }
-        this_row.addClass(class)
+        this_row.addClass(cls);
 
         clearTimeout(jQuery.data(this.LISTS[this.box_num], timeout));
         jQuery.data(this.LISTS[this.box_num], timeout,
             setTimeout(function() {
-                this_row.removeClass(class);
+                this_row.removeClass('ok err');
             }, TASKLIST_TIMEOUT)
         );
     }
@@ -266,7 +266,7 @@ function RowHandler(task_box, mini_box, TGT) {
 
         // color this row
         // positive color
-        this.dispatch_color();
+        this.dispatch_markrow();
         return true;
     };
 
@@ -318,7 +318,7 @@ function RowHandler(task_box, mini_box, TGT) {
 
         // color this row
         // negative color
-        this.dispatch_color(true);
+        this.dispatch_markrow(true);
         return true;
     };
 
@@ -454,6 +454,9 @@ function RowHandler(task_box, mini_box, TGT) {
         return false;
     });
 
+    $('form', this.LISTS[0]).live('submit', function(e) {
+        return false;
+    });
     function get_old_text(ref) {
         return ref.parents('.row').find('input[name="buffer"]').val().replace(/\\\"/g, '"').replace(/\\\'/g, "'");
     }
@@ -1015,8 +1018,10 @@ function ListHandler(row_handler,
         var search_val = $(this).val();
         if (search_val.length < SEARCH_MINLENGTH) {
             if (search_val.length <= 0) {
+                if (last_search_q.length > 0) {
+                    list_handler.get_tasklist();
+                }
                 last_search_q = '';
-                list_handler.get_tasklist();
             }
             return true;
         }
@@ -1039,8 +1044,8 @@ function ListHandler(row_handler,
         var page = parseInt(get_url_param('p', $(this).attr('href')));
         if (last_search_q.length > 0) {
             search_page = page;
-            list_handler.do_search(last_search_q);
             last_search_q = list_handler.search_val;
+            list_handler.do_search();
         } else {
             url_update_hash('p', page);
         }

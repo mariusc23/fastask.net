@@ -112,6 +112,10 @@ $('.submit', PROFILE_BOX).click(function () {
     return false;
 });
 
+$('form', PROFILE_BOX).submit(function() {
+    return false;
+});
+
 $('input[name="change_password"]', PROFILE_BOX).keyup(function (e) {
     if (e.keyCode == 13) {
         $('.submit', PROFILE_BOX).click();

@@ -363,7 +363,6 @@ class Controller_Tasklist extends Controller_Template {
             $tasks = array();
             if (isset($results)) foreach ($results as $sphinx_task) {
                 $task = new Model_Task($sphinx_task['id']);
-                $task->due = TIMESTAMP_PLANNED + 1;
                 $tasks[] = $task;
             }
         }

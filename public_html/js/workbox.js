@@ -153,7 +153,7 @@ function autocomplete_keyup(e, obj, box_class, the_url) {
 }
 
 
-
+/*
 $('.autocomplete li').live('mousedown', function() {
     var e = {'keyCode': 13}
         , obj = $('.work-box textarea')
@@ -164,7 +164,7 @@ $('.autocomplete li').live('mousedown', function() {
     autocomplete_keydown(e, obj, box_class);
     obj.focus();
 });
-
+*/
 $('.work-box input[type="submit"]').live('click', function () {
     var   form_data = $('.work-box form').serialize()
         , work_box = $('.work-box')
@@ -230,7 +230,7 @@ $('.work-box .share li').live('mousedown', function () {
     manage_share(the_input);
     return false;
 });
-
+/*
 $('.work-box textarea')
 
     .keydown(function(e) {
@@ -250,7 +250,7 @@ $('.work-box textarea')
     .blur(function(e) {
     $('.work-box .groups_auto').hide();
 });
-
+*/
 /**
 * priority update on image
 */

@@ -42,6 +42,12 @@ div.login
     -webkit-border-radius: 16px;
 }
 
+.login label span {
+    width: 72px;
+    display: inline-block;
+    text-align: right;
+}
+
 #user, #pass {
     display: block;
     cursor: pointer;
@@ -125,7 +131,7 @@ input[type="submit"] {
     background: #d2e8c8;
     border: 0;
     height: 50px;
-    width: 100%;
+    width: 300px;
     -moz-border-radius-bottomright: 16px;
     -moz-border-radius-bottomleft: 16px;
     -webkit-border-bottom-left-radius: 16px;
