@@ -501,7 +501,7 @@ function Row() {
      * Turns HTML into plain text.
      */
     function plain_text(text) {
-        return text.replace(/(<(.+)?>)/ig, '');
+        return text.replace(/(<([^>]+)>)/ig, '');
     }
     /* end of code for editable fields */
 }

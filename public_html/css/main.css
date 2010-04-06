@@ -140,3 +140,18 @@ input[type="text"], input[type="password"] {
     text-decoration: none;
     font-size: 120%;
 }
+
+.jqmWindow.help {
+    top: 10px;
+    bottom: 10px;
+    left: 50%;
+    margin-left: -350px;
+    overflow: auto;
+    width: 700px;
+    border: 1px solid black;
+    padding: 12px;
+}
+.text .help {
+    padding: 0 20px;
+    margin: 20px 0;
+}

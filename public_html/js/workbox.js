@@ -10,6 +10,7 @@
 */
 function Workbox() {
     this.groups_auto = [];
+    this.groups_refresh = false;
 
     this.set_share_list = function () {
         // create list of users to share and move up current user
@@ -161,4 +162,19 @@ function Workbox() {
     TEMPLATES.spinwheel.appendTo(TEMPLATES.workbox).hide();
     TEMPLATES.workbox.prependTo('#content');
     this.get_all_groups();
+    this.groups_refresh = setInterval(this.get_all_groups,
+        TIMEOUTS.autorefresh);
+
+    // some modal window improvements
+    function help() {
+        $('.text', TEMPLATES.modal).html(HELP);
+        TEMPLATES.modal.find('.help a').click(function () {
+            document.getElementById($(this).attr('href').substr(1)).scrollIntoView(true);
+            return false;
+        });
+        TEMPLATES.modal.addClass('help');
+        TEMPLATES.modal_trigger.click();
+    }
+
+    $('#content > .help_trigger').click(help);
 }

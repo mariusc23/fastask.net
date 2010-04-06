@@ -781,7 +781,8 @@ function List() {
                 }
             });
             $('input', TEMPLATES.modal).focus();
-            $('.modal_trigger', TEMPLATES.modal).click();
+            TEMPLATES.modal.removeClass('help');
+            TEMPLATES.modal_trigger.click();
             return false;
         }
         row_handler.update_row('plan', target);
@@ -862,7 +863,9 @@ function List() {
     $('input[name="search"]', LISTS[0]).bind('keyup', handle_search_action);
     LISTS[0].appendTo('#content');
     LISTS[1].appendTo('#content');
-    TEMPLATES.modal.appendTo('#content').jqm();
+    TEMPLATES.modal.appendTo('#content');
+    TEMPLATES.modal_trigger.appendTo('#content');
+    TEMPLATES.modal.jqm();
     this.refresh_timeout = setInterval(this.refresh_all,
         TIMEOUTS.refresh);
     this.per_page();

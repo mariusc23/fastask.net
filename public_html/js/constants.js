@@ -43,8 +43,8 @@ TIMEOUTS = {
 // delay for notification, hidden after this time
     'notifhide': 2500,
 
-// called when trying to autocomplete
-    'autocomplete': 400
+// how often to refresh autocomplete
+    'autorefresh': 90251,
 };
 
 COUNTS = {
@@ -194,8 +194,9 @@ TEMPLATES = {
     'indicator': $('.top .adding', this.NOTIF_BOX),
 
 // modal window template
+    'modal_trigger': $('<a href="#" class="modal_trigger jqModal hide">Show error</a>'),
+
     'modal': $('<div class="jqmWindow modal_dialog"> \
-        <a href="#" class="modal_trigger jqModal hide">Show error</a> \
         <a href="#" class="jqmClose">x</a> \
         <div class="text"></div> \
     </div>'),
@@ -312,3 +313,78 @@ WORKBOX = {
 // default priority
     'priority': '3'
 }
+
+HELP = '<div class="help" id="h-top">' +
+'<h1>Welcome to Tasklist! Need some help?</h1>' +
+'<div class="text">' +
+"<p>We're excited that you are using our product. Below you will find a description of the available features and examples.</p>" +
+
+
+'<h2>Sections</h2><p>' +
+'Tasklist only has one page! It is split into five areas of interest. Here they are:' +
+'<ul>' +
+'<li><a href="#h-main">The main box</a>, the largest of them all, contains four tabs, a search feature.</li>' +
+'<li><a href="#h-mini">The mini box</a>, contains the planner and trash.</li>' +
+'<li><a href="#h-noti">The notification area</a>, shows you feedback about important actions.</li>' +
+'<li><a href="#h-work">The work box</a>, from which you can create and plan tasks.</li>' +
+'<li><a href="#h-prof">Your profile</a>, from which you can change your name, email, or password.</li>' +
+'</ul>' +
+'Other sections:' +
+'<ul><li><a href="#h-due">Due dates</a>, how Tasklist understands and displays due dates.</li>' +
+'<li><a href="#h-groups">Groups</a>, how to create and efficiently use groups.</li></ul>' +
+'</p>' +
+
+
+'<h2 id="h-main">The main box</h2> <a href="#h-top">back to top</a><p>' +
+
+'<h3>The top bar</h3><p>' +
+'<p>First, look at the top bar, on top of the tasks. To the top left, notice 4 tabs, in order: <ul>' +
+'<li><em>My tasks</em> &mdash; what you created and are also following.</li>' +
+'<li><em>Assignments</em> &mdash; what other people have shared with you.</li>' +
+'<li><em>Command center</em> &mdash; what you created for other people.</li>' +
+'<li><em>Archive</em> &mdash; what you are following and is marked done.</li>' +
+'</ul></p>' +
+'<p>The center area shows your currently active tab. If you have created groups, hover over this area to filter your tasks by groups when viewing. Note that filtering by groups only brings up the tasks in that group <em>in the currently viewed tab</em>.</p>' +
+'<p>The rightmost area is for search. Simply type a word or two and the results will appear below.</p>' +
+
+'<h3>The main list and pagination</h3><p>' +
+'<p><em>See also</em> <a href="#h-due">due dates</a> and <a href="#h-groups">groups</a></p>' +
+'<p>The list is the most frequently used part of Tasklist. You can edit your tasks, change their priority, share or unshare them with others, delete them, and so on.</p>' +
+'<p>For the first 3 tabs, tasks are listed first in order of priority, and then by due date. For the archive (4th tab), they are ordered by completion time.</p>' +
+'<p>While you are editing a row, its background will change color temporarily, to indicate whether your action has completed successfully. If your actions will change the order or number of tasks in your list, the list will refresh after a few seconds of inactivity.</p>' +
+'<p>To mark a task as complete (or unmark it), click the <em>checkbox</em> to the left.</p>' +
+'<p>To change its priority, click the <em>circle icon</em> to the left of the text.</p>' +
+'<p>To edit a task or its due date, simply click on that area. Press <em>Enter</em> when you are done editing, or <em>Esc</em> to cancel your changes. If you click on the wrong task, no worries &mdash; you can navigate in the list by pressing the arrors: Up/Down or Ctrl + Alt + Left/Right.</p>' +
+'<p>To delete a task, click the red <em>delete icon</em> to the right. To undo your deletion, click on the <em>green</em> icon</p>' +
+'<p>To share a task, hover over the rightmost <em>sharing icon</em> and select who you want to share with.</p>' +
+'<p>To navigate through a longer list, use the pagination at the bottom.</p>' +
+
+
+'<h2 id="h-mini">The mini box</h2> <a href="#h-top">back to top</a><p>' +
+
+'<h3>The mini top bar</h3><p>' +
+'<p>This mini top bar has 2 tabs: planner and trash.<ul>' +
+'<li><em>Planner</em> &mdash; tasks you are following without a due date set.</li>' +
+'<li><em>Trash</em> &mdash; deleted tasks. These are periodically deleted by Tasklist (usually after 30 days).</li>' +
+'</ul></p>' +
+
+'<h3>The mini list</h3> <a href="#h-top">back to top</a><p>' +
+'<p>This list offers fewer functionality than the main one.</p>' +
+'<p>If you are viewing the planner, you can plan tasks or delete them. To plan a task for today, just click on it. To plan it for a different date, use <em>Shift + Click</em> instead.</p>' +
+'<p>You can also delete or undelete tasks by clicking on the red or green delete icon, respectively.</p>' +
+
+
+'<h2 id="h-noti">The notification area</h2> <a href="#h-top">back to top</a><p>' +
+'<p>This area gives you feedback about your actions. Some of the notifications included are: <ul>' +
+'<li><em>Task added</em> &mdash; when you create a task from the <em><a href="#h-work">work box</a></em>.</li>' +
+'<li><em>Task created in planner</em> &mdash; when you plan a new task.</li>' +
+'<li><em>Password changed/Profile updated</em> &mdash; when you change your password successfully or update your profile.</li>' +
+'<li><em>Failure to update profile</em> &mdash; this usually happens if you try to change your password and type incorrectly. Your password must be at least 5 characters.</li>' +
+'<li><em>Task deleted/undeleted</em> &mdash; when you delete/undelete a task.</li>' +
+'</ul></p>' +
+
+
+'<h2 id="h-work">The work box</h2> <a href="#h-top">back to top</a><p>' +
+'<p>From here you can create and plan tasks. Fill out the fields and click <em>submit</em> or <em>plan</em>.</p>' +
+'<p>The date field is fairly flexible and we are continuously looking for suggestions on improving its understanding of dates if you feel it is insufficient. <a href="#h-due">Read more about due dates</a>.</p>' +
+'</div></div>';
