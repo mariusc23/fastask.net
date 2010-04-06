@@ -19,11 +19,11 @@ SAVE = {
     'text': '/task/text/',
     'due': '/task/due/',
     'follower_add': '/task/share/',
-    'follower_remove': '/task/share/',
+    'follower_remove': '/task/share/'
 };
 
 CLASSES = {
-    'loadrow': 'loadbar',
+    'loadrow': 'loadbar'
 };
 
 
@@ -44,7 +44,7 @@ TIMEOUTS = {
     'notifhide': 2500,
 
 // called when trying to autocomplete
-    'autocomplete': 400,
+    'autocomplete': 400
 };
 
 COUNTS = {
@@ -69,7 +69,7 @@ PIXELS = {
 // when groups are read-only
     'assignmentwidth': 20,
 // so does the text indent
-    'assignmentindent': 5,
+    'assignmentindent': 5
 };
 
 // separator for variables in the url hash
@@ -83,7 +83,7 @@ TITLES_PLAIN = [
     'archive',
     'search',
     'planner',
-    'trash',
+    'trash'
 ];
 // the html version, used in e.g. groups
 TITLES_HTML = [
@@ -93,14 +93,14 @@ TITLES_HTML = [
     '<a href="#t=3">' + TITLES_PLAIN[3] + '</a>',
     '<a href="#s=1">' + TITLES_PLAIN[4] + '</a>',
     '<a href="#l=1">' + TITLES_PLAIN[5] + '</a>',
-    '<a href="#l=2">' + TITLES_PLAIN[6] + '</a>',
+    '<a href="#l=2">' + TITLES_PLAIN[6] + '</a>'
 ];
 
 // used with ajax, for performing calls
 PATHS = {
     'users': '/user/l/',
     'list': '/tasklist/t/',
-    'groups': '/group/f/',
+    'groups': '/group/f/'
 };
 
 // url parameters (in hash)
@@ -261,7 +261,7 @@ TEMPLATES = {
     </div><!-- work_box -->'),
 
 // spinwheel template
-    'spinwheel': $('<div class="spin"></div>'),
+    'spinwheel': $('<div class="spin"></div>')
 };
 
 LISTS = [
@@ -310,5 +310,5 @@ WORKBOX = {
     'due': '+1d',
 
 // default priority
-    'priority': '3',
+    'priority': '3'
 }

@@ -1,12 +1,15 @@
-/*-------------- GLOBAL VARIABLES --------------*/
-var
-    row_handler,
+/**
+ * Main driver for tasklist
+ * Instantiates all objects and fires up the tasklist getter.
+ * Each object appends its templates to the content when it is created.
+ * @see constants.js for template and other initial setup
+ */
+var row_handler,
     list_handler,
     notif_handler,
-    url_handler
-;
+    url_handler;
 
-$(document).ready(function() {
+$(document).ready(function () {
     /**
      * Init
      */
@@ -28,5 +31,4 @@ $(document).ready(function() {
         url_handler.group,
         url_handler.type
     );
-    list_handler.resize();
 });

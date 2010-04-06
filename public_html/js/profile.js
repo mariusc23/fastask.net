@@ -12,19 +12,19 @@ function Profile() {
     this.CURRENT_USER = {
         'id': 0,
         'username': 'fetching...',
-        'email': '',
+        'email': ''
     };
 
     /**
      * Handles the profile save.
      */
-    $('.save', TEMPLATES.profile).click(function() {
+    $('.save', TEMPLATES.profile).click(function () {
         var form_data = profile_handler.PROFILE_FORM.serialize();
         $.ajax({
             type: 'POST',
             url: TEMPLATES.profile.find('form').attr('action'),
             data: form_data,
-            beforeSend: function() {
+            beforeSend: function () {
                 $('.loading', TEMPLATES.profile).show();
                 notif_handler.start();
             },
@@ -32,7 +32,7 @@ function Profile() {
                 $('.loading', TEMPLATES.profile).hide();
                 notif_handler.add(2, 'Could not update your profile');
             },
-            success: function(response) {
+            success: function (response) {
                 if ($('input[name="password_confirm"]').val().length > 0) {
                     notif_handler.add(4);
                 } else {
@@ -53,21 +53,21 @@ function Profile() {
      */
     $('.submit', TEMPLATES.profile).click(function () {
         var steps = profile_handler.PROFILE_FORM.find('.steps').children(),
-            current_step = steps.index(steps.filter('.on'))
+            current_step = steps.index(steps.filter('.on')),
             change_password = profile_handler.PROFILE_FORM
                     .find('input[name="change_password"]').val();
-        if (current_step == 0) {
+        if (current_step === 0) {
             $('input[name="current_password"]',
                 profile_handler.PROFILE_FORM).val(change_password);
             $('.info', TEMPLATES.profile).hide();
             $('.lstep', TEMPLATES.profile).html('New password: ');
-        } else if (current_step == 1) {
+        } else if (current_step === 1) {
             $(this).val('save');
             $('input[name="password"]',
                 profile_handler.PROFILE_FORM).val(change_password);
             $('.info', TEMPLATES.profile).hide();
             $('.lstep', TEMPLATES.profile).html('Confirm new password: ');
-        } else if (current_step == 2) {
+        } else if (current_step === 2) {
             $('input[name="password_confirm"]',
                 profile_handler.PROFILE_FORM).val(change_password);
             $('.save', TEMPLATES.profile).click();
@@ -84,7 +84,7 @@ function Profile() {
     });
 
     // Need to return false for Chrome
-    $('form', TEMPLATES.profile).submit(function() {
+    $('form', TEMPLATES.profile).submit(function () {
         return false;
     });
 
@@ -92,7 +92,7 @@ function Profile() {
      * Shortcut for pressing enter --> calls Next>
      */
     $('input[name="change_password"]', TEMPLATES.profile).keyup(function (e) {
-        if (e.keyCode == 13) {
+        if (e.keyCode === 13) {
             $('.submit', TEMPLATES.profile).click();
             return false;
         }
@@ -101,23 +101,23 @@ function Profile() {
     /**
      * Gets and builds the list of users in JSON
      */
-    this.get_users = function() {
+    this.get_users = function () {
         $.ajax({
             type: 'GET',
             url: PATHS.users,
             dataType: 'json',
             error: function (response, text_status, error) {
-                console.log('Error getting users.');
+                alert('Error getting users.');
                 return false;
             },
-            success: function(response, textStatus, request) {
-                var html_f;
+            success: function (response, textStatus, request) {
+                var html_f, i, CURRENT_USER;
                 TEMPLATES.followers
                     .children()
                         .remove()
                         .end()
                     .html('');
-                for (var i in response.users) {
+                for (i in response.users) {
                     if (response.users[i].current) {
                         CURRENT_USER = response.users[i];
                     }
@@ -141,7 +141,7 @@ function Profile() {
                 workbox_handler.set_share_list();
             }
         });
-    }
+    };
 
     // init stuff
     this.get_users();

@@ -26,35 +26,35 @@ function Url() {
      * @param string hash the part of the url after # (and not including)
      * @requires global reference to url_handler
      */
-    this.on_hash_change = function(hash) {
+    this.on_hash_change = function (hash) {
         if (hash === this.hash_last) {
             return false;
         }
 
         url_handler.hash_last = hash;
-        var   mainpage = parseInt(url_handler.get_url_param(
-                PARAMS.mainpage, window.location.href))
-            , minipage = parseInt(url_handler.get_url_param(
-                PARAMS.minipage, window.location.href))
-            , group = parseInt(url_handler.get_url_param(
-                PARAMS.group, window.location.href))
-            , type = parseInt(url_handler.get_url_param(
-                PARAMS.type, window.location.href))
-        ;
-        if (mainpage != url_handler.mainpage
-            || minipage != url_handler.minipage
-            || group != url_handler.group
-            || type != url_handler.type) {
+        var mainpage = parseInt(url_handler.get_url_param(
+                PARAMS.mainpage, window.location.href), 10),
+            minipage = parseInt(url_handler.get_url_param(
+                PARAMS.minipage, window.location.href), 10),
+            group = parseInt(url_handler.get_url_param(
+                PARAMS.group, window.location.href), 10),
+            type = parseInt(url_handler.get_url_param(
+                PARAMS.type, window.location.href), 10);
+
+        if (mainpage !== url_handler.mainpage ||
+            minipage !== url_handler.minipage ||
+            group !== url_handler.group ||
+            type !== url_handler.type) {
 
             // main list changed, reload it
-            if (mainpage != url_handler.mainpage
-                || group != url_handler.group
-                || type != url_handler.type) {
+            if (mainpage !== url_handler.mainpage ||
+                group !== url_handler.group ||
+                type !== url_handler.type) {
                 list_handler.expect(0);
             }
 
             // mini list changed, reload it
-            if (minipage != url_handler.minipage) {
+            if (minipage !== url_handler.minipage) {
                 list_handler.expect(1);
             }
 
@@ -65,7 +65,7 @@ function Url() {
             list_handler.set_params(mainpage, minipage, group, type);
             list_handler.get_lists();
         }
-    }
+    };
 
     /**
      * Gets a URL parameter by name from a given URL
@@ -75,25 +75,25 @@ function Url() {
      * @param (optional) string url what to look in, defaults to
      *     window.location.href
      */
-    this.get_url_param = function(name, url) {
+    this.get_url_param = function (name, url) {
         if (!url || undefined === url) {
             url = window.location.href;
         }
         // sanitize name
-        name = name.replace(/[\[]/, '\\\[').replace(/[\]]/, '\\\]');
+        name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
 
         // start searching
-        var regexS = '[\\#;]' + name + '=([^' + HASH_SEPARATOR + ']*)';
-        var regex = new RegExp(regexS);
-        var results = regex.exec(url);
-        if (results == null) {
+        var regexS = '[\\#;]' + name + '=([^' + HASH_SEPARATOR + ']*)',
+            regex = new RegExp(regexS),
+            results = regex.exec(url);
+        if (results === null) {
             // default some parameters
-            if (name == PARAMS.mainpage
-                || name == PARAMS.minipage) {
+            if (name === PARAMS.mainpage ||
+                name === PARAMS.minipage) {
                 return 1;
             }
-            if (name == PARAMS.group
-                || name == PARAMS.type) {
+            if (name === PARAMS.group ||
+                name === PARAMS.type) {
                 return 0;
             }
 
@@ -101,7 +101,7 @@ function Url() {
             return '';
         }
         return results[1];
-    }
+    };
 
     /**
      * Updates the hash with a param and a value. Optionally resets the page
@@ -109,17 +109,14 @@ function Url() {
      * @param string val param value
      * @param bool erase_page reset page number or not
      */
-    this.url_update_hash = function(param, val, reset_page) {
-        var   new_hash = ''
-            , initial = this.hash_last
-            , params_values = []
-            , params = {}
-            , param_value
-        ;
+    this.url_update_hash = function (param, val, reset_page) {
+        var new_hash = '', initial = this.hash_last,
+            params_values = [], params = {}, param_value,
+            i;
         // split url into params
         if (initial) {
             params_values = initial.split(';');
-            for (var i in params_values) {
+            for (i in params_values) {
                 param_value = params_values[i].split('=');
                 params[param_value[0]] = param_value[1];
             }
@@ -133,24 +130,26 @@ function Url() {
             delete params.p;
         }
         // if type changes, delete group
-        if (param == PARAMS.type) {
+        if (param === PARAMS.type) {
             delete params.g;
         }
 
         // any of these changes requires page reset
-        if ((undefined !== params.g && params.g != this.group) || 
-            (undefined !== params.t && params.t != this.type)) {
+        if ((undefined !== params.g && params.g !== this.group) ||
+            (undefined !== params.t && params.t !== this.type)) {
             params.p = 1;
         }
 
         // done setting up, collapse params to string
-        for (var i in params) {
-            if (!params[i]) continue;
+        for (i in params) {
+            if (!params[i]) {
+                continue;
+            }
             new_hash += ';' + i + '=' + params[i];
         }
-        window.location.href = this.INITIAL_URL_NOHASH
-            + '#' + new_hash.substr(1);
-    }
+        window.location.href = this.INITIAL_URL_NOHASH +
+            '#' + new_hash.substr(1);
+    };
 
     // pages:
     // main list page

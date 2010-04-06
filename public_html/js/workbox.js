@@ -9,7 +9,7 @@
  * @requires profile.js
 */
 function Workbox() {
-    this.set_share_list = function() {
+    this.set_share_list = function () {
         // create list of users to share and move up current user
         var share_with = TEMPLATES.followers.clone(),
             current_user = share_with
@@ -29,27 +29,26 @@ function Workbox() {
      * Handles form submission. Creates task and refreshes one of the lists.
      */
     $('input[type="submit"]', TEMPLATES.workbox).click(function () {
-        var   form_data = $('form', TEMPLATES.workbox).serialize()
-            , target = $(this)
-        ;
+        var form_data = $('form', TEMPLATES.workbox).serialize(),
+            target = $(this);
         $.ajax({
             type: 'POST',
             url: TEMPLATES.workbox.find('form').attr('action'),
-            data: form_data + '&' + target.attr('name') + '=1'
-                + '&t=' + list_handler.type,
-            beforeSend: function() {
+            data: form_data + '&' + target.attr('name') + '=1' +
+                '&t=' + list_handler.type,
+            beforeSend: function () {
                 TEMPLATES.spinwheel.show();
                 notif_handler.start();
             },
             error: function (response, text_status, error) {
                 TEMPLATES.spinwheel.hide();
-                if (target.attr('name') == 'add') {
+                if (target.attr('name') === 'add') {
                     notif_handler.add(2, 'Failed to add task');
                 } else {
                     notif_handler.add(2, 'Failed to plan task');
                 }
             },
-            success: function(response) {
+            success: function (response) {
                 list_handler.update_groups(response.groups);
                 if (response.planned) {
                     list_handler.expect(1);
@@ -69,13 +68,12 @@ function Workbox() {
      * Manages the sharing
      */
     function manage_share() {
-        var   s_obj = $('.share .input', TEMPLATES.workbox)
-            , s_text = s_obj.text()
-            , the_input = $(this)
-            , new_text = the_input.next().html()
-            , this_in_regex = new RegExp('([ ]|^)' + new_text + '([ ]|$)')
-            , this_in = this_in_regex.exec(s_text)
-        ;
+        var s_obj = $('.share .input', TEMPLATES.workbox),
+            s_text = s_obj.text(),
+            the_input = $(this),
+            new_text = the_input.next().html(),
+            this_in_regex = new RegExp('([ ]|^)' + new_text + '([ ]|$)'),
+            this_in = this_in_regex.exec(s_text);
 
         if (!the_input.is(':checked') &&
             the_input.parents('ul').find(':checked').length <= 0) {
@@ -84,7 +82,7 @@ function Workbox() {
         }
 
         if (the_input.is(':checked')) {
-            if (this_in == null) {
+            if (this_in === null) {
                 s_obj.text(s_text + ' ' + new_text);
             }
         } else {
@@ -95,7 +93,7 @@ function Workbox() {
     /**
     * Updates the priority on click
     */
-    $('.priority .p', TEMPLATES.workbox).click(function() {
+    $('.priority .p', TEMPLATES.workbox).click(function () {
         if ($(this).hasClass('s')) {
             $(this).parents('.priority').find('input').val('3');
             $(this).removeClass('s');
@@ -117,7 +115,8 @@ function Workbox() {
     $('.clear', TEMPLATES.workbox).click(function () {
         $('textarea', TEMPLATES.workbox)[0].value = '';
         $('input[name="due"]', TEMPLATES.workbox).val(WORKBOX.due);
-        $('.share .input', TEMPLATES.workbox).html(CURRENT_USER.username);
+        $('.share .input', TEMPLATES.workbox).html(profile_handler
+            .CURRENT_USER.username);
         $('.share input', TEMPLATES.workbox).attr('checked', '');
         $('.share input', TEMPLATES.workbox).eq(0).attr('checked', 'checked');
         $('.priority input', TEMPLATES.workbox).val(WORKBOX.priority);
@@ -126,6 +125,6 @@ function Workbox() {
     });
 
     // init stuff
-    TEMPLATES.spinwheel.appendTo(TEMPLATES.workbox).hide()
+    TEMPLATES.spinwheel.appendTo(TEMPLATES.workbox).hide();
     TEMPLATES.workbox.prependTo('#content');
 }

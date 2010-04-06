@@ -24,7 +24,7 @@ function Notification() {
     /**
      * Shows the "Adding..." indicator
      */
-    this.start = function() {
+    this.start = function () {
         TEMPLATES.indicator.show();
     };
 
@@ -32,7 +32,7 @@ function Notification() {
      * Hides the "Adding..." indicator
      * @see add for example use
      */
-    this.finish = function() {
+    this.finish = function () {
         TEMPLATES.indicator.hide();
     };
 
@@ -43,7 +43,7 @@ function Notification() {
      * @param string text what to text put in the notification
      * @see constants.js for notification types
      */
-    this.add = function(type, text) {
+    this.add = function (type, text) {
         var first_item, this_item;
         if (undefined === type) {
             type = 0;
@@ -52,21 +52,21 @@ function Notification() {
         if (undefined !== text) {
             this.last_item.children().eq(-1).html(text);
         }
-        this.count++;
+        this.count += 1;
         if (this.count > COUNTS.notifmax) {
             first_item = this.notif_list.children().eq(-1);
             clearTimeout(jQuery.data(first_item, 'timeout'));
             first_item.remove();
-            this.count--;
+            this.count -= 1;
         }
 
         this_item = this.last_item;
-        jQuery.data(this.last_item, 'timeout', setTimeout(function() {
+        jQuery.data(this.last_item, 'timeout', setTimeout(function () {
             if (1 === notif_handler.showing_list) {
                 return;
             }
             this_item.hide();
-            notif_handler.showing--;
+            notif_handler.showing -= 1;
             // if nothing else showing hide the list too
             if (0 === notif_handler.showing) {
                 this_item.parent().hide();
@@ -74,7 +74,7 @@ function Notification() {
         }, TIMEOUTS.notifhide));
 
         this.notif_list.prepend(this.last_item);
-        this.showing++;
+        this.showing += 1;
         this.notif_list.show();
         this.finish();
     };
@@ -83,10 +83,12 @@ function Notification() {
      * Show/hide the notifications
      * Also clears the timeouts, stored using jQuery.data()
      */
-    $('.top', TEMPLATES.notifbox).click(function() {
-        if (0 === notif_handler.count) return;
+    $('.top', TEMPLATES.notifbox).click(function () {
+        if (0 === notif_handler.count) {
+            return false;
+        }
         var items = notif_handler.notif_list.children();
-        $.each(items, function(i, item) {
+        $.each(items, function (i, item) {
             clearTimeout(jQuery.data(item, 'timeout'));
         });
         notif_handler.showing_list = 1 - notif_handler.showing_list;
