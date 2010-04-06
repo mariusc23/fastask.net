@@ -9,6 +9,8 @@
  * @requires profile.js
 */
 function Workbox() {
+    this.groups_auto = [];
+
     this.set_share_list = function () {
         // create list of users to share and move up current user
         var share_with = TEMPLATES.followers.clone(),
@@ -24,6 +26,37 @@ function Workbox() {
             .appendTo('.share', TEMPLATES.workbox);
         $('.share input', TEMPLATES.workbox).bind('click', manage_share);
     };
+
+    this.get_all_groups = function () {
+        // update autocomplete
+        $.ajax({
+            url: PATHS.groups,
+            type: 'POST',
+            async: true,
+            cache: false,
+            dataType: 'json',
+            timeout: 3000,
+            global: false,
+            error: function(request, textStatus, error) {
+                // fail silently
+                return false;
+            },
+            success: function(data, textStatus, request) {
+                delete workbox_handler.groups_auto;
+                workbox_handler.groups_auto = [];
+
+                if (data.results.length > 0) {
+                    for (var i in data.results) {
+                        workbox_handler.groups_auto.push(data
+                            .results[i].name);
+                    }
+                }
+                $('textarea', TEMPLATES.workbox)
+                    .autocomplete(workbox_handler.groups_auto);
+            }
+        });
+    };
+
 
     /**
      * Handles form submission. Creates task and refreshes one of the lists.
@@ -127,4 +160,5 @@ function Workbox() {
     // init stuff
     TEMPLATES.spinwheel.appendTo(TEMPLATES.workbox).hide();
     TEMPLATES.workbox.prependTo('#content');
+    this.get_all_groups();
 }

@@ -100,7 +100,7 @@ TITLES_HTML = [
 PATHS = {
     'users': '/user/l/',
     'list': '/tasklist/t/',
-    'groups': '/group/f/'
+    'groups': '/group/l/'
 };
 
 // url parameters (in hash)

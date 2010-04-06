@@ -77,24 +77,14 @@ class Controller_Group extends Controller {
     /**
      * Find groups starting with given letters
      */
-    public function action_f() {
+    public function action_l() {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
 
         $json = array('results' => array());
 
-        if (!isset($_POST['name']) || !$_POST['name']) {
-            $this->request->status = 400;
-            $this->request->response =
-                json_encode(array_merge($json,
-                    array('message' => 'Empty search')
-                ));
-            return ;
-        }
-
         $groups = ORM::factory('group')
              ->where('user_id', '=', $this->user->id)
-             ->where('name', 'LIKE', $_POST['name'] . '%')
              ->order_by('name', 'asc')
              ->find_all()
         ;

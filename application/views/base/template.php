@@ -37,11 +37,12 @@ if (isset($title)) {
 </div><!-- /#content -->
 
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
-<!--script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script-->
-
+<script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
+<!--
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
+<script type="text/javascript" src="/js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="/js/constants.js"></script>
 <script type="text/javascript" src="/js/url.js"></script>
 <script type="text/javascript" src="/js/notification.js"></script>
@@ -50,7 +51,7 @@ if (isset($title)) {
 <script type="text/javascript" src="/js/workbox.js"></script>
 <script type="text/javascript" src="/js/profile.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
-
+-->
 <?php //elseif ($model == 'errors'): ?>
 <?php elseif (($model == 'user' && $action == 'login') ||
      ($model == 'user' && $action == 'register')): ?>
