@@ -16,8 +16,8 @@ if (isset($errors)) {
     foreach ($errors as $error) {
         print '<li>' . ucfirst($error) . '</li>';
     }
+    print '</ul>';
 }
-print '</ul>';
 print '<label for="username" id="user"><span>Username:</span> '
     . Form::input('username', $username, array('id' => 'username')) . '</label>';
 print '<label for="password" id="pass"><span>Password:</span> '

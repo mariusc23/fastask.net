@@ -406,9 +406,9 @@ function Row() {
     }
 
     // this is required for e.g. Chrome
-    $('form', LISTS[0]).live('submit', function (e) {
+    function handle_editable_submit(e) {
         return false;
-    });
+    }
 
     /**
      * Returns previous text to use when deciding to save or cancel
@@ -483,6 +483,7 @@ function Row() {
             .bind('keydown', handle_editable_keydown)
             .bind('focusout', handle_editable_focusout)
             .focus();
+        rephtml.bind('submit', handle_editable_submit);
         list_handler.editing[id] = 1;
     };
 

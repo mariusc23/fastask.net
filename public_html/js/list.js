@@ -286,7 +286,7 @@ function List() {
         // remove previous tasks
         for (i in this.expecting) {
             if (this.expecting[i]) {
-                if (0 === i) {
+                if (0 === parseInt(i, 10)) {
                     // for main, also remove message
                     $('.notasks', LISTS[i]).remove();
                 }
@@ -866,4 +866,7 @@ function List() {
     this.refresh_timeout = setInterval(this.refresh_all,
         TIMEOUTS.refresh);
     this.per_page();
+    $('.loading').each(function () {
+        $(this).height($(this).parent().height() + 'px');
+    });
 }

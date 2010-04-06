@@ -31,4 +31,9 @@ $(document).ready(function () {
         url_handler.group,
         url_handler.type
     );
+    var hash_pos = window.location.href.indexOf('#');
+    if (hash_pos === -1 || hash_pos + 1 == window.location.href.length) {
+        list_handler.get_lists();
+    }
+
 });

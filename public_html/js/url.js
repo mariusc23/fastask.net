@@ -135,8 +135,10 @@ function Url() {
         }
 
         // any of these changes requires page reset
-        if ((undefined !== params.g && params.g !== this.group) ||
-            (undefined !== params.t && params.t !== this.type)) {
+        if ((undefined !== params.g &&
+            parseInt(params.g, 10) !== this.group) ||
+            (undefined !== params.t &&
+            parseInt(params.t, 10) !== this.type)) {
             params.p = 1;
         }
 
