@@ -13,16 +13,15 @@ if (isset($errors)) {
     foreach ($errors as $error) {
         print '<li>' . ucfirst($error) . '</li>';
     }
+    print '</ul>';
 }
-print '</ul>';
 print '<label for="password"><span>Password:</span> '
     . Form::password('password', '', array('id' => 'password')) . '</label>';
 print '<label for="password_confirm"><span>Repeat:</span> '
     . Form::password('password_confirm', '', array('id' => 'password_confirm', 'maxlength' => 50));
 // persist code
 print Form::hidden('code', $code);
-?>
-<?php
+
 print Form::submit('reset', 'change and log in');
 
 print Form::close();

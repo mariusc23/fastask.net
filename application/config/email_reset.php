@@ -4,6 +4,11 @@ if (strlen($user->name) > 0) {
 } else {
     $message_name = $user->username;
 }
+
+$subject = SITE_NAME . SITE_SEPARATOR
+    . $user->username . SITE_SEPARATOR
+    . 'password reset code';
+
 $message = 'Hi ' . $message_name . ',
 
 Someone, presumably you, requested a password reset for your account on Tasklist. If you do not wish to reset your password, ignore this email, and your password will remain unchanged.
@@ -23,5 +28,5 @@ $additional_headers = "From: Tasklist Team <tasklist@craciunoiu.net>\r\n" .
     "Reply-To: Tasklist Team <tasklist@craciunoiu.net>\r\n";
 
 Kohana::$log->add('password_reset_email',
-    "Reset password for {$user->username}. Email sent to: {$user->email}\n");
+    "Reset password for {$user->username}. Email sent to: {$user->email}");
 ?>

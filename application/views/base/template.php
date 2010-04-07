@@ -13,6 +13,8 @@ if (isset($title)) {
 <link type="image/x-icon" href="<?php print Url::site('favicon.ico') ?>" rel="shortcut icon">
 <?php if ($model == 'user' && $action == 'reset'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
+<?php elseif ($model == 'user' && $action == 'invite'): ?>
+<link type="text/css" href="<?php print Url::site('min/f=css/invite.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'login'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'register'): ?>

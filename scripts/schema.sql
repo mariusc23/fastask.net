@@ -141,3 +141,17 @@ INSERT INTO `roles` (`id`, `name`, `description`) VALUES
 (1, 'login', 'Login privileges, granted after account confirmation.'),
 (2, 'admin', 'Administrative user, has access to everything.'),
 (3, 'author', 'Can create, delete and edit own content.');
+
+
+CREATE TABLE IF NOT EXISTS `invitations` (
+  `id` int(12) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(12) NOT NULL,
+  `email` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `lastmodified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`),
+  KEY `user_id` (`user_id`),
+  KEY `lastmodified` (`lastmodified`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+

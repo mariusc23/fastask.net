@@ -47,12 +47,9 @@ input[type="text"]
     border: 1px solid #d2e8c8;
 }
 
-a {
+a#account {
     color: #8f8f8f;
     text-decoration: none;
-    position: relative;
-    top: -5px;
-    margin-left: 20px;
     font-size: 80%;
 }
 

@@ -8,14 +8,16 @@ $email = isset($_POST['email']) ? $_POST['email']
 <h1>Register</h1>
 
 <?php print Form::open('user/register', array('class' => 'register')); ?>
+<?php if ($errors || !$invited): ?>
     <ul>
-        <li>we're still in private beta, registration is invitation-only</li>
-<?php if (isset($errors)): ?>
+        <li>we're still in private beta. <a href="http://craciunoiu.net/contact">ask for an invitation</a></li>
+<?php if ($errors): ?>
     <?php foreach ($errors as $error): ?>
         <li><?php print ucfirst($error); ?></li>
     <?php endforeach; ?>
 <?php endif; ?>
     </ul>
+<?php endif; ?>
 <label for="username"><span class="label">Username:</span> <?php
     print Form::input('username', $username, array('maxlength' => 50, 'id' => "username"));
 ?>
@@ -57,9 +59,8 @@ $email = isset($_POST['email']) ? $_POST['email']
 </label>
 
 <?php
-    // TODO: remove this
-    if (isset($_REQUEST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead'])) {
-        print Form::hidden('a06d2d1f8c394e3421286a81254d6ad6bf9c4ead', $_REQUEST['a06d2d1f8c394e3421286a81254d6ad6bf9c4ead']);
+    if ($invited && $_REQUEST['code']) {
+        print Form::hidden('code', $_REQUEST['code']);
     }
     print Form::submit('register', 'sign up');
     print Form::close();
