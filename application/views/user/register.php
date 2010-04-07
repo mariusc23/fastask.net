@@ -3,6 +3,10 @@ $username = isset($_POST['username']) ? $_POST['username']
             : '';
 $email = isset($_POST['email']) ? $_POST['email']
             : '';
+
+if (!$email) {
+    $email = $invite_email;
+}
 ?>
 <div class="register" style="display: none">
 <h1>Register</h1>

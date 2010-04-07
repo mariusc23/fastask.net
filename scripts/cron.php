@@ -10,6 +10,8 @@ if (defined('CRON_REPEAT_INTERVAL')) {
     $interval = 'INTERVAL 30 DAY';
 }
 
+$invite_interval = 'INTERVAL 7 DAY';
+
 $db_link = new PDO("mysql:host=" . DB_KOHANA_HOST . ";dbname=" . DB_KOHANA_NAME, DB_KOHANA_USER, DB_KOHANA_PASS);
 
 $q = "
@@ -22,9 +24,21 @@ $q = "
 $statement = $db_link->prepare($q);
 $count = $statement->execute();
 
+$tasks = $statement->rowCount();
+
+$q = "
+    DELETE FROM
+        invitations
+    WHERE
+        lastmodified < DATE_SUB(CURRENT_DATE(), $invite_interval)
+    ;";
+$statement = $db_link->prepare($q);
+$count = $statement->execute();
+$invites = $statement->rowCount();
+
+
 if ($count) {
-    $row_count = intval($statement->rowCount());
-    echo "Cron ran successfully. $row_count tasks erased.\n";
+    echo "Cron ran successfully. $tasks tasks erased. $invites invations erased.\n";
 } else {
     echo "No tasks erased.\n";
 }

@@ -141,6 +141,9 @@ class Controller_User extends Controller_Template {
  
                 // and save it
                 $user->save();
+
+                // delete the invitation
+                $invitation->delete();
  
                 // add the login role
                 $login_role = new Model_Role(array('name' => 'login'));
@@ -157,6 +160,9 @@ class Controller_User extends Controller_Template {
                 $this->template->title = 'Error registering';
                 return ;
             }
+        }
+        if ($view->invited) {
+            $view->invite_email = $invitation->email;
         }
         $this->template->title = 'Register';
     }
@@ -368,7 +374,7 @@ class Controller_User extends Controller_Template {
             //generate hash code and send email
             $invitation = new Model_Invitation();
             $invitation->user_id = $user->id;
-            $invitation->email = NOTIFICATION_PASSWORD_RESET;
+            $invitation->email = $_POST['email'];
             $invitation->code = sha1(rand()
             . md5(session_id()) . rand()) . time();
             $invitation->save();
