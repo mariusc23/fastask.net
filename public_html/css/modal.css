@@ -53,6 +53,9 @@
 .jqmWindow.collaborator {
     top: 50%;
     left: 50%;
-    margin-left: -125px;
-    width: 250px;
+    margin-left: -145px;
+    width: 300px;
+}
+.jqmWindow.collaborator input {
+    width: 260px;
 }

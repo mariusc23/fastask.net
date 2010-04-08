@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS `groups` (
 CREATE TABLE IF NOT EXISTS `notifications` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(12) unsigned NOT NULL,
+  `follower_id` bigint(12) unsigned DEFAULT NULL,
   `type` tinyint(2) unsigned NOT NULL,
   `code` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `params` text COLLATE utf8_unicode_ci NOT NULL,
@@ -55,8 +56,9 @@ CREATE TABLE IF NOT EXISTS `notifications` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `code` (`code`),
   KEY `user_id` (`user_id`),
-  KEY `type` (`type`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  KEY `type` (`type`),
+  KEY `follower_id` (`follower_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -155,3 +157,10 @@ CREATE TABLE IF NOT EXISTS `invitations` (
   KEY `lastmodified` (`lastmodified`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+
+CREATE TABLE IF NOT EXISTS `follow_user` (
+  `user_id` bigint(12) unsigned NOT NULL COMMENT 'who',
+  `follower_id` bigint(12) unsigned NOT NULL COMMENT 'share with who',
+  PRIMARY KEY (`user_id`,`follower_id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
