@@ -34,11 +34,12 @@ return array(
     'js' => array('//js/jquery.min.js', '//js/jqModal.js',
         '//js/jquery.history.js', '//js/jquery.autocomplete.pack.js',
         '//js/constants.js', '//js/url.js', '//js/notification.js',
-        '//js/row.js', '//js/list.js', '//js/workbox.js',
+        '//js/row.js', '//js/list.js', '//js/workbox.js', '//js/modal.js',
         '//js/profile.js', '//js/main.js'),
 
     'lr' => array('//js/jquery.min.js', '//js/register.js'),
-    'css' => array('//css/main.css', '//css/list.css', '//css/workbox.css',
-        '//css/profile.css', '//css/notification.css', '//css/autocomplete.css'),
+    'css' => array('//css/main.css', '//css/modal.css', '//css/list.css',
+        '//css/workbox.css', '//css/profile.css', '//css/notification.css',
+        '//css/autocomplete.css'),
 
 );

@@ -139,8 +139,15 @@ function Profile() {
                 // update current user and workbox
                 profile_handler.CURRENT_USER = CURRENT_USER;
                 workbox_handler.set_share_list();
+
+                profile_handler.continue_init();
             }
         });
+    };
+
+    this.continue_init = function () {
+        list_handler.get_lists();
+        url_handler.allow_get_lists = true;
     };
 
     // init stuff

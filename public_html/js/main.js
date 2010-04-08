@@ -19,11 +19,11 @@ $(document).ready(function () {
             .end()
         .html('');
 
+    modal_handler = new Modal();
     notif_handler = new Notification();
     list_handler = new List();
     row_handler = new Row();
     url_handler = new Url();
-    profile_handler = new Profile();
     workbox_handler = new Workbox();
 
     list_handler.set_params(url_handler.mainpage,
@@ -31,8 +31,7 @@ $(document).ready(function () {
         url_handler.group,
         url_handler.type
     );
-    var hash_pos = window.location.href.indexOf('#');
-    if (hash_pos === -1 || hash_pos + 1 == window.location.href.length) {
-        list_handler.get_lists();
-    }
+
+    // this one fires off the calls
+    profile_handler = new Profile();
 });

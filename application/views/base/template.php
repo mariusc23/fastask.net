@@ -13,7 +13,7 @@ if (isset($title)) {
 <link type="image/x-icon" href="<?php print Url::site('favicon.ico') ?>" rel="shortcut icon">
 <?php if ($model == 'user' && $action == 'reset'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
-<?php elseif ($model == 'user' && $action == 'invite'): ?>
+<?php elseif ($model == 'user' && ($action == 'invite' || $action == 'share')): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/invite.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'user' && $action == 'login'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/login.css'); ?>" rel="stylesheet" media="screen" />
@@ -40,12 +40,13 @@ if (isset($title)) {
 
 <?php if ($model == 'tasklist' && $action == 'index'): ?>
 <script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
-<!--
+<?php /*
 <script type="text/javascript" src="/js/jquery.min.js"></script>
 <script type="text/javascript" src="/js/jquery.history.js"></script>
 <script type="text/javascript" src="/js/jqModal.js"></script>
 <script type="text/javascript" src="/js/jquery.autocomplete.pack.js"></script>
 <script type="text/javascript" src="/js/constants.js"></script>
+<script type="text/javascript" src="/js/modal.js"></script>
 <script type="text/javascript" src="/js/url.js"></script>
 <script type="text/javascript" src="/js/notification.js"></script>
 <script type="text/javascript" src="/js/row.js"></script>
@@ -53,7 +54,7 @@ if (isset($title)) {
 <script type="text/javascript" src="/js/workbox.js"></script>
 <script type="text/javascript" src="/js/profile.js"></script>
 <script type="text/javascript" src="/js/main.js"></script>
--->
+*/ ?>
 <?php //elseif ($model == 'errors'): ?>
 <?php elseif (($model == 'user' && $action == 'login') ||
      ($model == 'user' && $action == 'register')): ?>

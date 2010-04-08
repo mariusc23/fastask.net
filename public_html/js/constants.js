@@ -100,6 +100,7 @@ TITLES_HTML = [
 PATHS = {
     'users': '/user/l/',
     'list': '/tasklist/t/',
+    'share': '/user/s/',
     'groups': '/group/l/'
 };
 
@@ -262,7 +263,10 @@ TEMPLATES = {
     </div><!-- work_box -->'),
 
 // spinwheel template
-    'spinwheel': $('<div class="spin"></div>')
+    'spinwheel': $('<div class="spin"></div>'),
+
+// collaborate template
+    'collaborate': $('<li><a href="#">Add collaborator</a></li>')
 };
 
 LISTS = [

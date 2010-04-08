@@ -5,6 +5,7 @@ class Model_User extends Model_Auth_User {
         'groups' => array('model' => 'group', 'foreign_key' => 'user_id'),
         'roles' => array('model' => 'role', 'through' => 'roles_users'),
         'caches' => array('model' => 'usercache', 'foreign_key' => 'user_id'),
+        'followers' => array('model' => 'user', 'through' => 'follow_user'),
     );
 
     public function validate_create(& $array) {

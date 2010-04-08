@@ -127,19 +127,23 @@ class Controller_Task extends Controller {
             return ;
         }
 
+        // if not allowed to share with $user
+        if (!$this->user->has('followers', $user)) {
+            $this->request->status = 403;
+            return ;
+        }
+
         // already has the follower, bad request
         // adding a user
         if (isset($_POST['a']) && $_POST['a']) {
             if ($this->task->has('followers', $user)) {
+                $this->request->response = 'already';
                 $this->request->status = 400;
                 return ;
             }
 
             if (!$this->task->add('followers', $user)) {
                 $this->request->status = 500;
-                $this->request->response = json_encode(array(
-                    'error' => $user->username . 'is already following this task',
-                ));
                 return ;
             } else {
                 $this->task->num_followers++;
@@ -157,6 +161,7 @@ class Controller_Task extends Controller {
             }
 
             if ($this->task->num_followers <= 1) {
+                $this->request->response = 'toofew';
                 $this->request->status = 400;
                 return ;
             }

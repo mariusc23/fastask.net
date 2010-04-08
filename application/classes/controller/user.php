@@ -41,25 +41,25 @@ class Controller_User extends Controller_Template {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
 
-        $users = ORM::factory('user')
-             ->order_by('username', 'asc')
-             ->find_all()
-        ;
+        $users = $this->user->followers->find_all();
 
         $json = array('users' => array());
+        // current user comes first
+        $json_user = array();
+        $json_user['id'] = $this->user->id;
+        $json_user['username'] = $this->user->username;
+        $json_user['current'] = 1;
+        $json_user['name'] = $this->user->name;
+        $json_user['email'] = $this->user->email;
+        $json_user['logins'] = $this->user->logins;
+        $json_user['last_login'] = $this->user->last_login;
+        $json['users'][] = $json_user;
+
         foreach ($users as $user) {
             $json_user = array();
 
             $json_user['id'] = $user->id;
             $json_user['username'] = $user->username;
-            if ($user->id == $this->user->id) {
-                $json_user['current'] = 1;
-                $json_user['name'] = $user->name;
-                $json_user['email'] = $user->email;
-                $json_user['logins'] = $user->email;
-                $json_user['last_login'] = $user->last_login;
-            }
-
             $json['users'][] = $json_user;
         }
 
@@ -350,6 +350,116 @@ class Controller_User extends Controller_Template {
 
 
     /**
+     * Allow logged in users to share with people.
+     */
+    function action_s() {
+        $this->request->headers['Content-Type'] = 'application/json';
+        $this->auto_render = FALSE;
+        // must be logged in
+        if (Auth::instance()->logged_in() == 0) {
+            $this->request->status = 403;
+            return ;
+        }
+        // must be an ajax request and send data
+        if (!Request::$is_ajax || !$_POST['user']) {
+            $this->request->status = 400;
+            return ;
+        }
+
+        $user = ORM::factory('user')
+            ->or_where_open()
+                ->or_where('username', '=', $_POST['user'])
+                ->or_where('email', '=', $_POST['user'])
+            ->or_where_close()
+            ->find();
+
+        if (!$user->loaded()) {
+            $this->request->status = 404;
+            return ;
+        }
+
+        if ($user->id === $this->user->id) {
+            $this->request->response = 'self';
+            $this->request->status = 400;
+            return ;
+        }
+
+        if ($this->user->has('followers', $user)) {
+            $this->request->response = 'already';
+            $this->request->status = 400;
+            return ;
+        }
+
+        $notification = ORM::factory('notification')
+            ->where('user_id', '=', $this->user->id)
+            ->where('follower_id', '=', $user->id)
+            ->where('type', '=', NOTIFICATION_USER_SHARE)
+            ->find();
+
+        if ($notification->loaded()) {
+            $this->request->response = 'exists';
+            $this->request->status = 400;
+            return;
+        }
+
+        $notification = new Model_Notification();
+        $notification->user_id = $this->user->id;
+        $notification->follower_id = $user->id;
+        $notification->type = NOTIFICATION_USER_SHARE;
+        $notification->code = sha1(time() . session_id()) . time();
+        $notification->params = '';
+        $notification->lastmodified = time();
+        $notification->save();
+
+        // send email
+        include_once(APPPATH.'config/email_share.php');
+
+        mail(
+            // to
+            $user->email,
+            // subject
+            $subject,
+            // message
+            $message,
+            $additional_headers
+        );
+
+
+        $json = array();
+        $json['username'] = $user->username;
+        $this->request->response = json_encode($json);
+    }
+
+
+    /**
+     * Accepting share requests
+     */
+    function action_share() {
+        $view->user = $this->user;
+        $view = $this->template->content = View::factory('user/share');
+        $this->template->okjs = true;
+        $this->template->title = 'Accept sharing invitation';
+
+        if ($_REQUEST['code']) {
+            $notification = ORM::factory('notification')
+                ->where('code', '=', $_REQUEST['code'])
+                ->where('type', '=', NOTIFICATION_USER_SHARE)
+                ->find();
+            if ($notification->loaded()) {
+                $view->valid = true;
+                $user_1 = new Model_User($notification->user_id);
+                $user_2 = new Model_User($notification->follower_id);
+                $user_1->add('followers', $user_2);
+                $user_2->add('followers', $user_1);
+                $view->name = $user_2->username;
+                $view->name_with = $user_1->username;
+                $notification->delete();
+            }
+        }
+    }
+
+
+    /**
      * Allow logged in users to invite people.
      */
     function action_invite() {
@@ -367,7 +477,7 @@ class Controller_User extends Controller_Template {
         $user = $this->user;
         $view = $this->template->content = View::factory('user/invite');
         $this->template->okjs = true;
-        $this->template->title = 'Invite to ' . SITE_NAME;
+        $this->template->title = 'Invite';
 
         if ($_POST['email'] && filter_var($_POST['email'],
             FILTER_VALIDATE_EMAIL)) {

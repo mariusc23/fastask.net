@@ -34,6 +34,7 @@ define('USERNAME_REGEX', '/[a-z]{3,50}/i');
 
 // notification codes
 define('NOTIFICATION_PASSWORD_RESET', 1);
+define('NOTIFICATION_USER_SHARE', 2);
 
 // cache types
 define('CACHE_COUNTS', 1);

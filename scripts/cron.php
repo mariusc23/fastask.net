@@ -1,6 +1,7 @@
 <?php
 chdir(dirname(__FILE__));
 
+require_once('../application/config/config.php');
 require_once('config.php');
 
 try {
@@ -37,8 +38,23 @@ $count = $statement->execute();
 $invites = $statement->rowCount();
 
 
+$q = "
+    DELETE FROM
+        notifications
+    WHERE
+        lastmodified < DATE_SUB(CURRENT_DATE(), $invite_interval)
+    AND type = " . NOTIFICATION_USER_SHARE . "
+    ;";
+$statement = $db_link->prepare($q);
+$count = $statement->execute();
+$notifications = $statement->rowCount();
+
 if ($count) {
-    echo "Cron ran successfully. $tasks tasks erased. $invites invations erased.\n";
+    echo "Cron ran successfully.\n" .
+        "$tasks tasks erased.\n" .
+        "$invites invitations erased.\n" .
+        "$invites notifications to share erased.\n"
+    ;
 } else {
     echo "No tasks erased.\n";
 }

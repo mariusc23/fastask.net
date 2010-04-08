@@ -308,7 +308,7 @@ function List() {
                     html_task.find('.del').addClass('undo');
                 } else {
                     html_task.children().eq(1).addClass('plan')
-                        .bind('click', handle_plan_action);
+                        .bind('click', this.handle_plan_action);
                     html_task.appendTo(LISTS[1].children('.table'));
                 }
             } else {
@@ -762,34 +762,6 @@ function List() {
     };
 
     /**
-     * Share with someone else
-     * @requires global reference to row_handler
-     * @requires global reference to list_handler
-     */
-    handle_plan_action = function (e) {
-        var target = $(this);
-        if (e.shiftKey) {
-            $('.text', TEMPLATES.modal)
-                .html('Type date and press ENTER or TAB: ' +
-                    '<input type="text" name="plan_custom" />');
-            $('input', TEMPLATES.modal).bind('keyup', function (e) {
-                // enter or tab
-                if (e.keyCode === 13 || e.keyCode === 9) {
-                    list_handler.plan($(this).val());
-                    TEMPLATES.modal.children('.jqmClose').click();
-                    row_handler.update_row('plan', target);
-                }
-            });
-            $('input', TEMPLATES.modal).focus();
-            TEMPLATES.modal.removeClass('help');
-            TEMPLATES.modal_trigger.click();
-            return false;
-        }
-        row_handler.update_row('plan', target);
-        return false;
-    };
-
-    /**
      * Changing main tabs
      * @requires global reference to url_handler
      */
@@ -846,26 +818,37 @@ function List() {
     });
 
     /**
-     * Click anywhere on body or pressing esc hides modal dialog
+     * Share with someone else
+     * @requires global reference to row_handler
+     * @requires global reference to list_handler
      */
-    $('body').keydown(function (e) {
-        if ((e.keyCode === 27) &&
-            TEMPLATES.modal.is(':visible')) {
-            // esc pressed
-            TEMPLATES.modal.children('.text').children().remove().end()
-                .html('');
-            TEMPLATES.modal.children('.jqmClose').click();
+    this.handle_plan_action = function (e) {
+        var target = $(this);
+        if (e.shiftKey) {
+            modal_handler.show_prompt(
+                'Type date and press ENTER: ' +
+                '<input type="text" name="plan_custom" />',
+                'plan',
+                'keyup',
+                function (ev) {
+                    // enter
+                    if (ev.keyCode === 13) {
+                        list_handler.plan($(this).val());
+                        TEMPLATES.modal.children('.jqmClose').click();
+                        row_handler.update_row('plan', target);
+                    }
+                }
+            );
             return false;
         }
-    });
+        row_handler.update_row('plan', target);
+        return false;
+    };
 
     // init stuff
     $('input[name="search"]', LISTS[0]).bind('keyup', handle_search_action);
     LISTS[0].appendTo('#content');
     LISTS[1].appendTo('#content');
-    TEMPLATES.modal.appendTo('#content');
-    TEMPLATES.modal_trigger.appendTo('#content');
-    TEMPLATES.modal.jqm();
     this.refresh_timeout = setInterval(this.refresh_all,
         TIMEOUTS.refresh);
     this.per_page();

@@ -249,14 +249,27 @@ function Row() {
             notif_handler.add(2, 'Could not update due date.');
             break;
         case 'follower_add':
-            notif_handler.add(2, 'Could not add to sharing.');
+            if (this.request.responseText === 'already') {
+                notif_handler.add(2, 'Already sharing with this user.');
+                if (!this.target.is(':checked')) {
+                    this.target.attr('checked', 'checked');
+                } else {
+                    this.target.attr('checked', '');
+                }
+            } else {
+                notif_handler.add(2, 'Could not share with this user.');
+            }
             break;
         case 'follower_remove':
-            notif_handler.add(2);
-            if (this.target.is(':checked')) {
-                this.target.attr('checked', '');
+            if (this.request.responseText === 'toofew') {
+                notif_handler.add(2);
+                if (this.target.is(':checked')) {
+                    this.target.attr('checked', '');
+                } else {
+                    this.target.attr('checked', 'checked');
+                }
             } else {
-                this.target.attr('checked', 'checked');
+                notif_handler.add(2, 'Already removed this user.');
             }
             break;
         default:

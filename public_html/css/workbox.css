@@ -123,6 +123,14 @@
 .work-box .share input[type="text"] {
     background: #eee;
 }
+.work-box .share a {
+    display: block;
+    height: 26px;
+    line-height: 26px;
+    font-size: 90%;
+    text-decoration: none;
+    text-align: center;
+}
 .work-box .priority > span:first-child {
     padding: .3em;
     cursor: default;

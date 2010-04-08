@@ -16,6 +16,8 @@ function Url() {
     // stores last hash when action was taken
     this.hash_last = '';
 
+    this.allow_get_lists = false;
+
     /**
      * This function is called:
      * 1. after calling $.historyInit();
@@ -63,7 +65,9 @@ function Url() {
             url_handler.group = group;
             url_handler.type = type;
             list_handler.set_params(mainpage, minipage, group, type);
-            list_handler.get_lists();
+            if (url_handler.allow_get_lists) {
+                list_handler.get_lists();
+            }
         }
     };
 
