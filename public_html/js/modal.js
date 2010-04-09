@@ -50,11 +50,16 @@ function Modal() {
     this.help = function () {
         $('.text', TEMPLATES.modal).html(HELP);
         TEMPLATES.modal.find('.help a').click(function () {
-            document.getElementById($(this).attr('href').substr(1)).scrollIntoView(true);
-            return false;
+            var url = $(this).attr('href');
+            if (url.indexOf('#') === 0) {
+                document.getElementById(url.substr(1)).scrollIntoView(true);
+                return false;
+            }
         });
         TEMPLATES.modal.addClass('help');
+        modal_handler.classes.push('help');
         TEMPLATES.modal_trigger.click();
+        return false;
     }
 
     /**
@@ -75,5 +80,6 @@ function Modal() {
     TEMPLATES.modal.appendTo('#content');
     TEMPLATES.modal_trigger.appendTo('#content');
     TEMPLATES.modal.jqm();
-    $('#content > .help_trigger').click(this.help);
+    TEMPLATES.help_trigger.click(this.help);
+    TEMPLATES.help_trigger.appendTo('#content');
 }

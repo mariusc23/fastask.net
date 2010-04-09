@@ -266,7 +266,10 @@ TEMPLATES = {
     'spinwheel': $('<div class="spin"></div>'),
 
 // collaborate template
-    'collaborate': $('<li><a href="#">Add collaborator</a></li>')
+    'collaborate': $('<li><a href="#">Add collaborator</a></li>'),
+
+// help trigger
+    'help_trigger': $('<a href="#" class="help_trigger"><span class="text">Help</span><span class="icon"></span><div>')
 };
 
 LISTS = [
@@ -339,9 +342,9 @@ HELP = '<div class="help" id="h-top">' +
 '</p>' +
 
 
-'<h2 id="h-main">The main box</h2> <a href="#h-top">back to top</a><p>' +
+'<h2 id="h-main">Main box</h2> <a href="#h-top">back to top</a><p>' +
 
-'<h3>The top bar</h3><p>' +
+'<h3>Top bar</h3><p>' +
 '<p>First, look at the top bar, on top of the tasks. To the top left, notice 4 tabs, in order: <ul>' +
 '<li><em>My tasks</em> &mdash; what you created and are also following.</li>' +
 '<li><em>Assignments</em> &mdash; what other people have shared with you.</li>' +
@@ -351,7 +354,7 @@ HELP = '<div class="help" id="h-top">' +
 '<p>The center area shows your currently active tab. If you have created groups, hover over this area to filter your tasks by groups when viewing. Note that filtering by groups only brings up the tasks in that group <em>in the currently viewed tab</em>.</p>' +
 '<p>The rightmost area is for search. Simply type a word or two and the results will appear below.</p>' +
 
-'<h3>The main list and pagination</h3><p>' +
+'<h3>Main list and pagination</h3><p>' +
 '<p><em>See also</em> <a href="#h-due">due dates</a> and <a href="#h-groups">groups</a></p>' +
 '<p>The list is the most frequently used part of Tasklist. You can edit your tasks, change their priority, share or unshare them with others, delete them, and so on.</p>' +
 '<p>For the first 3 tabs, tasks are listed first in order of priority, and then by due date. For the archive (4th tab), they are ordered by completion time.</p>' +
@@ -364,21 +367,21 @@ HELP = '<div class="help" id="h-top">' +
 '<p>To navigate through a longer list, use the pagination at the bottom.</p>' +
 
 
-'<h2 id="h-mini">The mini box</h2> <a href="#h-top">back to top</a><p>' +
+'<h2 id="h-mini">Mini box</h2> <a href="#h-top">back to top</a><p>' +
 
-'<h3>The mini top bar</h3><p>' +
+'<h3>Mini top bar</h3><p>' +
 '<p>This mini top bar has 2 tabs: planner and trash.<ul>' +
 '<li><em>Planner</em> &mdash; tasks you are following without a due date set.</li>' +
 '<li><em>Trash</em> &mdash; deleted tasks. These are periodically deleted by Tasklist (usually after 30 days).</li>' +
 '</ul></p>' +
 
-'<h3>The mini list</h3> <a href="#h-top">back to top</a><p>' +
+'<h3>Mini list</h3> <a href="#h-top">back to top</a><p>' +
 '<p>This list offers fewer functionality than the main one.</p>' +
 '<p>If you are viewing the planner, you can plan tasks or delete them. To plan a task for today, just click on it. To plan it for a different date, use <em>Shift + Click</em> instead.</p>' +
 '<p>You can also delete or undelete tasks by clicking on the red or green delete icon, respectively.</p>' +
 
 
-'<h2 id="h-noti">The notification area</h2> <a href="#h-top">back to top</a><p>' +
+'<h2 id="h-noti">Notification area</h2> <a href="#h-top">back to top</a><p>' +
 '<p>This area gives you feedback about your actions. Some of the notifications included are: <ul>' +
 '<li><em>Task added</em> &mdash; when you create a task from the <em><a href="#h-work">work box</a></em>.</li>' +
 '<li><em>Task created in planner</em> &mdash; when you plan a new task.</li>' +
@@ -388,7 +391,18 @@ HELP = '<div class="help" id="h-top">' +
 '</ul></p>' +
 
 
-'<h2 id="h-work">The work box</h2> <a href="#h-top">back to top</a><p>' +
+'<h2 id="h-work">Work box</h2> <a href="#h-top">back to top</a><p>' +
 '<p>From here you can create and plan tasks. Fill out the fields and click <em>submit</em> or <em>plan</em>.</p>' +
 '<p>The date field is fairly flexible and we are continuously looking for suggestions on improving its understanding of dates if you feel it is insufficient. <a href="#h-due">Read more about due dates</a>.</p>' +
+
+'<h2 id="h-prof">Profile</h2> <a href="#h-top">back to top</a><p>' +
+'<p>From here you can change your name, email, or password.</p>' +
+
+'<h2 id="h-due">Due dates</h2> <a href="#h-top">back to top</a><p>' +
+'<p>You can use common formats for dates. The display shows the number of days followed by the number of hours, in this format:<br/>' + '<code>dd:hh</code><br/>' +
+'For dates within a week of the current date, the display shows the day as e.g. <em>Tue</em> (for Tuesday), prefixed by <em>last</em> if the date has passed. We are working on improving date displays and expanding this section of the help, <a href="http://craciunoiu.net/contact" target="_blank">click here to leave us suggestions</a>.</p>' +
+
+'<h2 id="h-groups">Groups</h2> <a href="#h-top">back to top</a><p>' +
+'<p>Groups are a great way to organize your tasks. They will show up in a drop down for each tab in the main list, so you can only show that group from the current tab.</p>' +
+
 '</div></div>';
