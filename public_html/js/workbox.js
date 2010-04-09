@@ -165,6 +165,10 @@ function Workbox() {
                     return false;
                 } else if (request.status == 400) {
                     switch (request.responseText) {
+                    case 'blocked':
+                        notif_handler.add(2, val +
+                            ' has blocked you.');
+                        break;
                     case 'exists':
                         notif_handler.add(2, 'Already sent ' + val +
                             ' an email.');

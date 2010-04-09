@@ -25,6 +25,8 @@ Accept their request: ' . URL::site('user/share', 'https')
 Block future requests from this user: ' . URL::site('user/share', 'https')
          . '?code=' . $notification->code . '&block=1
 
+You can always unblock the user by going to the accept URL.
+
 
 Note: This invitation expires in a week.
 ---

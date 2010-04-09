@@ -378,12 +378,14 @@ class Controller_User extends Controller_Template {
             return ;
         }
 
+        // sharing with self is not cool
         if ($user->id === $this->user->id) {
             $this->request->response = 'self';
             $this->request->status = 400;
             return ;
         }
 
+        // if already sharing with
         if ($this->user->has('followers', $user)) {
             $this->request->response = 'already';
             $this->request->status = 400;
@@ -397,7 +399,11 @@ class Controller_User extends Controller_Template {
             ->find();
 
         if ($notification->loaded()) {
-            $this->request->response = 'exists';
+            if ($notification->params === NOTIFICATION_USER_BLOCK) {
+                $this->request->response = 'blocked';
+            } else {
+                $this->request->response = 'exists';
+            }
             $this->request->status = 400;
             return;
         }
@@ -440,7 +446,7 @@ class Controller_User extends Controller_Template {
         $this->template->okjs = true;
         $this->template->title = 'Accept sharing invitation';
 
-        if ($_REQUEST['code']) {
+        if ($_GET['code']) {
             $notification = ORM::factory('notification')
                 ->where('code', '=', $_REQUEST['code'])
                 ->where('type', '=', NOTIFICATION_USER_SHARE)
@@ -449,11 +455,23 @@ class Controller_User extends Controller_Template {
                 $view->valid = true;
                 $user_1 = new Model_User($notification->user_id);
                 $user_2 = new Model_User($notification->follower_id);
-                $user_1->add('followers', $user_2);
-                $user_2->add('followers', $user_1);
+                if (!$user_1->loaded() || !$user_1->loaded()) {
+                    $this->request->status = 500;
+                    $view->valid = false;
+                }
                 $view->name = $user_2->username;
                 $view->name_with = $user_1->username;
-                $notification->delete();
+                if ($_GET['block']) {
+                    $this->template->title = 'Block user from sharing';
+                    $view->block = true;
+                    $notification->params = NOTIFICATION_USER_BLOCK;
+                    $notification->save();
+                } else {
+                    $view->block = false;
+                    $user_1->add('followers', $user_2);
+                    $user_2->add('followers', $user_1);
+                    $notification->delete();
+                }
             }
         }
     }
