@@ -2,12 +2,12 @@
 
 return array(
     'native' => array(
+        'name'   => 'fastaskv1',
         'encrypted' => TRUE,
-        'name'   => 'tasklistv1',
         'lifetime' => 1209600,
     ),
     'cookie' => array(
-        'name'   => 'tasklistv1',
+        'name'   => 'fastaskv1',
         'encrypted' => TRUE,
         'lifetime' => 1209600,
     ),

@@ -99,7 +99,7 @@ TITLES_HTML = [
 // used with ajax, for performing calls
 PATHS = {
     'users': '/user/l/',
-    'list': '/tasklist/t/',
+    'list': '/in/t/',
     'share': '/user/s/',
     'groups': '/group/l/'
 };
@@ -322,13 +322,13 @@ WORKBOX = {
 }
 
 HELP = '<div class="help" id="h-top">' +
-'<h1>Welcome to Tasklist! Need some help?</h1>' +
+'<h1>Welcome to fastask! Need some help?</h1>' +
 '<div class="text">' +
 "<p>We're excited that you are using our product. Below you will find a description of the available features and examples.</p>" +
 
 
 '<h2>Sections</h2><p>' +
-'Tasklist only has one page! It is split into five areas of interest. Here they are:' +
+'fastask only has one page! It is split into five areas of interest. Here they are:' +
 '<ul>' +
 '<li><a href="#h-main">The main box</a>, the largest of them all, contains four tabs, a search feature.</li>' +
 '<li><a href="#h-mini">The mini box</a>, contains the planner and trash.</li>' +
@@ -337,7 +337,7 @@ HELP = '<div class="help" id="h-top">' +
 '<li><a href="#h-prof">Your profile</a>, from which you can change your name, email, or password.</li>' +
 '</ul>' +
 'Other sections:' +
-'<ul><li><a href="#h-due">Due dates</a>, how Tasklist understands and displays due dates.</li>' +
+'<ul><li><a href="#h-due">Due dates</a>, how fastask understands and displays due dates.</li>' +
 '<li><a href="#h-groups">Groups</a>, how to create and efficiently use groups.</li></ul>' +
 '</p>' +
 
@@ -356,7 +356,7 @@ HELP = '<div class="help" id="h-top">' +
 
 '<h3>Main list and pagination</h3><p>' +
 '<p><em>See also</em> <a href="#h-due">due dates</a> and <a href="#h-groups">groups</a></p>' +
-'<p>The list is the most frequently used part of Tasklist. You can edit your tasks, change their priority, share or unshare them with others, delete them, and so on.</p>' +
+'<p>The list is the most frequently used part of fastask. You can edit your tasks, change their priority, share or unshare them with others, delete them, and so on.</p>' +
 '<p>For the first 3 tabs, tasks are listed first in order of priority, and then by due date. For the archive (4th tab), they are ordered by completion time.</p>' +
 '<p>While you are editing a row, its background will change color temporarily, to indicate whether your action has completed successfully. If your actions will change the order or number of tasks in your list, the list will refresh after a few seconds of inactivity.</p>' +
 '<p>To mark a task as complete (or unmark it), click the <em>checkbox</em> to the left.</p>' +
@@ -372,7 +372,7 @@ HELP = '<div class="help" id="h-top">' +
 '<h3>Mini top bar</h3><p>' +
 '<p>This mini top bar has 2 tabs: planner and trash.<ul>' +
 '<li><em>Planner</em> &mdash; tasks you are following without a due date set.</li>' +
-'<li><em>Trash</em> &mdash; deleted tasks. These are periodically deleted by Tasklist (usually after 30 days).</li>' +
+'<li><em>Trash</em> &mdash; deleted tasks. These are periodically deleted by fastask (usually after 30 days).</li>' +
 '</ul></p>' +
 
 '<h3>Mini list</h3> <a href="#h-top">back to top</a><p>' +

@@ -16,9 +16,9 @@ class Controller_Group extends Controller {
                 ->on('tasks.group_id', '=', 'groups.id');
         $params = array('t' => $type);
 
-        $tasklist_controller = new Controller_Tasklist($this->request);
-        $tasklist_controller->user = $this->user;
-        $tasklist_controller->orm_chain_tasks($counts, $params, false);
+        $fastask_controller = new Controller_Fastask($this->request);
+        $fastask_controller->user = $this->user;
+        $fastask_controller->orm_chain_tasks($counts, $params, false);
 
         $counts = $counts
             ->group_by('groups.id')
@@ -37,9 +37,9 @@ class Controller_Group extends Controller {
                 ->on('tasks.group_id', '=', 'groups.id');
         $params = array('t' => $type);
 
-        $tasklist_controller = new Controller_Tasklist($this->request);
-        $tasklist_controller->user = $this->user;
-        $tasklist_controller->orm_chain_tasks($groups, $params, false);
+        $fastask_controller = new Controller_Fastask($this->request);
+        $fastask_controller->user = $this->user;
+        $fastask_controller->orm_chain_tasks($groups, $params, false);
 
         $groups = $groups
                 ->order_by('name', 'asc')

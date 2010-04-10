@@ -1,6 +1,6 @@
 /**
- * Main driver for tasklist
- * Instantiates all objects and fires up the tasklist getter.
+ * Main driver for fastask
+ * Instantiates all objects and fires up the task list getter.
  * Each object appends its templates to the content when it is created.
  * @see constants.js for template and other initial setup
  */

@@ -1,7 +1,7 @@
 <div class="invite">
 <?php if ($user->id && !$message): ?>
 <?php
-print Form::open(Url::site('user/invite', 'https'), array('class' => 'invite'));
+print Form::open(Url::site('user/invite'), array('class' => 'invite'));
 print '<label for="email"><span>Email address:</span> '
     . Form::input('email', '', array('id' => 'email')) . '</label>';
 

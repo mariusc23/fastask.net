@@ -21,8 +21,10 @@ if (isset($title)) {
 <link type="text/css" href="<?php print Url::site('min/f=css/register.css'); ?>" rel="stylesheet" media="screen" />
 <?php elseif ($model == 'errors'): ?>
 <link type="text/css" href="<?php print Url::site('min/f=css/errors.css'); ?>" rel="stylesheet" media="screen" />
-<?php else: ?>
+<?php elseif ($model == 'fastask'): ?>
 <link type="text/css" href="<?php print Url::site('min/?g=css'); ?>" rel="stylesheet" media="screen" />
+<?php elseif ($model == 'info'): ?>
+<link type="text/css" href="<?php print Url::site('min/?f=css/info.css'); ?>" rel="stylesheet" media="screen" />
 <?php endif; ?>
 </head>
 <body class="<?php print $model . '-' . $action; ?>">
@@ -32,13 +34,13 @@ if (isset($title)) {
     <script type="text/javascript">
         document.write("Loading...");
     </script>
-    <noscript>You must enable javascript to use Tasklist.</noscript>
+    <noscript>You must enable javascript to use <?php print SITE_NAME; ?>.</noscript>
 </div>
 <?php endif; ?>
 <?php print $content ?>
 </div><!-- /#content -->
 
-<?php if ($model == 'tasklist' && $action == 'index'): ?>
+<?php if ($model == 'fastask' && $action == 'index'): ?>
 <script type="text/javascript" src="<?php print Url::site('min/?g=js'); ?>"></script>
 <?php /*
 <script type="text/javascript" src="/js/jquery.min.js"></script>

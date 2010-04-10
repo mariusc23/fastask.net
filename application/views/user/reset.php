@@ -7,7 +7,7 @@
 </ul>
 <?php elseif (isset($code)): ?>
 <?php
-print Form::open(Url::site('user/reset', 'https'), array('class' => 'reset'));
+print Form::open(Url::site('user/reset'), array('class' => 'reset'));
 if (isset($errors)) {
     print '<ul class="error">';
     foreach ($errors as $error) {
@@ -29,7 +29,7 @@ print Form::close();
 <?php elseif (isset($start)): ?>
 <div>Enter username. You'll receive a notification at your registered email address.</div>
 <?php
-print Form::open(Url::site('user/reset', 'https'), array('class' => 'intro'));
+print Form::open(Url::site('user/reset'), array('class' => 'intro'));
 if (isset($errors)) {
     print '<ul class="error">';
     foreach ($errors as $error) {

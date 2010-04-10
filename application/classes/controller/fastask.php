@@ -1,5 +1,5 @@
 <?php defined('SYSPATH') or die('No direct script access.');
-class Controller_Tasklist extends Controller_Template {
+class Controller_Fastask extends Controller_Template {
     public $template = 'base/template';
     public $user = null;
     private $sphinxclient = null;
@@ -8,13 +8,8 @@ class Controller_Tasklist extends Controller_Template {
      * Index action
      */
     public function action_index() {
-        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
-            $this->request->redirect(URL::site('/', 'https'));
-        }
         // get the content
-        $view = $this->template->content = View::factory('tasklist/index');
-        $view->tasks = array();
-        $view->pager = '';
+        $view = $this->template->content = View::factory('fastask/index');
     }
 
     /**
@@ -381,7 +376,7 @@ class Controller_Tasklist extends Controller_Template {
             Request::instance()->redirect('user/login');
         }
         $this->template->user = $this->user;
-        $this->template->model = 'tasklist';
+        $this->template->model = 'fastask';
         $this->template->action = Request::instance()->action;
    }
 }

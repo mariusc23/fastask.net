@@ -63,11 +63,11 @@ if (!$email) {
 </label>
 
 <?php
-    if ($invited && $_REQUEST['code']) {
-        print Form::hidden('code', $_REQUEST['code']);
-    }
-    print Form::submit('register', 'sign up');
-    print Form::close();
+if ($invited && $_REQUEST['code']) {
+    print Form::hidden('code', $_REQUEST['code']);
+}
+print Form::submit('register', 'sign up');
+print Form::close();
 ?>
 
 <a id="account" href="/user/login/">Already have an account? Log in!<br/>

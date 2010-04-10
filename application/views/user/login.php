@@ -10,7 +10,7 @@ $username = isset($_POST['username']) ? $_POST['username']
 </ul>
 <?php else: ?>
 <?php
-print Form::open(Url::site('user/login', 'https'), array('class'=>'login'));
+print Form::open(Url::site('user/login'), array('class'=>'login'));
 if (isset($errors)) {
     print '<ul class="error">';
     foreach ($errors as $error) {
@@ -26,6 +26,9 @@ print '<label for="password" id="pass"><span>Password:</span> '
 ?>
 <a id="noaccount" href="/user/register/">Don't have an account?<br/>Sign up for one!</a>
 <?php
+if ($_REQUEST['r']) {
+    print Form::hidden('r', $_REQUEST['r']);
+}
 print Form::submit('login', 'log in');
 
 print Form::close();

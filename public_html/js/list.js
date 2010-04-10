@@ -280,7 +280,7 @@ function List() {
      */
     this.build_lists = function () {
         var i, k, html_task, html_text, pager;
-        // build tasklist from json
+        // build task list from json
         this.update_groups();
 
         // remove previous tasks

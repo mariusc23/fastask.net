@@ -67,14 +67,11 @@ class Controller_User extends Controller_Template {
     }
 
     public function action_login() {
-        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
-            $this->request->redirect(URL::site('user/login', 'https'));
-        }
         $view = $this->template->content = View::factory('user/login');
         // if user already logged in
+        $referer = $_REQUEST['r'] ? $_REQUEST['r']
+            : URL::site('in');
         if (Auth::instance()->logged_in() != 0){
-            $referer = isset($this->referer) ? $this->referer
-                : URL::site('/', 'https');
             Request::instance()->redirect($referer);
         }
 
@@ -85,7 +82,7 @@ class Controller_User extends Controller_Template {
 
             // check auth
             if ($user->login($_POST)) {
-                Request::instance()->redirect(URL::site('/', 'http'));
+                Request::instance()->redirect($referer);
             } else {
                 $view->errors = $_POST->errors('login');
                 $this->template->title = 'Error logging in';
@@ -100,8 +97,9 @@ class Controller_User extends Controller_Template {
     public function action_logout() {
         // log out
         Auth::instance()->logout();
-        $referer = isset($this->referer) ? $this->referer
-            : URL::site('user/login', 'https');
+        $referer = $_REQUEST['r'] ? $_REQUEST['r']
+            : URL::site('user/login');
+        Request::instance()->redirect($referer);
         Request::instance()->redirect($referer);
     }
 
@@ -109,10 +107,7 @@ class Controller_User extends Controller_Template {
     function action_register() {
         // if user logged in
         if (Auth::instance()->logged_in() != 0){
-            Request::instance()->redirect(URL::site('user/login', 'https'));
-        }
-        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
-            $this->request->redirect(URL::site('user/register', 'https'));
+            Request::instance()->redirect(URL::site('user/login'));
         }
 
         $view = $this->template->content = View::factory('user/register');
@@ -176,10 +171,9 @@ class Controller_User extends Controller_Template {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
         // must be logged in
-        if (Auth::instance()->logged_in() == 0 ||
-            !isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
+        if (Auth::instance()->logged_in() == 0) {
             $this->request->status = 403;
-            $json['errors'][] = 'Access denied. Must use a secure connection.';
+            $json['errors'][] = 'Access denied. Must be logged in.';
             $this->request->response(json_encode($json));
             return ;
         }
@@ -241,15 +235,12 @@ class Controller_User extends Controller_Template {
     }
 
     /**
-     * Update user info from profile
+     * Reset/forgot password
      */
     function action_reset() {
         // must be logged out
         if (Auth::instance()->logged_in() != 0) {
-            $this->request->redirect(URL::site('/', 'https'));
-        }
-        if (!isset($_SERVER['HTTPS']) || ($_SERVER['HTTPS'] != 'on')) {
-            $this->request->redirect(URL::site('user/reset', 'https'));
+            $this->request->redirect(URL::site('user/logout'));
         }
         $view = $this->template->content = View::factory('user/reset');
         $this->template->okjs = true;
@@ -277,7 +268,7 @@ class Controller_User extends Controller_Template {
             if (!$user->loaded()) {
                 // could not find user
                 $view->message = 'Could not find any user named ' . $_POST['username'] . '</br>
-                    Please <a href="' . URL::site('user/reset', 'https') . '">go back</a> and try again.
+                    Please <a href="' . URL::site('user/reset') . '">go back</a> and try again.
                     <a href="http://craciunoiu.net/contact">Contact us</a> if you do not receive an email after 24 hours.</div>';
                 return;
             }
@@ -483,13 +474,13 @@ class Controller_User extends Controller_Template {
     function action_invite() {
         // must be logged in
         if (Auth::instance()->logged_in() == 0) {
-            $this->request->redirect(URL::site('/', 'https'));
+            $this->request->redirect(URL::site('user/login?r=user/invite'));
         }
 
         // must be admin
         $role = new Model_Role(2);
         if (!$this->user->has('roles', $role)) {
-            $this->request->redirect(URL::site('/', 'https'));
+            $this->request->redirect(URL::site('/'));
         }
 
         $user = $this->user;

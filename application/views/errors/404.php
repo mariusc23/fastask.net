@@ -3,9 +3,9 @@
 <p>
 We could not find the requested page.<br/>
 <?php if ($user && $user->id): ?>
-<a href="<?php print Url::site('/') ?>">Go to the main page</a>
+<a href="<?php print Url::site('in') ?>">Go to the main page</a>
 <?php else: ?>
-<a href="<?php print Url::site('user/register') ?>">Register</a>
+<a href="<?php print Url::site('/') ?>">Go to the main page</a>
 <?php endif ?>
 </p>
 </div>

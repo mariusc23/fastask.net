@@ -3,14 +3,14 @@
 define('IN_PRODUCTION', TRUE);
 error_reporting(E_ALL ^ E_NOTICE);
 define('SITE_SEPARATOR', ' - ');
-define('SITE_NAME', 'Tasklist');
+define('SITE_NAME', 'fastask');
 
 setlocale(LC_ALL, 'en_US.utf8');
 
 // sphinx settings
 define('SPHINX_MAXRESULTS', 200);
 define('SPHINX_RANKER', 0);
-define('SPHINX_INDEX', 'tasklist');
+define('SPHINX_INDEX', 'fastask');
 // set host, port to access sphinxd
 define('SPHINX_HOST', 'localhost');
 define('SPHINX_PORT', 3311);

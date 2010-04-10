@@ -83,9 +83,15 @@ Kohana::modules(array(
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-Route::set('default', '(tasklist(/<action>(/<id>)))')
+Route::set('default', '(info(/<action>(/<id>)))')
     ->defaults(array(
-        'controller' => 'tasklist',
+        'controller' => 'info',
+        'action'     => 'index',
+    ));
+
+Route::set('in', '(in(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'fastask',
         'action'     => 'index',
     ));
 
