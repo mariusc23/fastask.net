@@ -330,7 +330,7 @@ class Controller_User extends Controller_Template {
             Auth::instance()->login($notification->user->username, $_POST['password']);
             $notification->delete();
             // show their account
-            Request::instance()->redirect('/');
+            Request::instance()->redirect('in');
         } else {
             $view->title = '';
             $view->start = true;

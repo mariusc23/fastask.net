@@ -15,7 +15,7 @@ Someone, presumably you, requested a password reset for your account on ' . SITE
 
 Click on the link below, or copy and paste it in your browser to change your password on ' . SITE_NAME . '.
 
-' . URL::site('user/reset')
+' . URL::site('user/reset', TRUE)
          . '?code=' . $notification->code . '
 
 ---
