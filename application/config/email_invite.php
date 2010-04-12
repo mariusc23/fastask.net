@@ -13,7 +13,7 @@ $message = 'Hi,
 
 Click on the link below, or copy and paste it in your browser to register an account on ' . SITE_NAME . '.
 
-' . URL::site('user/register')
+' . URL::site('user/register', TRUE)
          . '?code=' . $invitation->code . '
 
 Note: This invitation expires in a week.

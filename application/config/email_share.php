@@ -19,10 +19,10 @@ $message = 'Hi ' . $message_to . ',
 
 If you accept their request, you will be able to assign tasks to them, and they will be able to assign tasks to you. The assignments (2nd tab) and command center (3rd tab) will keep tasks created by them or assigned to them separate from your own.
 
-Accept their request: ' . URL::site('user/share')
+Accept their request: ' . URL::site('user/share', TRUE)
          . '?code=' . $notification->code . '&accept=1
 
-Block future requests from this user: ' . URL::site('user/share')
+Block future requests from this user: ' . URL::site('user/share', TRUE)
          . '?code=' . $notification->code . '&block=1
 
 You can always unblock the user by going to the accept URL.
