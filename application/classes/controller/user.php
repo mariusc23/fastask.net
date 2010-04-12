@@ -148,7 +148,7 @@ class Controller_User extends Controller_Template {
                 Auth::instance()->login($post['username'], $post['password']);
  
                 // show their account
-                Request::instance()->redirect('/');
+                Request::instance()->redirect('in');
             } else {
                 // show the registration errors
                 $view->errors = $post->errors('register');
@@ -480,7 +480,7 @@ class Controller_User extends Controller_Template {
         // must be admin
         $role = new Model_Role(2);
         if (!$this->user->has('roles', $role)) {
-            $this->request->redirect(URL::site('/'));
+            $this->request->redirect(URL::site('in'));
         }
 
         $user = $this->user;
