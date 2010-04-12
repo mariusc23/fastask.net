@@ -1,4 +1,6 @@
 <div class="construction">
 <h1>fastask is baking</h1>
-Almost ready, come back in<br/> a few days for the preview!
+<p>Our homepage is under construction.</p>
+<p>We are currently in private beta; if you have <strong>received an invitation</strong>, please check your email for the registration link. <a href="http://craciunoiu.net/contact">Contact us</a> to <strong>request an invitation</strong>.</p>
+<p>Existing user? <a href="<?php echo Url::site('user/login') ?>">Log in!</a></p>
 </div></div>
