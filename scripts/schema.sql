@@ -164,3 +164,15 @@ CREATE TABLE IF NOT EXISTS `follow_user` (
   PRIMARY KEY (`user_id`,`follower_id`),
   KEY `user_id` (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
+INSERT INTO `users` (`id`, `username`, `password`, `name`, `email`, `created`, `last_login`, `logins`) VALUES
+(1, 'marius', 'eeb59a22f0d14bbf4a25591532b258231d9f6676c7993', 'Marius Craciunoiu', 'mariuscraciunoiu@gmail.com', '0000-00-00 00:00:00', 0, 0),
+(2, 'paul', '5629a6082aa50803f8990a1f03919789f7d8c93982805', 'Paul Craciunoiu', 'paul.craciunoiu@gmail.com', '0000-00-00 00:00:00', 0, 0);
+
+
+INSERT INTO `roles_users` (`user_id`, `role_id`) VALUES
+(1, 1),
+(1, 2),
+(2, 1),
+(2, 2);
