@@ -80,7 +80,7 @@ class Controller_Fastask extends Controller_Template {
         $planner_tasks = array();
         $trash_tasks = array();
         if ($_GET['eu']) {
-            if ($_GET['tr'] == 1) {
+            if ($_GET['tr'] !== 2) {
                 $planner_pagination = Pagination::factory(array(
                     'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
                     'total_items'    => $planner_count,
@@ -160,9 +160,6 @@ class Controller_Fastask extends Controller_Template {
     }
 
     public function orm_chain_tasks(&$tasks, &$params, $order = true) {
-        if (!isset($params['t'])) {
-            $params['t'] = 0;
-        }
         $tasks
             ->distinct(true)
             ->join('follow_task')
@@ -170,7 +167,7 @@ class Controller_Fastask extends Controller_Template {
             ->where('trash', '=', 0)
             ->where('planned', '=', 0)
         ;
-        if (isset($params['g']) && intval($params['g'])) {
+        if (intval($params['g'])) {
             $g_id = $params['g'];
             $tasks = $tasks->where('group_id','=', $g_id);
         }
@@ -369,9 +366,13 @@ class Controller_Fastask extends Controller_Template {
         return compact('count', 'tasks');
     }
 
+    public function setup() {
+        $this->user = Auth::instance()->get_user();
+    }
+
     public function before() {
         parent::before();
-        $this->user = Auth::instance()->get_user();
+        $this->setup();
         if (!$this->user) {
             Request::instance()->redirect('user/login');
         }

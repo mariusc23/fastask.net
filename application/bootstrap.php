@@ -66,6 +66,12 @@ Kohana::$log->attach(new Kohana_Log_File(APPPATH.'logs'));
  */
 Kohana::$config->attach(new Kohana_Config_File);
 
+Route::set('default', '(info(/<action>(/<id>)))')
+    ->defaults(array(
+        'controller' => 'info',
+        'action'     => 'index',
+    ));
+
 /**
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
@@ -77,18 +83,13 @@ Kohana::modules(array(
 	'orm'        => MODPATH.'orm',        // Object Relationship Mapping
 	'pagination' => MODPATH.'pagination', // Paging of results
 	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
+    'unittest'   => MODPATH.'unittest',   // PHPUnit integration
 	));
 
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of
  * defaults for the URI.
  */
-Route::set('default', '(info(/<action>(/<id>)))')
-    ->defaults(array(
-        'controller' => 'info',
-        'action'     => 'index',
-    ));
-
 Route::set('in', '(in(/<action>(/<id>)))')
     ->defaults(array(
         'controller' => 'fastask',
@@ -122,11 +123,14 @@ Route::set('catch-all', '<uri>', array('uri' => '.+'))
         'action' => '404'
 ));
 
-/**
- * Execute the main request. A source of the URI can be passed, eg: $_SERVER['PATH_INFO'].
- * If no source is specified, the URI will be automatically detected.
- */
-echo Request::instance()
-	->execute()
-	->send_headers()
-	->response;
+if (!defined('SUPPRESS_REQUEST')) {
+    /**
+     * Execute the main request using PATH_INFO. If no URI source is specified,
+     * the URI will be automatically detected.
+     */
+    echo Request::instance($_SERVER['PATH_INFO'])
+        ->execute()
+        ->send_headers()
+        ->response;
+}
+
