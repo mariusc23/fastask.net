@@ -2,6 +2,7 @@
 
 /**
  * @group fastask
+ * @group fastask.invalid
  */
 Class LoggedOutTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;

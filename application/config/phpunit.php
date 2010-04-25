@@ -1,5 +1,7 @@
 <?php
 
+define('SPHINX_CONF', '/var/www/task/application/testdata/config/sphinx.conf');
+
 return array
 (
 	// The only enviroment in which the web runner is allowed to run

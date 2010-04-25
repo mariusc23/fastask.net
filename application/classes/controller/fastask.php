@@ -5,7 +5,7 @@ class Controller_Fastask extends Controller_Template {
     private $sphinxclient = null;
 
     /**
-     * Index action
+     * Index action. Displays the main template.
      */
     public function action_index() {
         // get the content
@@ -128,16 +128,12 @@ class Controller_Fastask extends Controller_Template {
         $json['counts'] = array();
         $json['counts'][0] = $count;
         $json['counts'][1] = array($planner_count, $trash_count);
-        //$json['cache_counts'] = $this->get_cache_counts();
         $json = array_merge(
             $json,
             $group_controller->json_groups($type)
         );
 
         $this->request->response = json_encode($json);
-
-        // update cache
-        //$this->set_cache_counts($json['counts'][0], $json['counts'][1]);
     }
 
     public function get_count($params) {
@@ -241,7 +237,7 @@ class Controller_Fastask extends Controller_Template {
     public function get_min_count($for = 'planner') {
         switch ($for) {
             case 'planner':
-                return DB::select(DB::expr('COUNT(id) AS count'))
+                $count = DB::select(DB::expr('COUNT(id) AS count'))
                     ->from('tasks')
                     ->distinct(true)
                     ->join('follow_task')
@@ -251,8 +247,9 @@ class Controller_Fastask extends Controller_Template {
                     ->where('status', '=', 0)
                     ->where('planned', '=', 1)
                     ->execute()->get('count');
+                break;
             case 'trash':
-                return DB::select(DB::expr('COUNT(id) AS count'))
+                $count = DB::select(DB::expr('COUNT(id) AS count'))
                     ->from('tasks')
                     ->distinct(true)
                     ->join('follow_task')
@@ -260,7 +257,9 @@ class Controller_Fastask extends Controller_Template {
                     ->where('follower_id', '=', $this->user->id)
                     ->where('trash', '=', 1)
                     ->execute()->get('count');
+                break;
         }
+        return $count;
     }
 
     /**
@@ -269,7 +268,7 @@ class Controller_Fastask extends Controller_Template {
     public function get_min_tasks($pagination, $for = 'planner') {
         switch ($for) {
             case 'planner':
-                return ORM::factory('task')
+                $tasks = ORM::factory('task')
                     ->distinct(true)
                     ->join('follow_task')
                         ->on('follow_task.task_id', '=', 'tasks.id')
@@ -281,8 +280,9 @@ class Controller_Fastask extends Controller_Template {
                     ->limit($pagination->items_per_page)
                     ->offset($pagination->offset)
                     ->find_all();
+                break;
             case 'trash':
-                return ORM::factory('task')
+                $tasks = ORM::factory('task')
                     ->from('tasks')
                     ->distinct(true)
                     ->join('follow_task')
@@ -293,35 +293,9 @@ class Controller_Fastask extends Controller_Template {
                     ->limit($pagination->items_per_page)
                     ->offset($pagination->offset)
                     ->find_all();
+                break;
         }
-    }
-
-    public function get_cache_counts() {
-        $user_cache = $this->user->caches
-            ->where('key', '=', CACHE_COUNTS)
-            ->find();
-        if (!$user_cache->loaded()) {
-            $user_cache = new Model_Usercache();
-            $user_cache->user_id = $this->user->id;
-            $user_cache->key = CACHE_COUNTS;
-            $user_cache->value = serialize(array());
-            $user_cache->save();
-        }
-        return unserialize($user_cache->value);
-    }
-
-    public function set_cache_counts($counts, $counts_left) {
-        $counts_all = serialize(array_merge($counts, $counts_left));
-        $user_cache = $this->user->caches
-            ->where('key', '=', CACHE_COUNTS)
-            ->find();
-        if (!$user_cache->loaded()) {
-            $user_cache = new Model_Usercache();
-            $user_cache->user_id = $this->user->id;
-            $user_cache->key = CACHE_COUNTS;
-        }
-        $user_cache->value = $counts_all;
-        $user_cache->save();
+        return $tasks;
     }
 
     public function search($query, $per_page) {
