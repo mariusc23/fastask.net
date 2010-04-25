@@ -8,7 +8,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;
     private $test_user_id = 1;
     private $test_username = 'paul';
-    private $test_password = '123paul';
+    private $test_password = 'testpass';
 
     protected function setUp() {
         Kohana::config('database')->default = Kohana::config('database')->unit_testing;
@@ -44,7 +44,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
-                array $pairs - array of key=>value to test in the first task
+                array $pairs - array of key=>value to test in each task
                     array($property, $value)
                 tasks per page to expect
         */
@@ -153,7 +153,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
-                array $pairs - array of key=>value to test in the first task
+                array $pairs - array of key=>value to test in each task
                     array($property, $value)
                 tasks per page to expect
         */
@@ -264,7 +264,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
-                array $pairs - array of key=>value to test in the first task
+                array $pairs - array of key=>value to test in each task
                     array($property, $value)
                 tasks per page to expect
         */
@@ -352,7 +352,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
-                array $pairs - array of key=>value to test in the first task
+                array $pairs - array of key=>value to test in each task
                     array($property, $value)
                 tasks per page to expect
         */

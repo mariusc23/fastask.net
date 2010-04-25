@@ -7,42 +7,39 @@ class Controller_Task extends Controller {
 
     public function action_add() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         $json = array();
         if (!$_POST ||
             (!isset($_POST['add']) && !isset($_POST['plan']))) {
             $this->request->status = 400;
-            $json['errors'][] = 'Must be adding or planning.';
+            $json['error'] = 'Must be adding or planning.';
             $this->request->response = json_encode($json);
-            return ;
+            return;
         }
         // validate data first
         $post = new Validate($_POST);
         $post
+            ->rule('text', 'not_empty')
             ->rule('text', 'min_length', array(10))
             ->rule('text', 'max_length', array(1500))
-            ->rule('text', 'min_length', array(5))
-            ->rule('priority', 'range', array(1, 3))
+            ->rule('priority', 'not_empty')
+            ->rule('priority', 'numeric')
             ->filter(TRUE, 'trim')
         ;
-
         if (!$post->check()) {
-            $json['errors'][] = 'Invalid data posted.';
-            if ($post['errors']) {
-                $json['errors_post'] = $post['errors'];
-            }
+            $json['error'] = 'Invalid data submitted.';
             $this->request->response = json_encode($json);
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         if (!$_POST['follower'] || !is_array($_POST['follower'])
             || (count($_POST['follower']) == 0)) {
-            $json['errors'][] = 'Someone must be assigned to this task.';
+            $json['error'] = 'Someone must be assigned to this task.';
             $this->request->response = json_encode($json);
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         $type = 0;
@@ -89,7 +86,7 @@ class Controller_Task extends Controller {
 
         if (!$task->save()) {
             $this->request->status = 500;
-            return ;
+            return;
         }
 
         foreach ($followers as $follower) {
@@ -111,11 +108,11 @@ class Controller_Task extends Controller {
      */
     public function action_share() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         if (!$_POST || !isset($_POST['u']) || !intval($_POST['u'])) {
             $this->request->status = 400;
-            return ;
+            return;
         }
         $u_id = intval($_POST['u']);
 
@@ -124,13 +121,13 @@ class Controller_Task extends Controller {
         // if not found
         if (!$user->loaded()) {
             $this->request->status = 404;
-            return ;
+            return;
         }
 
         // if not allowed to share with $user
         if (!$this->user->has('followers', $user)) {
             $this->request->status = 403;
-            return ;
+            return;
         }
 
         // already has the follower, bad request
@@ -139,41 +136,41 @@ class Controller_Task extends Controller {
             if ($this->task->has('followers', $user)) {
                 $this->request->response = 'already';
                 $this->request->status = 400;
-                return ;
+                return;
             }
 
             if (!$this->task->add('followers', $user)) {
                 $this->request->status = 500;
-                return ;
+                return;
             } else {
                 $this->task->num_followers++;
                 // save it
                 if (!$this->task->save()) {
                     $this->request->status = 500;
-                    return ;
+                    return;
                 }
             }
         } else {
         // removing a user
             if (!$this->task->has('followers', $user)) {
                 $this->request->status = 400;
-                return ;
+                return;
             }
 
             if ($this->task->num_followers <= 1) {
                 $this->request->response = 'toofew';
                 $this->request->status = 400;
-                return ;
+                return;
             }
             if (!$this->task->remove('followers', $user)) {
                 $this->request->status = 500;
-                return ;
+                return;
             } else {
                 $this->task->num_followers--;
                 // save it
                 if (!$this->task->save($this->id)) {
                     $this->request->status = 500;
-                    return ;
+                    return;
                 }
             }
         }
@@ -185,14 +182,14 @@ class Controller_Task extends Controller {
      */
     public function action_pri() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         $this->task->priority = ($this->task->priority + 1) % 3 + 1;
 
         // save it
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
         $this->request->response = json_encode(array(
             'priority' => $this->task->priority,
@@ -204,7 +201,7 @@ class Controller_Task extends Controller {
      */
     public function action_s() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         $this->task->status = 1 - $this->task->status;
         if (!in_array($this->task->status, array(0, 1))) {
@@ -214,7 +211,7 @@ class Controller_Task extends Controller {
         // save it
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
         $this->request->response = json_encode(array(
             'status' => $this->task->status,
@@ -226,7 +223,7 @@ class Controller_Task extends Controller {
      */
     public function action_d() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         $json = array('task' => array());
         if (isset($_POST['undo'])) {
@@ -236,7 +233,7 @@ class Controller_Task extends Controller {
         }
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
 
         $columns = $this->task->list_columns();
@@ -251,7 +248,7 @@ class Controller_Task extends Controller {
      */
     public function action_text() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         $post = new Validate($_POST);
         $post
@@ -261,7 +258,7 @@ class Controller_Task extends Controller {
         ;
         if (!$post->check()) {
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         $type = 0;
@@ -279,7 +276,7 @@ class Controller_Task extends Controller {
         }
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
         $this->task->text = Model_Task::format_text_out($this->task, $this->user);
         $group_controller = new Controller_Group($this->request);
@@ -296,7 +293,7 @@ class Controller_Task extends Controller {
      */
     public function action_plan() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         // default to today
         $due = time();// + SECONDS_IN_DAY; //tomorrow
@@ -308,7 +305,7 @@ class Controller_Task extends Controller {
         $this->task->planned = ($this->task->due < TIMESTAMP_PLANNED) ? 1 : 0;
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
         // reload the task
         $this->task->reload();
@@ -326,17 +323,17 @@ class Controller_Task extends Controller {
      */
     public function action_due() {
         if ($this->request->status != 200) {
-            return ;
+            return;
         }
         if (!isset($_POST['due'])) {
             $this->request->status = 400;
-            return ;
+            return;
         }
         $this->task->due = Model_Task::format_due_in($_POST['due']);
         $this->task->planned = ($this->task->due < TIMESTAMP_PLANNED) ? 1 : 0;
         if (!$this->task->save($this->id)) {
             $this->request->status = 500;
-            return ;
+            return;
         }
         // reload the task
         $this->task->reload();
@@ -346,14 +343,6 @@ class Controller_Task extends Controller {
             'due_out' => $due_out,
             'planned' => $this->task->planned,
         ));
-    }
-
-    public function action_index()
-    {
-        if ($this->request->status != 200) {
-            return ;
-        }
-        $this->request->response = 'hello, world!';
     }
 
 
@@ -416,14 +405,14 @@ class Controller_Task extends Controller {
                 ));
                 if (!$group) {
                     $this->request->status = 500;
-                    return ;
+                    return;
                 }
                 $group->num_tasks++;
             }
 
             if (!$group->save()) {
                 $this->request->status = 500;
-                return ;
+                return;
             }
             $group_id = $group->id;
         } // end if task has group
@@ -443,8 +432,6 @@ class Controller_Task extends Controller {
     }
 
     public function before() {
-        if (Request::instance()->action == 'index') return ;
-
         $this->request->headers['Content-Type'] = 'application/json';
         $this->user = Auth::instance()->get_user();
         if (!$this->user) {
@@ -452,10 +439,10 @@ class Controller_Task extends Controller {
             $this->request->response = json_encode(array(
                 'error' => 'Permission denied. You must be logged in.'
             ));
-            return ;
+            return;
         }
 
-        if (Request::instance()->action == 'add') return ;
+        if (Request::instance()->action == 'add') return;
 
         // must be logged in to do anything
         $this->id = $this->request->param('id');
@@ -466,7 +453,7 @@ class Controller_Task extends Controller {
             $this->request->response = json_encode(array(
                 'error' => 'Task not found.',
             ));
-            return ;
+            return;
         }
 
         // error if not following
@@ -477,7 +464,7 @@ class Controller_Task extends Controller {
                 'error' => 'Permission denied. You must be the owner '
                     + 'or assigned to this task.',
             ));
-            return ;
+            return;
         }
     }
 }

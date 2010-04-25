@@ -8,7 +8,7 @@ Class FastaskSearchTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;
     private $test_user_id = 1;
     private $test_username = 'paul';
-    private $test_password = '123paul';
+    private $test_password = 'testpass';
 
     protected function setUp() {
         Kohana::config('database')->default = Kohana::config('database')->unit_testing;
