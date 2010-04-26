@@ -1,6 +1,9 @@
 <?php
 
 define('SPHINX_CONF', '/var/www/task/application/testdata/config/sphinx.conf');
+define('TEST_USERNAME', 'paul');
+define('TEST_PASSWORD', 'testpass');
+define('TEST_USER_ID', 1);
 
 return array
 (

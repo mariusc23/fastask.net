@@ -5,20 +5,22 @@
  * @group task
  * @group task.invalid
  */
-Class TaskInvalidTest extends PHPUnit_Framework_TestCase {
+class TaskInvalidTest extends PHPUnit_Framework_TestCase {
     private $task = null;
-    private $request = null;
 
     protected function setUp() {
-        Request::instance()->action = 'add';
-        $this->task = new Controller_Task(new Request('task/add'));
-        $this->task->before();
+        // Need to reset status code for running multiple tests
+        // because Kohana's Request::instance() is static.
+        Request::instance()->status = 200;
     }
 
     /**
-     * Test add empty is a bad request.
+     * Test adding with empty data produces a bad request (status code 400)
      */
     function testAddEmpty() {
+        Request::instance()->action = 'add';
+        $this->task = new Controller_Task(Request::instance());
+        $this->task->before();
         $this->task->action_add();
         $response = $this->task->request;
         $this->assertSame(
@@ -130,6 +132,9 @@ Class TaskInvalidTest extends PHPUnit_Framework_TestCase {
      */
     function testAddInvalid($post, $pairs) {
         $_POST = $post;
+        Request::instance()->action = 'add';
+        $this->task = new Controller_Task(Request::instance());
+        $this->task->before();
         $this->task->action_add();
         $response = $this->task->request;
         $this->assertSame(

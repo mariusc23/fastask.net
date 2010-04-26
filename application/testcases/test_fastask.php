@@ -5,9 +5,8 @@
  * @group fastask
  * @group fastask.general
  */
-Class FastaskTest extends PHPUnit_Framework_TestCase {
+class FastaskTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;
-    private $test_user_id = 1;
 
     protected function setUp() {
         $this->fastask = new Controller_Fastask($request =
@@ -51,7 +50,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'ep' => 1,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('status', 0),
                     array('planned', 0),
                     array('trash', 0),
@@ -64,7 +63,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'n' => 1,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('status', 0),
                     array('planned', 0),
                     array('trash', 0),
@@ -90,7 +89,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'n' => 3,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('status', 0),
                     array('planned', 0),
                     array('trash', 0),
@@ -158,19 +157,19 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
             array(array(
                     'ep' => 1,
                   ),
-                  $this->test_user_id,
+                  TEST_USER_ID,
             ),
             array(array(
                     't' => 1,
                     'ep' => 1,
                   ),
-                  $this->test_user_id,
+                  TEST_USER_ID,
             ),
             array(array(
                     't' => 3,
                     'ep' => 1,
                   ),
-                  $this->test_user_id,
+                  TEST_USER_ID,
             ),
         );
     }
@@ -226,7 +225,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         foreach ($json->tasks as $task) {
             if (count($task->followers) === 1) {
                 $this->assertNotEquals(
-                    $this->test_user_id,
+                    TEST_USER_ID,
                     $task->followers[0]->id
                 );
             }
@@ -337,7 +336,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                 $follower_ids[] = $follower->id;
             }
             $this->assertContains(
-                $this->test_user_id,
+                TEST_USER_ID,
                 $follower_ids
             );
         }
@@ -361,7 +360,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'g' => 1,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('group_id', 1),
                     array('status', 0),
                     array('planned', 0),
@@ -376,7 +375,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'g' => 2,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('group_id', 2),
                     array('status', 0),
                     array('planned', 0),
@@ -406,7 +405,7 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'g' => 3,
                   ),
                   array(
-                    array('user_id', $this->test_user_id),
+                    array('user_id', TEST_USER_ID),
                     array('group_id', 3),
                     array('status', 0),
                     array('planned', 0) ,
