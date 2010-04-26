@@ -26,6 +26,9 @@ CLASSES = {
     'loadrow': 'loadbar'
 };
 
+STRINGS = {
+    'due': '+7d',
+};
 
 TIMEOUTS = {
 // delay for searching after last keypress
@@ -52,7 +55,7 @@ COUNTS = {
     'searchmin': 5,
 
 // maximum number of notifications to keep/show at any time
-    'notifmax': 5
+    'notifmax': 5,
 };
 
 PIXELS = {
@@ -69,7 +72,7 @@ PIXELS = {
 // when groups are read-only
     'assignmentwidth': 20,
 // so does the text indent
-    'assignmentindent': 5
+    'assignmentindent': 5,
 };
 
 // separator for variables in the url hash
@@ -244,7 +247,7 @@ TEMPLATES = {
             <textarea rows="5" cols="10" name="text"></textarea> \
         </label> \
         <label class="due">Date: <br/> \
-            <input type="text" name="due" value="+1d" /> \
+            <input type="text" name="due" value="' + STRINGS.due + '" /> \
             <span class="due-icon"></span> \
         </label> \
         <div class="share label">Sharing: <br/> \

@@ -66,6 +66,9 @@ class Controller_Task extends Controller {
         $task->num_followers = 0;
 
         $group = $this->handle_text($task, $post['text']);
+        if (200 !== $this->request->status) {
+            return;
+        }
         $group_arr = array();
         if ($group) {
             $group_arr = array( 'group' => array(
@@ -125,14 +128,15 @@ class Controller_Task extends Controller {
         }
 
         // if not allowed to share with $user
-        if (!$this->user->has('followers', $user)) {
+        if ($this->user->id !== $user->id &&
+            !$this->user->has('followers', $user)) {
             $this->request->status = 403;
             return;
         }
 
         // already has the follower, bad request
         // adding a user
-        if (isset($_POST['a']) && $_POST['a']) {
+        if ($_POST['a']) {
             if ($this->task->has('followers', $user)) {
                 $this->request->response = 'already';
                 $this->request->status = 400;
@@ -184,7 +188,7 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return;
         }
-        $this->task->priority = ($this->task->priority + 1) % 3 + 1;
+        $this->task->priority = ($this->task->priority) % 3 + 1;
 
         // save it
         if (!$this->task->save($this->id)) {
@@ -203,10 +207,7 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return;
         }
-        $this->task->status = 1 - $this->task->status;
-        if (!in_array($this->task->status, array(0, 1))) {
-            $this->task->status = 0;
-        }
+        $this->task->status = !$this->task->status;
 
         // save it
         if (!$this->task->save($this->id)) {
@@ -225,7 +226,7 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return;
         }
-        $json = array('task' => array());
+        $json = array();
         if (isset($_POST['undo'])) {
             $this->task->trash = 0;
         } else {
@@ -434,6 +435,7 @@ class Controller_Task extends Controller {
     public function before() {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->user = Auth::instance()->get_user();
+        // must be logged in to do anything
         if (!$this->user) {
             $this->request->status = 403;
             $this->request->response = json_encode(array(
@@ -444,7 +446,6 @@ class Controller_Task extends Controller {
 
         if (Request::instance()->action == 'add') return;
 
-        // must be logged in to do anything
         $this->id = $this->request->param('id');
         $this->task = new Model_Task($this->id);
         // error if not found

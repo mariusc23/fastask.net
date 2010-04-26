@@ -7,5 +7,5 @@ application/config/config.php
 localsettings.py
 application/logs
 scripts/config.php
-application/testdata
+application/testdata/search
 

@@ -1,28 +1,20 @@
 <?php
 
 /**
+ * @group loggedin
  * @group fastask
  * @group fastask.search
  */
 Class FastaskSearchTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;
     private $test_user_id = 1;
-    private $test_username = 'paul';
-    private $test_password = 'testpass';
 
     protected function setUp() {
-        Kohana::config('database')->default = Kohana::config('database')->unit_testing;
+        Kohana::config('database')->default = Kohana::config('database')
+                                                ->unit_testing;
         Auth::instance()->login($this->test_username, $this->test_password);
-        $this->fastask = new Controller_Fastask(Request::instance());
+        $this->fastask = new Controller_Fastask(new Request('in/t'));
         $this->fastask->before();
-
-        $output = null;
-        exec('indexer --all --config ' . SPHINX_CONF);
-        exec('searchd --config ' . SPHINX_CONF);
-    }
-
-    protected function tearDown() {
-        exec('killall searchd');
     }
 
     /**
@@ -39,7 +31,7 @@ Class FastaskSearchTest extends PHPUnit_Framework_TestCase {
         return array(
             array('s'  => 'asdfgh', 404),
             array('s'  => '', 404),
-            array('s'  => 'ajaxify', 200),
+            array('s'  => 'nulla', 200),
         );
     }
 

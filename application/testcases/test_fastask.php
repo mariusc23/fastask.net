@@ -1,23 +1,20 @@
 <?php
 
 /**
+ * @group loggedin
  * @group fastask
  * @group fastask.general
  */
 Class FastaskTest extends PHPUnit_Framework_TestCase {
     private $fastask = null;
     private $test_user_id = 1;
-    private $test_username = 'paul';
-    private $test_password = 'testpass';
 
     protected function setUp() {
-        Kohana::config('database')->default = Kohana::config('database')->unit_testing;
-        Auth::instance()->login($this->test_username, $this->test_password);
-        $this->fastask = new Controller_Fastask(Request::instance());
+        $this->fastask = new Controller_Fastask($request =
+                                                new Request('in/t'));
+        $request->headers['Content-Type'] = 'text/html; charset=' .
+                                            Kohana::$charset;
         $this->fastask->before();
-    }
-
-    protected function tearDown() {
     }
 
     /**
@@ -239,13 +236,14 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
      * Test pagination works properly.
      */
     function testPagination() {
-        $_GET = array('ep' => 1, );
+        $per_page = 3;
+        $_GET = array('ep' => 1, 'n' => $per_page);
         $task_ids = array();
         for ($page = 0; $page < 3; $page++) {
             $_GET['p'] = $page + 1;
             $this->fastask->action_t();
             $json = json_decode($this->fastask->request->response);
-            for($i = 0; $i < TASKS_PER_PAGE; $i++) {
+            for($i = 0; $i < $per_page; $i++) {
                 $task_ids[] = $json->tasks[$i]->id;
             }
         }
@@ -283,12 +281,12 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
             array(array(
                     'eu' => 1,
                     'tr' => 2,
-                    'm'  => 5,
+                    'm'  => 4,
                   ),
                   array(
                     array('trash', 1),
                   ),
-                  5
+                  4
             ),
             array(array(
                     'u'  => 2,
@@ -375,11 +373,11 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
                     'p' => 2,
                     'ep' => 1,
                     'n' => 1,
-                    'g' => 51,
+                    'g' => 2,
                   ),
                   array(
                     array('user_id', $this->test_user_id),
-                    array('group_id', 51),
+                    array('group_id', 2),
                     array('status', 0),
                     array('planned', 0),
                     array('trash', 0),
@@ -389,46 +387,46 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
             array(array(
                     't' => 1,
                     'ep' => 1,
-                    'n' => 1,
-                    'g' => 50,
+                    'n' => 2,
+                    'g' => 8,
                   ),
                   array(
-                    array('user_id', 4),
-                    array('group_id', 50),
+                    array('user_id', 2),
+                    array('group_id', 8),
                     array('status', 0),
                     array('planned', 0),
                     array('trash', 0),
                   ),
-                  1
+                  2
             ),
             array(array(
                     't' => 2,
                     'ep' => 1,
-                    'n' => 1,
-                    'g' => 45,
+                    'n' => 3,
+                    'g' => 3,
                   ),
                   array(
                     array('user_id', $this->test_user_id),
-                    array('group_id', 45),
+                    array('group_id', 3),
                     array('status', 0),
-                    array('planned', 0),
+                    array('planned', 0) ,
                     array('trash', 0),
                   ),
-                  1
+                  3
             ),
             array(array(
                     't' => 3,
                     'ep' => 1,
-                    'n' => 1,
-                    'g' => 45,
+                    'n' => 2,
+                    'g' => 2,
                   ),
                   array(
-                    array('group_id', 45),
+                    array('group_id', 2),
                     array('status', 1),
                     array('planned', 0),
                     array('trash', 0),
                   ),
-                  1
+                  2
             ),
         );
     }
@@ -489,4 +487,3 @@ Class FastaskTest extends PHPUnit_Framework_TestCase {
         );
     }
 }
-

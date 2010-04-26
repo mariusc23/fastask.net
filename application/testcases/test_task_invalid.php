@@ -1,26 +1,18 @@
 <?php
 
 /**
+ * @group loggedin
  * @group task
- * @group task.add
+ * @group task.invalid
  */
-Class TaskTest extends PHPUnit_Framework_TestCase {
+Class TaskInvalidTest extends PHPUnit_Framework_TestCase {
     private $task = null;
     private $request = null;
-    private $test_user_id = 1;
-    private $test_username = 'paul';
-    private $test_password = 'testpass';
 
     protected function setUp() {
-        Kohana::config('database')->default = Kohana::config('database')->unit_testing;
-        Auth::instance()->login($this->test_username, $this->test_password);
-        $this->request = Request::instance();
-        $this->request->action = 'add';
-        $this->task = new Controller_Task($this->request);
+        Request::instance()->action = 'add';
+        $this->task = new Controller_Task(new Request('task/add'));
         $this->task->before();
-    }
-
-    protected function tearDown() {
     }
 
     /**
@@ -41,7 +33,6 @@ Class TaskTest extends PHPUnit_Framework_TestCase {
             json_decode($response->response)->error,
             'Must be adding or planning.'
         );
-        $this->request->status = 200;
     }
 
     /**
@@ -51,7 +42,7 @@ Class TaskTest extends PHPUnit_Framework_TestCase {
         /* format for each test:
             array(
                 array $_POST - will be assigned to global $_POST,
-                array $pairs - array of key=>value to test in the first task
+                array $pairs - array of key=>value to test in the response
                     array($property, $value)
         */
         return array(
@@ -74,6 +65,15 @@ Class TaskTest extends PHPUnit_Framework_TestCase {
                     'add' => 1,
                     'text' => 'Good enough',
                     'priority' => 'invalid',
+                  ),
+                  array(
+                    array('error', 'Invalid data submitted.'),
+                  ),
+            ),
+            array(array(
+                    'add' => 1,
+                    'priority' => '2',
+                    'text' => str_repeat('*', 1501),
                   ),
                   array(
                     array('error', 'Invalid data submitted.'),
@@ -140,12 +140,103 @@ Class TaskTest extends PHPUnit_Framework_TestCase {
             $response->status,
             400
         );
+        $json = json_decode($response->response);
         foreach ($pairs as $pair) {
             $this->assertSame(
-                json_decode($response->response)->$pair[0],
+                $json->$pair[0],
                 $pair[1]
             );
         }
-        $this->request->status = 200;
+    }
+
+
+    /**
+     * Sets invalid $_POST data for sharing tasks
+     */
+    function providerShareInvalid() {
+        /* format for each test:
+            array(
+                array $_POST - will be assigned to global $_POST,
+                tasks.id
+                status
+        */
+        return array(
+            array(array(),
+                  999,
+                  404,
+            ),
+            array(array(),
+                  1,
+                  400,
+            ),
+            array(array(
+                    'u' => '5',
+                  ),
+                  1,
+                  404,
+            ),
+            array(array(
+                    'u' => '2',
+                  ),
+                  1,
+                  400,
+            ),
+            array(array(
+                    'u' => '1',
+                    'a' => '1',
+                  ),
+                  1,
+                  400,
+            ),
+            // SECURITY: modifying someone else's task
+            array(array(
+                    'u' => '2',
+                    'a' => '1',
+                  ),
+                  50,
+                  403,
+            ),
+            array(array(
+                    'u' => '1',
+                    'a' => '1',
+                  ),
+                  51,
+                  403,
+            ),
+            array(array(
+                    'u' => '3',
+                    'a' => '1',
+                  ),
+                  64,
+                  403,
+            ),
+            array(array(
+                    'u' => '1',
+                  ),
+                  1,
+                  400,
+            ),
+        );
+    }
+
+    /**
+     * Test share invalid.
+     * @dataProvider providerShareInvalid
+     */
+    function testShareInvalid($post, $id, $status) {
+        $_POST = $post;
+        Request::instance()->action = 'share';
+        $this->task = new Controller_Task(new Request('task/share/' . $id));
+        $this->task->before();
+        $this->task->action_share();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            $status
+        );
     }
 }
