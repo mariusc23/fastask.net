@@ -2,12 +2,14 @@
 
 /**
  * Logged out, 403 forbidden everywhere.
+ * @group application
  * @group anonymous
  */
 class AnonymousTest extends PHPUnit_Framework_TestCase {
     protected function setUp() {
         Kohana::config('database')->default = Kohana::config('database')
                                                 ->unit_testing;
+        Auth::instance()->logout();
     }
 
     function testFastask() {
@@ -32,5 +34,16 @@ class AnonymousTest extends PHPUnit_Framework_TestCase {
             $response->status,
             403
         );
+    }
+
+
+    function testGroup() {
+        $group = new Controller_Group(new Request('group/l'));
+        $group->before();
+        $group->action_l();
+        $response = $group->request;
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json' );
+        $this->assertSame($response->status, 403);
     }
 }

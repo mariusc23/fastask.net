@@ -2,6 +2,7 @@
 
 /**
  * This suite tests search functionality in the main controller.
+ * @group application
  * @group loggedin
  * @group fastask
  * @group fastask.search
@@ -29,7 +30,6 @@ class FastaskSearchTestSuite extends PHPUnit_Framework_TestSuite {
         $test_user = Auth::instance()->get_user();
         $test_user->logins = 1;
         $test_user->save();
-        Auth::instance()->logout();
 
         // Stop the search daemon
         exec('killall searchd');

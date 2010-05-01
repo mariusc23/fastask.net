@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @group application
  * @group loggedin
  * @group task
  * @group task.general
@@ -26,6 +27,17 @@ class TaskTest extends PHPUnit_Framework_TestCase {
                     array($property, $value)
         */
         return array(
+            array(array(
+                    'plan' => 1,
+                    'text' => 'Test planning for someone else.',
+                    'priority' => '3',
+                    'follower' => array('2'),
+                  ),
+                  array(
+                    array('id', 69),
+                    array('planned', 1),
+                  ),
+            ),
             array(array(
                     'plan' => 1,
                     'text' => 'Test planning.',
@@ -407,7 +419,7 @@ class TaskTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * Sets $_POST data for changing priority
+     * Sets $_POST data for toggling status.
      */
     function providerStatus() {
         /* format for each test:
@@ -444,6 +456,266 @@ class TaskTest extends PHPUnit_Framework_TestCase {
         $this->assertSame(
             json_decode($response->response)->status,
             $status
+        );
+    }
+
+
+    /**
+     * Sets $_POST data for changing the text
+     */
+    function providerText() {
+        /* format for each test:
+            array(
+                $_POST data
+                tasks.id,
+                returned group
+                returned groups contain (depends on type)
+                returned groups do not contain (depends on type)
+        */
+        return array(
+            array(array(
+                    'text' => 'paul_2: Test changing to existing group.',
+                    't' => 0,
+                  ),
+                  79,
+                  'Test changing to existing group.',
+                  array(2, 'paul_2'),
+                  array('paul_1', 'paul_2'),
+                  array(),
+            ),
+            array(array(
+                    'text' => 'paul_1: Test changing to existing group.',
+                    't' => 0,
+                  ),
+                  79,
+                  'Test changing to existing group.',
+                  array(1, 'paul_1'),
+                  array('paul_1', 'paul_2'),
+                  array(),
+            ),
+            array(array(
+                    'text' => 'paul_10: Test changing to new group ' .
+                        'and deleting old group.',
+                    't' => 2,
+                  ),
+                  80,
+                  'Test changing to new group and deleting old group.',
+                  array(15, 'paul_10'),
+                  array('paul_1', 'paul_10'),
+                  array('paul_9'),
+            ),
+            // SECURITY: modifying the group for someone else's task
+            array(array(
+                    'text' => 'paul_11: Test changing group of task ' .
+                        'owned by other user.',
+                    't' => 1,
+                  ),
+                  57,
+                  'paul_11: Test changing group of task owned by other user.',
+                  array(null, null),
+                  array('marius_1', 'marius_2'),
+                  array('paul_11'),
+            ),
+        );
+    }
+
+    /**
+     * Test editing text.
+     * @dataProvider providerText
+     */
+    function testText($post, $id, $text, $new_group, $contains, $excludes) {
+        $_POST = $post;
+        Request::instance()->action = 'text';
+        $this->task = new Controller_Task(new Request('task/text/' . $id));
+        $this->task->before();
+        $this->task->action_text();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            200
+        );
+        $json = json_decode($response->response);
+        $this->assertSame(
+            $json->text,
+            $text
+        );
+        $this->assertSame(
+            $json->group->id,
+            $new_group[0]
+        );
+        $this->assertSame(
+            $json->group->name,
+            $new_group[1]
+        );
+        $group_names = array();
+        foreach ($json->groups as $group) {
+            $group_names[] = $group->name;
+        }
+        foreach ($contains as $group_name) {
+            $this->assertContains(
+                $group_name,
+                $group_names
+            );
+        }
+        $this->assertSame(
+            array_intersect($excludes, $group_names),
+            array()
+        );
+    }
+
+
+    /**
+     * Sets $_POST data for planning a task.
+     */
+    function providerPlan() {
+        /* format for each test:
+            array(
+                $_POST data,
+                tasks.id,
+                due timestamp,
+                due string,
+                planned or not,
+        */
+        return array(
+            array(array(),  // default planning
+                  73,
+                  time() + PLAN_DEFAULT_DELAY,
+                  '7:0',
+                  0,
+            ),
+            array(array('due' => '+1d'),
+                  73,
+                  time() + SECONDS_IN_DAY,
+                  date('D', time() + SECONDS_IN_DAY),
+                  0,
+            ),
+            array(array('due' => '-40yr'),
+                  73,
+                  0,
+                  'plan',
+                  1,
+            ),
+            array(array('due' => 'invalid'),
+                  73,
+                  0,
+                  'plan',
+                  1,
+            ),
+        );
+    }
+
+    /**
+     * Test planning task.
+     * @dataProvider providerPlan
+     */
+    function testPlan($post, $id, $due, $due_out, $planned) {
+        $_POST = $post;
+        Request::instance()->action = 'plan';
+        $this->task = new Controller_Task(new Request('task/plan/' . $id));
+        $this->task->before();
+        $this->task->action_plan();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            200
+        );
+        $json = json_decode($response->response);
+        $this->assertLessThanOrEqual(
+            $json->due,
+            $due
+        );
+        $this->assertLessThanOrEqual(
+            $json->due,  // 5 seconds delay should be generous
+            $due
+        );
+        $this->assertSame(
+            $json->due_out,
+            $due_out
+        );
+        $this->assertSame(
+            $json->planned,
+            $planned
+        );
+    }
+
+
+    /**
+     * Sets $_POST data for changing task due date.
+     */
+    function providerDue() {
+        /* format for each test:
+            array(
+                $_POST data,
+                tasks.id,
+                due timestamp,
+                due string,
+                planned or not,
+        */
+        return array(
+            array(array('due' => '+1d'),
+                  73,
+                  time() + SECONDS_IN_DAY,
+                  date('D', time() + SECONDS_IN_DAY),
+                  0,
+            ),
+            array(array('due' => 'invalid'),
+                  73,
+                  0,
+                  'plan',
+                  1,
+            ),
+            array(array('due' => 'sunday'),
+                  73,
+                  strtotime('sunday'),
+                  'Sun',
+                  0,
+            ),
+        );
+    }
+
+    /**
+     * Test changing task due date.
+     * @dataProvider providerDue
+     */
+    function testDue($post, $id, $due, $due_out, $planned) {
+        $_POST = $post;
+        Request::instance()->action = 'due';
+        $this->task = new Controller_Task(new Request('task/due/' . $id));
+        $this->task->before();
+        $this->task->action_due();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            200
+        );
+        $json = json_decode($response->response);
+        $this->assertLessThanOrEqual(
+            $json->due,
+            $due
+        );
+        $this->assertLessThanOrEqual(
+            $json->due,  // 5 seconds delay should be generous
+            $due
+        );
+        $this->assertSame(
+            $json->due_out,
+            $due_out
+        );
+        $this->assertSame(
+            $json->planned,
+            $planned
         );
     }
 }

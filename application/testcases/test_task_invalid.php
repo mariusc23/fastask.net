@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @group application
  * @group loggedin
  * @group task
  * @group task.invalid
@@ -234,6 +235,89 @@ class TaskInvalidTest extends PHPUnit_Framework_TestCase {
         $this->task = new Controller_Task(new Request('task/share/' . $id));
         $this->task->before();
         $this->task->action_share();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            $status
+        );
+    }
+
+
+    /**
+     * Sets invalid $_POST data for editing text in tasks.
+     */
+    function providerTextInvalid() {
+        /* format for each test:
+            array(
+                array $_POST - will be assigned to global $_POST,
+                status
+        */
+        return array(
+            array(array(
+                    'text' => 'tooshort',
+                  ),
+                  400,
+            ),
+            array(array(
+                    'text' => str_repeat('*', 1501),
+                  ),
+                  400,
+            ),
+        );
+    }
+
+    /**
+     * Test text invalid.
+     * @dataProvider providerTextInvalid
+     */
+    function testTextInvalid($post, $status) {
+        $_POST = $post;
+        Request::instance()->action = 'text';
+        $this->task = new Controller_Task(new Request('task/text/2'));
+        $this->task->before();
+        $this->task->action_text();
+        $response = $this->task->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'application/json'
+        );
+        $this->assertSame(
+            $response->status,
+            $status
+        );
+    }
+
+
+    /**
+     * Sets invalid $_POST data for editing due date in tasks.
+     */
+    function providerDueInvalid() {
+        /* format for each test:
+            array(
+                array $_POST - will be assigned to global $_POST,
+                status
+        */
+        return array(
+            array(array(),
+                  400,
+            ),
+        );
+    }
+
+    /**
+     * Test due invalid.
+     * @dataProvider providerDueInvalid
+     */
+    function testDueInvalid($post, $status) {
+        $_POST = $post;
+        Request::instance()->action = 'due';
+        $this->task = new Controller_Task(new Request('task/due/2'));
+        $this->task->before();
+        $this->task->action_due();
         $response = $this->task->request;
         $this->assertSame(
             $response->headers['Content-Type'],

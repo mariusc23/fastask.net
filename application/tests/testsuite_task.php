@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @group application
  * @group loggedin
  * @group task
  * @group task.general
@@ -22,13 +23,12 @@ class TaskSuite extends PHPUnit_Framework_TestSuite {
         $test_user = Auth::instance()->get_user();
         $test_user->logins = 1;
         $test_user->save();
-        Auth::instance()->logout();
 
         DB::delete('tasks')
-            ->where('id', '>', 69)
+            ->where('id', '>', 68)
             ->execute();
         DB::delete('follow_task')
-            ->where('task_id', '>', 69)
+            ->where('task_id', '>', 68)
             ->execute();
         DB::delete('groups')
             ->where('id', '>', 13)
@@ -36,7 +36,7 @@ class TaskSuite extends PHPUnit_Framework_TestSuite {
         // reset AUTO_INCREMENT
         DB::query(Database::UPDATE, 'ALTER TABLE groups AUTO_INCREMENT = 14')
             ->execute();
-        DB::query(Database::UPDATE, 'ALTER TABLE tasks AUTO_INCREMENT = 70')
+        DB::query(Database::UPDATE, 'ALTER TABLE tasks AUTO_INCREMENT = 69')
             ->execute();
     }
 }

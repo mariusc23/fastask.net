@@ -2,6 +2,7 @@
 
 /**
  * This suite tests general functionality of the main controller.
+ * @group application
  * @group loggedin
  * @group fastask
  * @group fastask.general
@@ -25,6 +26,5 @@ class FastaskSuite extends PHPUnit_Framework_TestSuite {
         $test_user = Auth::instance()->get_user();
         $test_user->logins = 1;
         $test_user->save();
-        Auth::instance()->logout();
     }
 }

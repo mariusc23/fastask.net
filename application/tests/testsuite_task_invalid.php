@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @group application
  * @group loggedin
  * @group task
  * @group task.add.invalid
@@ -22,6 +23,5 @@ class TaskInvalidSuite extends PHPUnit_Framework_TestSuite {
         $test_user = Auth::instance()->get_user();
         $test_user->logins = 1;
         $test_user->save();
-        Auth::instance()->logout();
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @group application
  * @group loggedin
  * @group fastask
  * @group fastask.search

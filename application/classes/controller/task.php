@@ -245,7 +245,7 @@ class Controller_Task extends Controller {
 
 
     /**
-     * updates text
+     * Updates text
      */
     public function action_text() {
         if ($this->request->status != 200) {
@@ -296,8 +296,8 @@ class Controller_Task extends Controller {
         if ($this->request->status != 200) {
             return;
         }
-        // default to today
-        $due = time();// + SECONDS_IN_DAY; //tomorrow
+        // default from config
+        $due = time() + PLAN_DEFAULT_DELAY;
         $this->task->due = $due;
         if (isset($_POST['due'])) {
             $due = $_POST['due'];
@@ -408,8 +408,8 @@ class Controller_Task extends Controller {
                     $this->request->status = 500;
                     return;
                 }
-                $group->num_tasks++;
             }
+            $group->num_tasks++;
 
             if (!$group->save()) {
                 $this->request->status = 500;

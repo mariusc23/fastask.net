@@ -1,3 +1,5 @@
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -114,17 +116,17 @@ CREATE TABLE IF NOT EXISTS groups (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=14 ;
 
 INSERT INTO groups (id, user_id, name, num_tasks) VALUES
-(1, 1, 'paul_1', 1),
-(2, 1, 'paul_2', 1),
-(3, 1, 'paul_3', 1),
-(4, 1, 'paul_4', 1),
-(5, 1, 'paul_5', 1),
-(6, 1, 'paul_6', 1),
-(7, 1, 'paul_7', 1),
-(8, 2, 'marius_1', 1),
-(9, 2, 'marius_2', 1),
+(1, 1, 'paul_1', 17),
+(2, 1, 'paul_2', 10),
+(3, 1, 'paul_3', 3),
+(4, 1, 'paul_4', 4),
+(5, 1, 'paul_5', 3),
+(6, 1, 'paul_6', 3),
+(7, 1, 'paul_7', 2),
+(8, 2, 'marius_1', 7),
+(9, 2, 'marius_2', 3),
 (10, 2, 'marius_5', 1),
-(11, 3, 'loner_1', 1),
+(11, 3, 'loner_1', 3),
 (12, 3, 'loner_2', 1),
 (13, 3, 'loner_3', 1);
 

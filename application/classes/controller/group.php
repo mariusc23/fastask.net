@@ -78,6 +78,9 @@ class Controller_Group extends Controller {
      * Find groups starting with given letters
      */
     public function action_l() {
+        if ($this->request->status != 200) {
+            return;
+        }
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
 
@@ -132,8 +135,8 @@ class Controller_Group extends Controller {
 
 
     /**
-     * Precondition: $id is an integer
      * Deletes a group if no tasks are using it
+     * Precondition: $group is an existing group
      */
     public static function remove_if_unused($group) {
         $group->num_tasks--;
@@ -152,6 +155,7 @@ class Controller_Group extends Controller {
 
     public function before() {
         parent::before();
+        $this->request->headers['Content-Type'] = 'application/json';
         // must be logged in
         if (!$this->user) {
             $this->request->status = 403;
