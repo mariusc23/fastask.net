@@ -46,4 +46,34 @@ class AnonymousTest extends PHPUnit_Framework_TestCase {
                           'application/json' );
         $this->assertSame($response->status, 403);
     }
+
+
+    function testErrors() {
+        $errors = new Controller_Errors(new Request('a404page'));
+        $errors->before();
+        $errors->action_404();
+        $response = $errors->request;
+        $this->assertSame(
+            $response->headers['Content-Type'],
+            'text/html; charset=' . Kohana::$charset
+        );
+        $this->assertSame(
+            $response->status,
+            404
+        );
+    }
+
+
+    /**
+     * SECURITY: Cannot update user info if not logged in.
+     */
+    function testUpdate() {
+        $user = new Controller_User(new Request('user/update'));
+        $user->before();
+        $user->action_update();
+        $response = $user->request;
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json' );
+        $this->assertSame($response->status, 403);
+    }
 }

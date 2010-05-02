@@ -292,6 +292,6 @@ CREATE TABLE IF NOT EXISTS users (
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=4 ;
 
 INSERT INTO users (id, username, password, name, email, created, last_login, logins) VALUES
-(1, 'paul', 'ab084a8d3d311337786d471c8685db60f6e5b63d9c24e', 'Paul Craciunoiu', 'paul@craciunoiu.net', '2010-03-24 13:33:13', 1272252430, 1),
-(2, 'marius', '6fc47be5cabb95398f7889db3cf911cf715d73cd7f562', 'Marius Craciunoiu', 'marius@craciunoiu.net', '2010-03-24 13:33:13', 1272230921, 0),
+(1, 'paul', 'ab084a8d3d311337786d471c8685db60f6e5b63d9c24e', 'Paul Craciunoiu', 'paul@test.test', '2010-03-24 13:33:13', 1272252430, 1),
+(2, 'marius', '6fc47be5cabb95398f7889db3cf911cf715d73cd7f562', 'Marius Craciunoiu', 'marius@test.test', '2010-03-24 13:33:13', 1272230921, 0),
 (3, 'loner', 'eb138074d5f680dfdb847fbaf71538434eaa0b4f74941', 'Loner', 'loner@craciunoiu.net', '0000-00-00 00:00:00', 1272252299, 0);

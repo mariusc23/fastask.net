@@ -24,7 +24,7 @@
     print Form::input('username', $username, array('maxlength' => 50, 'id' => "username")); ?>
     <span class="info-icon">
       <span class="icon"></span>
-      <span class="info">Letters &amp; numbers</span>
+      <span class="info">Letters only</span>
     </span>
   </label>
   <label for="email"><span class="label">Email:</span> <?php

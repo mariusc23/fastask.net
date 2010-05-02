@@ -22,7 +22,7 @@ class Controller_Fastask extends Controller_Template {
         // must be logged in
         if (!$this->user) {
             $this->request->status = 403;
-            return ;
+            return;
         }
 
         $type = 0;
@@ -103,7 +103,7 @@ class Controller_Fastask extends Controller_Template {
             $this->request->status = 404;
             $json['error'] = 'No tasks found';
             $this->request->response = json_encode($json);
-            return ;
+            return;
         }
 
         $tasks = array_merge($tasks, $planner_tasks, $trash_tasks);

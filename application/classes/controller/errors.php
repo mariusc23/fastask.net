@@ -12,6 +12,8 @@ class Controller_Errors extends Controller_Template {
 
     public function before() {
         parent::before();
+        $this->request->headers['Content-Type'] = 'text/html; charset=' .
+                                                  Kohana::$charset;
         $this->template->content = '';
         $this->template->model = 'errors';
         $this->template->action = Request::instance()->action;

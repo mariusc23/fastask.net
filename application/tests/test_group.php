@@ -4,7 +4,6 @@
  * @group application
  * @group loggedin
  * @group group
- * @group group.general
  */
 class GroupTest extends PHPUnit_Framework_TestCase {
     protected function setUp() {

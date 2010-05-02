@@ -159,7 +159,7 @@ class Controller_Group extends Controller {
         // must be logged in
         if (!$this->user) {
             $this->request->status = 403;
-            return ;
+            return;
         }
     }
 }

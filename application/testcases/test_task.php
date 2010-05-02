@@ -8,7 +8,6 @@
  */
 class TaskTest extends PHPUnit_Framework_TestCase {
     public $task = null;
-    public $request = null;
 
     protected function setUp() {
         Request::instance()->action = 'add';
@@ -672,10 +671,10 @@ class TaskTest extends PHPUnit_Framework_TestCase {
                   'plan',
                   1,
             ),
-            array(array('due' => 'sunday'),
+            array(array('due' => 'tomorrow 23:59'),
                   73,
-                  strtotime('sunday'),
-                  'Sun',
+                  strtotime('tomorrow 23:59'),
+                  date('D', strtotime('tomorrow 23:59')),
                   0,
             ),
         );

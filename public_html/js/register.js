@@ -89,7 +89,7 @@ $(document).ready(function() {
     });
 
     in_password_confirm.keyup(function () {
-        if (in_password.val().length <= 0) return ;
+        if (in_password.val().length <= 0) return;
         if (!PASS_CONFIRM_INIT) {
             PASS_CONFIRM_INIT = in_password_confirm.parents('label')
                 .find('.info').html();

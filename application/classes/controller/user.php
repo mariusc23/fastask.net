@@ -4,27 +4,22 @@ class Controller_User extends Controller_Template {
     private $user = null;
 
     /**
-     * Checks user is available
+     * Checks username is available.
      */
     public function action_available() {
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
-        if (!Request::$is_ajax) {
-            $this->request->status = 400;
-            return ;
-        }
-
         // error if not found
-        if (!isset($_POST['username'])
-            || !preg_match(USERNAME_REGEX, $_POST['username'])) {
+        if (!isset($_POST['username']) ||
+            !Validate::alpha($_POST['username']) ||
+            !Validate::min_length($_POST['username'], 3)) {
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         $user = ORM::factory('user')
             ->where('username', '=', $_POST['username'])
-            ->find()
-        ;
+            ->find();
 
         $json = array('available' => 1);
         if ($user->id) {
@@ -35,7 +30,8 @@ class Controller_User extends Controller_Template {
     }
 
     /**
-     * Lists users id and username in JSON format
+     * Lists users with id and username in JSON format.
+     * Current user is always first.
      */
     public function action_l() {
         $this->request->headers['Content-Type'] = 'application/json';
@@ -66,6 +62,10 @@ class Controller_User extends Controller_Template {
         $this->request->response = json_encode($json);
     }
 
+    /**
+     * Logs the user in, and redirects to the main fastask page,
+     * or to referrer.
+     */
     public function action_login() {
         $view = $this->template->content = View::factory('user/login');
         // if user already logged in
@@ -86,7 +86,7 @@ class Controller_User extends Controller_Template {
             } else {
                 $view->errors = $_POST->errors('login');
                 $this->template->title = 'Error logging in';
-                return ;
+                return;
             }
         }
 
@@ -94,6 +94,9 @@ class Controller_User extends Controller_Template {
     }
 
 
+    /**
+     * Logs the user out, and redirects to the homepage, or to referrer.
+     */
     public function action_logout() {
         // log out
         Auth::instance()->logout();
@@ -103,7 +106,9 @@ class Controller_User extends Controller_Template {
         Request::instance()->redirect($referer);
     }
 
-
+    /**
+     * Registers the user.
+     */
     function action_register() {
         // if user logged in
         if (Auth::instance()->logged_in() != 0){
@@ -153,7 +158,7 @@ class Controller_User extends Controller_Template {
                 // show the registration errors
                 $view->errors = $post->errors('register');
                 $this->template->title = 'Error registering';
-                return ;
+                return;
             }
         }
         if ($view->invited) {
@@ -167,15 +172,14 @@ class Controller_User extends Controller_Template {
      */
     function action_update() {
         // if user not logged in
-        $json = array('errors' => array());
         $this->request->headers['Content-Type'] = 'application/json';
         $this->auto_render = FALSE;
         // must be logged in
-        if (Auth::instance()->logged_in() == 0) {
+        if (Auth::instance()->logged_in() !== TRUE) {
             $this->request->status = 403;
-            $json['errors'][] = 'Access denied. Must be logged in.';
-            $this->request->response(json_encode($json));
-            return ;
+            $json['error'] = 'Access denied. Must be logged in.';
+            $this->request->response = json_encode($json);
+            return;
         }
 
         // if posted data
@@ -207,30 +211,33 @@ class Controller_User extends Controller_Template {
                     );
                     if (!$user->change_password(
                         $pass_array,
-                        true
-                    )) {
+                        true)) {
                         $this->request->status = 400;
-                        $json['errors'][] = 'Could not change your password. '
-                            . 'Make sure you typed it twice. Case sensitive.';
-                        $this->request->response(json_encode($json));
-                        return ;
+                        $json['error'] = 'Could not change your password. ' .
+                            'Make sure you typed it twice. Case sensitive.';
+                        $this->request->response = json_encode($json);
+                        return;
                     }
                 }
                 // and save it
                 if (!$user->save()) {
                     $this->request->status = 500;
-                    $json['errors'][] = 'Failed to process your request.';
-                    $this->request->response(json_encode($json));
-                    return ;
+                    $json['error'] = 'Failed to process your request.';
+                    $this->request->response = json_encode($json);
+                    return;
                 }
             } else {
                 // show the registration errors
                 $this->request->status = 400;
-                $json['errors'][] = 'Failed to process your request.';
+                $json['error'] = 'Failed to process your request.';
                 $json['errors_post'] = $post->errors();
                 $this->request->response = json_encode($json);
-                return ;
             }
+        } else {
+            // show the registration errors
+            $this->request->status = 400;
+            $json['error'] = 'No data posted.';
+            $this->request->response = json_encode($json);
         }
     }
 
@@ -239,7 +246,7 @@ class Controller_User extends Controller_Template {
      */
     function action_reset() {
         // must be logged out
-        if (Auth::instance()->logged_in() != 0) {
+        if (Auth::instance()->logged_in() !== 0) {
             $this->request->redirect(URL::site('user/logout'));
         }
         $view = $this->template->content = View::factory('user/reset');
@@ -325,7 +332,7 @@ class Controller_User extends Controller_Template {
                 $view->message = 'Could not change your password. '
                     . 'Make sure you typed it twice. It must be at least
                     6 characters long and it is case sensitive. Hit back in your browser.';
-                return ;
+                return;
             }
             Auth::instance()->login($notification->user->username, $_POST['password']);
             $notification->delete();
@@ -349,12 +356,12 @@ class Controller_User extends Controller_Template {
         // must be logged in
         if (Auth::instance()->logged_in() == 0) {
             $this->request->status = 403;
-            return ;
+            return;
         }
         // must be an ajax request and send data
         if (!Request::$is_ajax || !$_POST['user']) {
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         $user = ORM::factory('user')
@@ -366,21 +373,21 @@ class Controller_User extends Controller_Template {
 
         if (!$user->loaded()) {
             $this->request->status = 404;
-            return ;
+            return;
         }
 
         // sharing with self is not cool
         if ($user->id === $this->user->id) {
             $this->request->response = 'self';
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         // if already sharing with
         if ($this->user->has('followers', $user)) {
             $this->request->response = 'already';
             $this->request->status = 400;
-            return ;
+            return;
         }
 
         $notification = ORM::factory('notification')

@@ -26,11 +26,9 @@ define('LENGTHS_COUNT', 6);
 
 // planning
 define('SECONDS_IN_DAY', 86400);
+define('PLAN_DEFAULT_DELAY', SECONDS_IN_DAY * 7);
 // '1985-00-00 00:00:00' <-- before is planned
 define('TIMESTAMP_PLANNED', 470649600);
-
-// username validation
-define('USERNAME_REGEX', '/[a-z]{3,50}/i');
 
 // notification codes
 define('NOTIFICATION_PASSWORD_RESET', 1);
