@@ -1,16 +1,16 @@
+<?php // vim: set ts=2 et sts=2 sw=2: ?>
 <div class="invite">
-<?php if ($user->id && !$message): ?>
-<?php
-print Form::open(Url::site('user/invite'), array('class' => 'invite'));
-print '<label for="email"><span>Email address:</span> '
-    . Form::input('email', '', array('id' => 'email')) . '</label>';
+  <?php if ($user->id && !$message):
+  print Form::open(Url::site('user/invite'), array('class' => 'invite')) .
 
-print Form::submit('invite', 'send invitation');
+        '<label for="email"><span>Email address:</span> ' .
+          Form::input('email', '', array('id' => 'email')) . '</label>' .
+        Form::submit('invite', 'send invitation') .
 
-print Form::close();
-?>
-<?php else: //if (isset($message)): ?>
+        Form::close();
+
+  else: ?>
     <h1><?php print $title; ?></h1>
     <div><?php print $message; ?></div>
-<?php endif; ?>
+  <?php endif; ?>
 </div>
