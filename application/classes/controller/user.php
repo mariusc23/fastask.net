@@ -526,7 +526,7 @@ class Controller_User extends Controller_Template
 
             mail(
                 // to
-                $user->email,
+                $_POST['email'],
                 // subject
                 $subject,
                 // message
