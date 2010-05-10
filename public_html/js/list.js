@@ -597,7 +597,8 @@ function List() {
         }
         var html_g, url_g, i, title_g;
         // clean up
-        this.groups_list = FASTASK.constants.templates.groups.clone().html('');
+        this.groups_list = FASTASK.constants.templates.groups.clone();
+
         for (i in groups) {
             url_g = '#g=' + groups[i].id;
             title_g = groups[i].name +
@@ -613,8 +614,7 @@ function List() {
             html_g = FASTASK.constants.templates.group.clone();
             html_g.children('a')
                 .attr('href', url_g)
-                .html(title_g)
-            ;
+                .html(title_g);
             this.groups_list.append(html_g);
         }
         this.groups_list.appendTo($('.groups', FASTASK.constants.lists[0]));

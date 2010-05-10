@@ -128,7 +128,7 @@ FC.templates = {
 
 // used to create the list of groups
     'groups': $('<ul></ul>'),
-    'group': $('#data-group'),
+    'group': $('#data-group').children().first(),
 
 // used to create the list of followers
 // this will be altered in listhandler.js on init
