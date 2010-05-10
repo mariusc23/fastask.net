@@ -1,4 +1,8 @@
 <?php
+/**
+ * Setup of invitation email for new users.
+ */
+
 if (strlen($user->name) > 0) {
     $message_name = $user->name;
 } else {
@@ -11,9 +15,8 @@ $message = 'Hi,
 
 ' . $message_name . ' has invited you to ' . SITE_NAME . '!
 
-Click on the link below, or copy and paste it in your browser to register an account on ' . SITE_NAME . '.
-
-' . URL::site('user/register', TRUE)
+Click on the link below, or copy and paste it in your browser to register ' .
+' an account on ' . SITE_NAME . '. ' . URL::site('user/register', true)
          . '?code=' . $invitation->code . '
 
 Note: This invitation expires in a week.

@@ -1,14 +1,14 @@
 /**
  * Handles profiles
- * Expects a global variable profile_handler as a reference to itself
- * which is required for executing events in global scope where `this`
- * is lost.
+ * Expects a global variable FASTASK. Uses FASTASK.profile_handler as a
+ * reference to itself which is required for executing events in global scope
+ * where `this` is lost.
  * @requires jQuery (tested with 1.4.[012])
  * @requires notification.js
 */
 function Profile() {
     // find the form
-    this.PROFILE_FORM = $('form', TEMPLATES.profile);
+    this.PROFILE_FORM = $('form', FASTASK.constants.templates.profile);
     this.CURRENT_USER = {
         'id': 0,
         'username': 'fetching...',
@@ -18,31 +18,31 @@ function Profile() {
     /**
      * Handles the profile save.
      */
-    $('.save', TEMPLATES.profile).click(function () {
-        var form_data = profile_handler.PROFILE_FORM.serialize();
+    $('.save', FASTASK.constants.templates.profile).click(function () {
+        var form_data = FASTASK.profile_handler.PROFILE_FORM.serialize();
         $.ajax({
             type: 'POST',
-            url: TEMPLATES.profile.find('form').attr('action'),
+            url: FASTASK.constants.templates.profile.find('form').attr('action'),
             data: form_data,
             beforeSend: function () {
-                $('.loading', TEMPLATES.profile).show();
-                notif_handler.start();
+                $('.loading', FASTASK.constants.templates.profile).show();
+                FASTASK.notif_handler.start();
             },
             error: function (response, text_status, error) {
-                $('.loading', TEMPLATES.profile).hide();
-                notif_handler.add(2, 'Could not update your profile');
+                $('.loading', FASTASK.constants.templates.profile).hide();
+                FASTASK.notif_handler.add(2, 'Could not update your profile');
             },
             success: function (response) {
                 if ($('input[name="password_confirm"]').val().length > 0) {
-                    notif_handler.add(4);
+                    FASTASK.notif_handler.add(4);
                 } else {
-                    notif_handler.add(4, 'Profile updated');
+                    FASTASK.notif_handler.add(4, 'Profile updated');
                 }
-                $('input[name="password"]', TEMPLATES.profile).val('');
-                $('input[name="password_confirm"]', TEMPLATES.profile).val('');
-                $('input[name="current_password"]', TEMPLATES.profile).val('');
-                $('input[name="change_password"]', TEMPLATES.profile).val('');
-                $('.loading', TEMPLATES.profile).hide();
+                $('input[name="password"]', FASTASK.constants.templates.profile).val('');
+                $('input[name="password_confirm"]', FASTASK.constants.templates.profile).val('');
+                $('input[name="current_password"]', FASTASK.constants.templates.profile).val('');
+                $('input[name="change_password"]', FASTASK.constants.templates.profile).val('');
+                $('.loading', FASTASK.constants.templates.profile).hide();
             }
         });
         return false;
@@ -51,32 +51,32 @@ function Profile() {
     /**
      * Goes through the steps of changing password.
      */
-    $('.submit', TEMPLATES.profile).click(function () {
-        var steps = profile_handler.PROFILE_FORM.find('.steps').children(),
+    $('.submit', FASTASK.constants.templates.profile).click(function () {
+        var steps = FASTASK.profile_handler.PROFILE_FORM.find('.steps').children(),
             current_step = steps.index(steps.filter('.on')),
-            change_password = profile_handler.PROFILE_FORM
+            change_password = FASTASK.profile_handler.PROFILE_FORM
                     .find('input[name="change_password"]').val();
         if (current_step === 0) {
             $('input[name="current_password"]',
-                profile_handler.PROFILE_FORM).val(change_password);
-            $('.info', TEMPLATES.profile).hide();
-            $('.lstep', TEMPLATES.profile).html('New password: ');
+                FASTASK.profile_handler.PROFILE_FORM).val(change_password);
+            $('.info', FASTASK.constants.templates.profile).hide();
+            $('.lstep', FASTASK.constants.templates.profile).html('New password: ');
         } else if (current_step === 1) {
             $(this).val('save');
             $('input[name="password"]',
-                profile_handler.PROFILE_FORM).val(change_password);
-            $('.info', TEMPLATES.profile).hide();
-            $('.lstep', TEMPLATES.profile).html('Confirm new password: ');
+                FASTASK.profile_handler.PROFILE_FORM).val(change_password);
+            $('.info', FASTASK.constants.templates.profile).hide();
+            $('.lstep', FASTASK.constants.templates.profile).html('Confirm new password: ');
         } else if (current_step === 2) {
             $('input[name="password_confirm"]',
-                profile_handler.PROFILE_FORM).val(change_password);
-            $('.save', TEMPLATES.profile).click();
+                FASTASK.profile_handler.PROFILE_FORM).val(change_password);
+            $('.save', FASTASK.constants.templates.profile).click();
             current_step = -1;
-            $('.lstep', TEMPLATES.profile).html('Change password: ');
-            $('.info', TEMPLATES.profile).show();
+            $('.lstep', FASTASK.constants.templates.profile).html('Change password: ');
+            $('.info', FASTASK.constants.templates.profile).show();
         }
         $('input[name="change_password"]',
-            profile_handler.PROFILE_FORM).val('');
+            FASTASK.profile_handler.PROFILE_FORM).val('');
         steps
             .removeClass('on')
             .eq(current_step + 1).addClass('on');
@@ -84,16 +84,16 @@ function Profile() {
     });
 
     // Need to return false for Chrome
-    $('form', TEMPLATES.profile).submit(function () {
+    $('form', FASTASK.constants.templates.profile).submit(function () {
         return false;
     });
 
     /**
      * Shortcut for pressing enter --> calls Next>
      */
-    $('input[name="change_password"]', TEMPLATES.profile).keyup(function (e) {
+    $('input[name="change_password"]', FASTASK.constants.templates.profile).keyup(function (e) {
         if (e.keyCode === 13) {
-            $('.submit', TEMPLATES.profile).click();
+            $('.submit', FASTASK.constants.templates.profile).click();
             return false;
         }
     });
@@ -104,53 +104,53 @@ function Profile() {
     this.get_users = function () {
         $.ajax({
             type: 'GET',
-            url: PATHS.users,
+            url: FASTASK.constants.paths.users,
             dataType: 'json',
             error: function (response, text_status, error) {
                 alert('Error getting users.');
                 return false;
             },
             success: function (response, textStatus, request) {
-                var html_f, i, CURRENT_USER;
-                TEMPLATES.followers
+                var html_f, i, current_user;
+                FASTASK.constants.templates.followers
                     .children()
                         .remove()
                         .end()
                     .html('');
                 for (i in response.users) {
                     if (response.users[i].current) {
-                        CURRENT_USER = response.users[i];
+                        current_user = response.users[i];
                     }
-                    html_f = TEMPLATES.follower.clone();
+                    html_f = FASTASK.constants.templates.follower.clone();
                     html_f.find('input')
                         .val(response.users[i].id)
                         .attr('class', 'u' + response.users[i].id)
                     ;
                     html_f.find('span').html(response.users[i].username);
-                    TEMPLATES.followers.append(html_f);
+                    FASTASK.constants.templates.followers.append(html_f);
                 }
-                TEMPLATES.profile.children('.title')
-                    .prepend(CURRENT_USER.username);
-                TEMPLATES.profile.find('input[name="name"]')
-                    .val(CURRENT_USER.name);
-                TEMPLATES.profile.find('input[name="email"]')
-                    .val(CURRENT_USER.email);
+                FASTASK.constants.templates.profile.children('.title')
+                    .prepend(current_user.username);
+                FASTASK.constants.templates.profile.find('input[name="name"]')
+                    .val(current_user.name);
+                FASTASK.constants.templates.profile.find('input[name="email"]')
+                    .val(current_user.email);
 
                 // update current user and workbox
-                profile_handler.CURRENT_USER = CURRENT_USER;
-                workbox_handler.set_share_list();
+                FASTASK.profile_handler.CURRENT_USER = current_user;
+                FASTASK.workbox_handler.set_share_list();
 
-                profile_handler.continue_init();
+                FASTASK.profile_handler.continue_init();
             }
         });
     };
 
     this.continue_init = function () {
-        list_handler.get_lists();
-        url_handler.allow_get_lists = true;
+        FASTASK.list_handler.get_lists();
+        FASTASK.url_handler.allow_get_lists = true;
     };
 
     // init stuff
     this.get_users();
-    TEMPLATES.profile.appendTo('#content');
+    FASTASK.constants.templates.profile.appendTo('#content');
 }

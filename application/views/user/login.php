@@ -17,10 +17,11 @@
       print '</ul>';
     }
     print '<label for="username" id="user"><span>Username:</span> ' .
-            Form::input('username', $username, array('id' => 'username')) . '</label>' .
-          '<label for="password" id="pass"><span>Password:</span> ' .
-            Form::password('password', '', array('id' => 'password', 'maxlength' => 50)) . '
-            <br/><a href="/user/reset" id="forgot">Forgot password?</a></label>';
+            Form::input('username', $username, array('id' => 'username')) .
+            '</label><label for="password" id="pass"><span>Password:</span> ' .
+            Form::password('password', '', array('id' => 'password',
+                                                 'maxlength' => 50)) .
+            '<br/><a href="/user/reset" id="forgot">Forgot password?</a></label>';
     ?>
     <a id="noaccount" href="/user/register/">Don't have an account?<br/>Sign up for one!</a>
     <?php

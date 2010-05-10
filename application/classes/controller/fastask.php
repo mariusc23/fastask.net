@@ -80,7 +80,7 @@ class Controller_Fastask extends Controller_Template {
         $planner_tasks = array();
         $trash_tasks = array();
         if ($_GET['eu']) {
-            if ($_GET['tr'] !== 2) {
+            if (intval($_GET['tr']) !== 2) {
                 $planner_pagination = Pagination::factory(array(
                     'current_page'   => array('source' => 'query_string', 'key' => 'u', 'output' => 'hash'),
                     'total_items'    => $planner_count,

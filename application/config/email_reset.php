@@ -1,4 +1,8 @@
 <?php
+/**
+ * Setup of notification email for resetting password.
+ */
+
 if (strlen($user->name) > 0) {
     $message_name = $user->name;
 } else {
@@ -11,11 +15,13 @@ $subject = SITE_NAME . SITE_SEPARATOR
 
 $message = 'Hi ' . $message_name . ',
 
-Someone, presumably you, requested a password reset for your account on ' . SITE_NAME . '. If you do not wish to reset your password, ignore this email, and your password will remain unchanged.
+Someone, presumably you, requested a password reset for your account on ' .
+SITE_NAME . '. If you do not wish to reset your password, ignore this email,' .
+' and your password will remain unchanged.
 
 Click on the link below, or copy and paste it in your browser to change your password on ' . SITE_NAME . '.
 
-' . URL::site('user/reset', TRUE)
+' . URL::site('user/reset', true)
          . '?code=' . $notification->code . '
 
 ---

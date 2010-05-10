@@ -16,9 +16,10 @@
       print '</ul>';
     }
     print '<label for="password"><span>Password:</span> ' .
-            Form::password('password', '', array('id' => 'password')) . '</label>' .
-          '<label for="password_confirm"><span>Repeat:</span> ' .
-            Form::password('password_confirm', '', array('id' => 'password_confirm', 'maxlength' => 50)) .
+            Form::password('password', '', array('id' => 'password')) .
+            '</label><label for="password_confirm"><span>Repeat:</span> ' .
+            Form::password('password_confirm', '',
+                            array('id' => 'password_confirm', 'maxlength' => 50)) .
           // persist code
           Form::hidden('code', $code) .
           Form::submit('reset', 'change and log in') .

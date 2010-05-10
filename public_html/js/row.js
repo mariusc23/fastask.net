@@ -1,8 +1,8 @@
 /**
  * Handles row changes
- * Expects a global variable row_handler as a reference to itself
- * which is required for executing events in global scope where `this`
- * is lost. Also expects globals for notif_handler, list_handler
+ * Expects a global variable FASTASK. Uses FASTASK.row_handler as a reference
+ * to itself, which is required for executing events in global scope where
+ * `this` is lost. Also expects globals for notif_handler, list_handler
  * @requires jQuery (tested with 1.4.[012])
  * @requires list.js
  * @requires notification.js
@@ -34,20 +34,18 @@ function Row() {
 
     /**
      * Extracts data from a row
-     * @requires global reference to notif_handler
-     * @requires global reference to list_handler
      */
     this.extract_data = function () {
         this.task_id = this.t_row.find('input[name="task_id"]')[0].value;
         this.data = {
-            'url': SAVE[this.type] + this.task_id,
+            'url': FASTASK.constants.save[this.type] + this.task_id,
             'method': 'POST',
             'send': {}
         };
         var current, new_text;
         switch (this.type) {
         case 'priority':
-            current = parseInt(this.target.attr('class', 10)
+            current = parseInt(this.target.attr('class')
                 .charAt(this.target.attr('class').indexOf('pri_') + 4), 10);
             this.data.current = current;
             this.data.next = (current + 1) % 3;
@@ -61,16 +59,16 @@ function Row() {
                 this.data.send.undo = 1;
                 this.type = 'undelete';
             }
-            notif_handler.start();
+            FASTASK.notif_handler.start();
             break;
         case 'plan':
-            if (list_handler.plan_custom) {
-                this.data.send.due = list_handler.plan_custom;
-                list_handler.plan_custom = false;
+            if (FASTASK.list_handler.plan_custom) {
+                this.data.send.due = FASTASK.list_handler.plan_custom;
+                FASTASK.list_handler.plan_custom = false;
             }
             break;
         case 'text':
-            this.data.url += '&t=' + list_handler.type;
+            this.data.url += '&t=' + FASTASK.list_handler.type;
         case 'due':
             new_text = this.target.val()
                 .replace(/\\\"/g, '"').replace(/\\\'/g, "'");
@@ -88,7 +86,7 @@ function Row() {
             break;
         case 'follower_remove':
             if (0 === this.t_row.find('.followers ul input:checked').length) {
-                notif_handler.start();
+                FASTASK.notif_handler.start();
             }
             this.data.send = {'u': this.target.val()};
             break;
@@ -106,8 +104,6 @@ function Row() {
     /*************************************************************************/
     /**
      * Dispatches row highlight
-     * @requires global reference to notif_handler
-     * @requires global reference to list_handler
      */
     this.dispatch_markrow = function (error) {
         var this_row = this.t_row, timeout = 't' + this.task_id,
@@ -117,11 +113,11 @@ function Row() {
         }
         this_row.addClass(cls);
 
-        clearTimeout(jQuery.data(LISTS[this.box_num], timeout));
-        jQuery.data(LISTS[this.box_num], timeout,
+        clearTimeout(jQuery.data(FASTASK.constants.lists[this.box_num], timeout));
+        jQuery.data(FASTASK.constants.lists[this.box_num], timeout,
             setTimeout(function () {
                 this_row.removeClass('ok err');
-            }, TIMEOUTS.changed)
+            }, FASTASK.constants.timeouts.changed)
         );
     };
 
@@ -134,8 +130,6 @@ function Row() {
      * @param request @see jQuery.ajax documentation
      * @param this.data output of extract_data function
      * @see extract_data()
-     * @requires global reference to notif_handler
-     * @requires global reference to list_handler
      */
     this.dispatch_response = function () {
         if (this.request.status !== 200) {
@@ -143,7 +137,7 @@ function Row() {
             return false;
         }
         if (this.type !== 'text') {
-            list_handler.reset_timeout(this.box_num);
+            FASTASK.list_handler.reset_timeout(this.box_num);
         }
         switch (this.type) {
         case 'priority':
@@ -152,7 +146,7 @@ function Row() {
             break;
         case 'status':
             if (this.response.status) {
-                if (list_handler.type !== 3) {
+                if (FASTASK.list_handler.type !== 3) {
                     this.t_row.addClass('done');
                 }
             } else {
@@ -162,13 +156,13 @@ function Row() {
         case 'undelete':
             this.t_row.removeClass('deleted');
             if (!this.response.task.planned) {
-                list_handler.reset_timeout(0);
+                FASTASK.list_handler.reset_timeout(0);
             }
-            notif_handler.add(5);
+            FASTASK.notif_handler.add(5);
             break;
         case 'delete':
             this.t_row.addClass('deleted');
-            notif_handler.add(1);
+            FASTASK.notif_handler.add(1);
             break;
         case 'plan':
             if (this.response.planned) {
@@ -176,32 +170,32 @@ function Row() {
             }
             this.t_row.fadeOut('slow', function () {
                 $(this).remove();
-                list_handler.clear_timeout();
-                list_handler.expect(0);
-                list_handler.get_lists();
+                FASTASK.list_handler.clear_timeout();
+                FASTASK.list_handler.expect(0);
+                FASTASK.list_handler.get_lists();
             });
             break;
         case 'text':
             if (this.response.group) {
                 var group = $('<div/>').html(
-                    TEMPLATES.rowgroup.clone().attr('href', '#g=' +
+                    FASTASK.constants.templates.rowgroup.clone().attr('href', '#g=' +
                         this.response.group.id)
                         .html(this.response.group.name)
                     );
                 this.response.text = group.html() + ': ' + this.response.text;
             }
-            list_handler.update_groups(this.response.groups);
+            FASTASK.list_handler.update_groups(this.response.groups);
             finish_edit(this.target, this.response.text);
             break;
         case 'due':
             if (this.response.planned) {
-                list_handler.reset_timeout(1);
+                FASTASK.list_handler.reset_timeout(1);
             }
             finish_edit(this.target, this.response.due_out);
             break;
         case 'follower_add':
         case 'follower_remove':
-            notif_handler.finish();
+            FASTASK.notif_handler.finish();
             break;
         default:
             break;
@@ -215,8 +209,6 @@ function Row() {
 
     /**
      * Handles errors
-     * @requires global reference to notif_handler
-     * @requires global reference to list_handler
      */
     this.dispatch_error = function () {
         switch (this.type) {
@@ -227,49 +219,49 @@ function Row() {
                 this.t_row.removeClass('done');
                 this.target.attr('checked', '');
             } else {
-                if (list_handler.type !== 3) {
+                if (FASTASK.list_handler.type !== 3) {
                     this.t_row.addClass('done');
                 }
                 this.target.attr('checked', 'checked');
             }
             break;
         case 'undelete':
-            notif_handler.add(2, 'Could not undo deletion.');
+            FASTASK.notif_handler.add(2, 'Could not undo deletion.');
             break;
         case 'delete':
-            notif_handler.add(2, 'Could not delete.');
+            FASTASK.notif_handler.add(2, 'Could not delete.');
             break;
         case 'plan':
-            notif_handler.add(2, 'Could not plan.');
+            FASTASK.notif_handler.add(2, 'Could not plan.');
             break;
         case 'text':
-            notif_handler.add(2, 'Could not update text.');
+            FASTASK.notif_handler.add(2, 'Could not update text.');
             break;
         case 'due':
-            notif_handler.add(2, 'Could not update due date.');
+            FASTASK.notif_handler.add(2, 'Could not update due date.');
             break;
         case 'follower_add':
             if (this.request.responseText === 'already') {
-                notif_handler.add(2, 'Already sharing with this user.');
+                FASTASK.notif_handler.add(2, 'Already sharing with this user.');
                 if (!this.target.is(':checked')) {
                     this.target.attr('checked', 'checked');
                 } else {
                     this.target.attr('checked', '');
                 }
             } else {
-                notif_handler.add(2, 'Could not share with this user.');
+                FASTASK.notif_handler.add(2, 'Could not share with this user.');
             }
             break;
         case 'follower_remove':
             if (this.request.responseText === 'toofew') {
-                notif_handler.add(2);
+                FASTASK.notif_handler.add(2);
                 if (this.target.is(':checked')) {
                     this.target.attr('checked', '');
                 } else {
                     this.target.attr('checked', 'checked');
                 }
             } else {
-                notif_handler.add(2, 'Already removed this user.');
+                FASTASK.notif_handler.add(2, 'Already removed this user.');
             }
             break;
         default:
@@ -286,15 +278,13 @@ function Row() {
      * Updating row
      * @param type = update type, one of 'priority', 'status'
      * @param target = the target of the event
-     * @requires global reference to notif_handler
-     * @requires global reference to list_handler
      */
     this.update_row = function (type, target) {
         this.type = type;
         this.target = target;
         this.t_row = target.parents('.row');
         this.box_num = target.parents('.box').attr('rel');
-        list_handler.clear_timeout(LISTS[this.box_num]);
+        FASTASK.list_handler.clear_timeout(FASTASK.constants.lists[this.box_num]);
         if (this.is_loading_row(this.t_row)) {
             return false;
         }
@@ -308,24 +298,24 @@ function Row() {
             data: this.data.send,
             dataType: 'json',
             beforeSend: function () {
-                row_handler.set_loading_row();
+                FASTASK.row_handler.set_loading_row();
             },
             error: function (request, textStatus, error) {
-                row_handler.request = request;
-                row_handler.textStatus = textStatus;
-                row_handler.error = error;
-                row_handler.response = null;
-                row_handler.dispatch_error();
-                row_handler.unset_loading_row();
+                FASTASK.row_handler.request = request;
+                FASTASK.row_handler.textStatus = textStatus;
+                FASTASK.row_handler.error = error;
+                FASTASK.row_handler.response = null;
+                FASTASK.row_handler.dispatch_error();
+                FASTASK.row_handler.unset_loading_row();
                 return false;
             },
             success: function (response, textStatus, request) {
-                row_handler.response = response;
-                row_handler.textStatus = textStatus;
-                row_handler.request = request;
-                row_handler.error = null;
-                row_handler.dispatch_response();
-                row_handler.unset_loading_row();
+                FASTASK.row_handler.response = response;
+                FASTASK.row_handler.textStatus = textStatus;
+                FASTASK.row_handler.request = request;
+                FASTASK.row_handler.error = null;
+                FASTASK.row_handler.dispatch_response();
+                FASTASK.row_handler.unset_loading_row();
             }
         });
     };
@@ -334,16 +324,16 @@ function Row() {
      * Row loading helpers
      */
     this.is_loading_row = function () {
-        if (this.t_row.hasClass(CLASSES.loadrow)) {
+        if (this.t_row.hasClass(FASTASK.constants.classes.loadrow)) {
             return true;
         }
         return false;
     };
     this.set_loading_row = function () {
-        this.t_row.addClass(CLASSES.loadrow);
+        this.t_row.addClass(FASTASK.constants.classes.loadrow);
     };
     this.unset_loading_row = function () {
-        this.t_row.removeClass(CLASSES.loadrow);
+        this.t_row.removeClass(FASTASK.constants.classes.loadrow);
     };
     /* end row loading helpers */
 
@@ -365,7 +355,7 @@ function Row() {
             if (type.indexOf(' ') >= 0) {
                 type = type.substr(0, type.indexOf(' '));
             }
-            row_handler.update_row(type, $(this));
+            FASTASK.row_handler.update_row(type, $(this));
             return false;
         }
         else if (e.keyCode === 27) {
@@ -450,20 +440,20 @@ function Row() {
      * @param ref the editable element clicked.
      */
     function finish_edit(ref, text) {
-        var editable = TEMPLATES.editable.clone().html(text);
+        var editable = FASTASK.constants.templates.editable.clone().html(text);
         editable.width(ref.next().attr('rel') + 'px');
-        if (list_handler.type === 1 && ref.parents('.td')
+        if (FASTASK.list_handler.type === 1 && ref.parents('.td')
             .children('.g').length > 0) {
             editable.css('text-indent',
                 (ref.parents('.td').children('.g').width()) + 'px');
         }
-        editable.bind('click', row_handler.replace_html);
+        editable.bind('click', FASTASK.row_handler.replace_html);
         ref.parents('.td')
             .children('form.inplace')
                 .remove()
                 .end()
             .append(editable);
-        list_handler.editing[0] = false;
+        FASTASK.list_handler.editing[0] = false;
     }
 
     /**
@@ -476,28 +466,28 @@ function Row() {
         var id = $(this).parents('.box').attr('rel'), buffer, rephtml,
             the_parent;
 
-        if (list_handler.editing[id]) {
+        if (FASTASK.list_handler.editing[id]) {
             return;
         }
         buffer = $(this).html().replace(/"/g, '&quot;');
         rephtml = $(build_editable_html(buffer, $(this).width()));
         the_parent = $(this).parent();
-        if (list_handler.type === 1) {
+        if (FASTASK.list_handler.type === 1) {
             rephtml.find('input[type="text"]').width(
                 the_parent.width() - $(this).prev().width() -
-                PIXELS.assignmentwidth
+                FASTASK.constants.pixels.assignmentwidth
             );
         }
         $(this).remove();
         the_parent
             .append(rephtml)
-            .unbind('click', row_handler.replace_html)
+            .unbind('click', FASTASK.row_handler.replace_html)
             .find('input:first-child')
             .bind('keydown', handle_editable_keydown)
             .bind('focusout', handle_editable_focusout)
             .focus();
         rephtml.bind('submit', handle_editable_submit);
-        list_handler.editing[id] = 1;
+        FASTASK.list_handler.editing[id] = 1;
     };
 
     /**

@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 //-- Environment setup --------------------------------------------------------
-require_once('config/config.php');
+require_once 'config/config.php';
 
 /**
  * Set the default time zone.
@@ -76,15 +76,15 @@ Route::set('default', '(info(/<action>(/<id>)))')
  * Enable modules. Modules are referenced by a relative or absolute path.
  */
 Kohana::modules(array(
-	'auth'       => MODPATH.'auth',       // Basic authentication
-	// 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
-	'database'   => MODPATH.'database',   // Database access
-	// 'image'      => MODPATH.'image',      // Image manipulation
-	'orm'        => MODPATH.'orm',        // Object Relationship Mapping
-	'pagination' => MODPATH.'pagination', // Paging of results
-	// 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
+    'auth'       => MODPATH.'auth',       // Basic authentication
+    // 'codebench'  => MODPATH.'codebench',  // Benchmarking tool
+    'database'   => MODPATH.'database',   // Database access
+    // 'image'      => MODPATH.'image',      // Image manipulation
+    'orm'        => MODPATH.'orm',        // Object Relationship Mapping
+    'pagination' => MODPATH.'pagination', // Paging of results
+    // 'userguide'  => MODPATH.'userguide',  // User guide and API documentation
     'unittest'   => MODPATH.'unittest',   // PHPUnit integration
-	));
+    ));
 
 /**
  * Set the routes. Each route must have a minimum of a name, a URI and a set of

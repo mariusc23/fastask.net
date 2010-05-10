@@ -5,7 +5,7 @@
  * @requires list.js
  */
 function Url() {
-    url_handler = this;
+    var url_handler = this;
     // store the initial url
     this.INITIAL_URL = window.location.href;
 
@@ -26,7 +26,6 @@ function Url() {
      *
      * Takes no action if hash hasn't changed. Otherwise, it updates the lists
      * @param string hash the part of the url after # (and not including)
-     * @requires global reference to url_handler
      */
     this.on_hash_change = function (hash) {
         if (hash === this.hash_last) {
@@ -35,13 +34,13 @@ function Url() {
 
         url_handler.hash_last = hash;
         var mainpage = parseInt(url_handler.get_url_param(
-                PARAMS.mainpage, window.location.href), 10),
+                FASTASK.constants.params.mainpage, window.location.href), 10),
             minipage = parseInt(url_handler.get_url_param(
-                PARAMS.minipage, window.location.href), 10),
+                FASTASK.constants.params.minipage, window.location.href), 10),
             group = parseInt(url_handler.get_url_param(
-                PARAMS.group, window.location.href), 10),
+                FASTASK.constants.params.group, window.location.href), 10),
             type = parseInt(url_handler.get_url_param(
-                PARAMS.type, window.location.href), 10);
+                FASTASK.constants.params.type, window.location.href), 10);
 
         if (mainpage !== url_handler.mainpage ||
             minipage !== url_handler.minipage ||
@@ -52,21 +51,21 @@ function Url() {
             if (mainpage !== url_handler.mainpage ||
                 group !== url_handler.group ||
                 type !== url_handler.type) {
-                list_handler.expect(0);
+                FASTASK.list_handler.expect(0);
             }
 
             // mini list changed, reload it
             if (minipage !== url_handler.minipage) {
-                list_handler.expect(1);
+                FASTASK.list_handler.expect(1);
             }
 
             url_handler.mainpage = mainpage;
             url_handler.minipage = minipage;
             url_handler.group = group;
             url_handler.type = type;
-            list_handler.set_params(mainpage, minipage, group, type);
+            FASTASK.list_handler.set_params(mainpage, minipage, group, type);
             if (url_handler.allow_get_lists) {
-                list_handler.get_lists();
+                FASTASK.list_handler.get_lists();
             }
         }
     };
@@ -74,7 +73,7 @@ function Url() {
     /**
      * Gets a URL parameter by name from a given URL
      * Only works with the hash
-     * Uses constant HASH_SEPARATOR
+     * Uses constant FASTASK.constants.hash_separator
      * @param string name param to look for
      * @param (optional) string url what to look in, defaults to
      *     window.location.href
@@ -87,17 +86,17 @@ function Url() {
         name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
 
         // start searching
-        var regexS = '[\\#;]' + name + '=([^' + HASH_SEPARATOR + ']*)',
+        var regexS = '[\\#;]' + name + '=([^' + FASTASK.constants.hash_separator + ']*)',
             regex = new RegExp(regexS),
             results = regex.exec(url);
         if (results === null) {
             // default some parameters
-            if (name === PARAMS.mainpage ||
-                name === PARAMS.minipage) {
+            if (name === FASTASK.constants.params.mainpage ||
+                name === FASTASK.constants.params.minipage) {
                 return 1;
             }
-            if (name === PARAMS.group ||
-                name === PARAMS.type) {
+            if (name === FASTASK.constants.params.group ||
+                name === FASTASK.constants.params.type) {
                 return 0;
             }
 
@@ -134,7 +133,7 @@ function Url() {
             delete params.p;
         }
         // if type changes, delete group
-        if (param === PARAMS.type) {
+        if (param === FASTASK.constants.params.type) {
             delete params.g;
         }
 
@@ -159,16 +158,16 @@ function Url() {
 
     // pages:
     // main list page
-    this.mainpage = this.get_url_param(PARAMS.mainpage, this.INITIAL_URL);
+    this.mainpage = this.get_url_param(FASTASK.constants.params.mainpage, this.INITIAL_URL);
 
     // mini list page
-    this.minipage = this.get_url_param(PARAMS.minipage, this.INITIAL_URL);
+    this.minipage = this.get_url_param(FASTASK.constants.params.minipage, this.INITIAL_URL);
 
     // group number
-    this.group = this.get_url_param(PARAMS.group, this.INITIAL_URL);
+    this.group = this.get_url_param(FASTASK.constants.params.group, this.INITIAL_URL);
 
     // main list type
-    this.type = this.get_url_param(PARAMS.type, this.INITIAL_URL);
+    this.type = this.get_url_param(FASTASK.constants.params.type, this.INITIAL_URL);
 
     $.historyInit(this.on_hash_change, this.INITIAL_URL);
 }

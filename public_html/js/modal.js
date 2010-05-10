@@ -1,8 +1,8 @@
 /**
  * Handles notifications
- * Expects a global variable notif_handler as a reference to itself
- * which is required for executing events in global scope where `this`
- * is lost.
+ * Expects a global variable FASTASK. Uses
+ * FASTASK.modal_handler as a reference to itself which is required for
+ * executing events in global scope where `this` is lost.
  * @requires jQuery (tested with 1.4.[012])
  */
 function Modal() {
@@ -34,31 +34,30 @@ function Modal() {
         // clean up classes
         if (this.classes.length > 0) {
             for (i in this.classes) {
-                TEMPLATES.modal.removeClass(this.classes[i]);
+                FASTASK.constants.templates.modal.removeClass(this.classes[i]);
             }
             this.classes = [];
         }
 
-        $('.text', TEMPLATES.modal).html(text);
-        $('input', TEMPLATES.modal).bind(ev_type, func);
-        TEMPLATES.modal.addClass(cls);
+        $('.text', FASTASK.constants.templates.modal).html(text);
+        $('input', FASTASK.constants.templates.modal).bind(ev_type, func);
+        FASTASK.constants.templates.modal.addClass(cls);
         this.classes.push(cls);
-        TEMPLATES.modal_trigger.click();
-        $('input', TEMPLATES.modal).focus();
+        FASTASK.constants.templates.modal_trigger.click();
+        $('input', FASTASK.constants.templates.modal).focus();
     };
 
     this.help = function () {
-        $('.text', TEMPLATES.modal).html(HELP);
-        TEMPLATES.modal.find('.help a').click(function () {
+        FASTASK.constants.templates.modal.find('.help a').click(function () {
             var url = $(this).attr('href');
             if (url.indexOf('#') === 0) {
                 document.getElementById(url.substr(1)).scrollIntoView(true);
                 return false;
             }
         });
-        TEMPLATES.modal.addClass('help');
-        modal_handler.classes.push('help');
-        TEMPLATES.modal_trigger.click();
+        FASTASK.constants.templates.modal.addClass('help');
+        FASTASK.modal_handler.classes.push('help');
+        FASTASK.constants.templates.modal_trigger.click();
         return false;
     }
 
@@ -67,19 +66,20 @@ function Modal() {
      */
     $('body').keydown(function (e) {
         if ((e.keyCode === 27) &&
-            TEMPLATES.modal.is(':visible')) {
+            FASTASK.constants.templates.modal.is(':visible')) {
             // esc pressed
-            TEMPLATES.modal.children('.text').children().remove().end()
+            FASTASK.constants.templates.modal.children('.text').children().remove().end()
                 .html('');
-            TEMPLATES.modal.children('.jqmClose').click();
+            FASTASK.constants.templates.modal.children('.jqmClose').click();
             return false;
         }
     });
 
     // init stuff
-    TEMPLATES.modal.appendTo('#content');
-    TEMPLATES.modal_trigger.appendTo('#content');
-    TEMPLATES.modal.jqm();
-    TEMPLATES.help_trigger.click(this.help);
-    TEMPLATES.help_trigger.appendTo('#content');
+    FASTASK.constants.templates.modal.appendTo('#content');
+    FASTASK.constants.templates.modal_trigger.appendTo('#content');
+    FASTASK.constants.templates.modal.jqm();
+    $('.text', FASTASK.constants.templates.modal).html(FASTASK.constants.help);
+    FASTASK.constants.templates.help_trigger.click(this.help);
+    FASTASK.constants.templates.help_trigger.appendTo('#content');
 }

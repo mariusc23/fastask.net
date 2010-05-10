@@ -1,5 +1,11 @@
 <?php
-class Model_User extends Model_Auth_User {
+/**
+ * User model, based on Kohana's auth.
+ *
+ * @author Paul Craciunoiu <paul@craciunoiu.net>
+ */
+class Model_User extends Model_Auth_User
+{
     protected $_has_many = array(
         'tasks' => array('model' => 'task', 'foreign_key' => 'user_id'),
         'groups' => array('model' => 'group', 'foreign_key' => 'user_id'),
@@ -8,7 +14,15 @@ class Model_User extends Model_Auth_User {
         'followers' => array('model' => 'user', 'through' => 'follow_user'),
     );
 
-    public function validate_create(& $array) {
+    /**
+     * Validates user creation. Includes Kohana's default validation.
+     *
+     * @param array $array the user data (e.g. $_POST or $_GET)
+     *
+     * @return array $array modified input
+     */
+    public function validate_create($array)
+    {
         // Initialize the validation library and setup rules
         $array = Validate::factory($array)
             ->rules('password', $this->_rules['password'])
@@ -25,26 +39,32 @@ class Model_User extends Model_Auth_User {
             ->filter('password_confirm', 'trim');
 
         // run username callbacks from parent
-        foreach($this->_callbacks['username'] as $callback){
+        foreach ($this->_callbacks['username'] as $callback) {
             $array->callback('username', array($this, $callback));
         }
 
         // run email callbacks
-        foreach($this->_callbacks['email'] as $callback){
+        foreach ($this->_callbacks['email'] as $callback) {
             $array->callback('email', array($this, $callback));
         }
 
         return $array;
     }
 
-    public function validate_change($array) {
+     /**
+     * Validates user creation. Includes Kohana's default validation.
+     *
+     * @param array $array the user data (e.g. $_POST or $_GET)
+     *
+     * @return array $array modified input
+     */
+    public function validate_change($array)
+    {
         $array = Validate::factory($array)
             ->rule('email', 'email')
             ->rule('name', 'max_length', array(100))
-            ->filter('name', 'trim')
-        ;
+            ->filter('name', 'trim');
 
         return $array;
     }
-
 }

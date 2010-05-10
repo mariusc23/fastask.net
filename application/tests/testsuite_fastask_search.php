@@ -2,19 +2,24 @@
 
 /**
  * This suite tests search functionality in the main controller.
+ *
+ * @author Paul Craciunoiu <paul@craciunoiu.net>
  * @group application
  * @group loggedin
  * @group fastask
  * @group fastask.search
  */
-class FastaskSearchTestSuite extends PHPUnit_Framework_TestSuite {
-    public static function suite() {
-        require_once('/var/www/task/application/testcases/' .
-            'test_fastask_search.php');
+class FastaskSearchTestSuite extends PHPUnit_Framework_TestSuite
+{
+    public static function suite()
+    {
+        include_once '/var/www/task/application/testcases/' .
+            'test_fastask_search.php';
         return new FastaskSearchTestSuite('FastaskSearchTest');
     }
 
-    protected function setUp() {
+    protected function setUp()
+    {
         // Set database connection and log in the user.
         Kohana::config('database')->default = Kohana::config('database')
                                                 ->unit_testing;
@@ -25,7 +30,8 @@ class FastaskSearchTestSuite extends PHPUnit_Framework_TestSuite {
         exec('searchd --config ' . SPHINX_CONF);
     }
 
-    protected function tearDown() {
+    protected function tearDown()
+    {
         // Reset logins and log out the user
         $test_user = Auth::instance()->get_user();
         $test_user->logins = 1;

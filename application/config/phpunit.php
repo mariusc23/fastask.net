@@ -21,7 +21,7 @@ return array(
 
     // If you don't use a whitelist then only files included during the request will be counted
     // If you do, then only whitelisted items will be counted
-    'use_whitelist'        => TRUE,
+    'use_whitelist'        => true,
 
     // Items to whitelist, only used in cli
     // Web runner ui allows user to choose which items to whitelist
@@ -29,20 +29,20 @@ return array(
                     (
                         // Should the app be whitelisted?
                         // Useful if you just want to test your application
-                        'app'        => TRUE,
-                        // Set to array(TRUE) to include all modules, or use an array of module names
+                        'app'        => true,
+                        // Set to array(true) to include all modules, or use an array of module names
                         // (the keys of the array passed to Kohana::modules() in the bootstrap)
-                        // Or set to FALSE to exclude all modules
-                        'modules'    => FALSE,
+                        // Or set to false to exclude all modules
+                        'modules'    => false,
                         // If you don't want the kohana code coverage reports to pollute your app's,
-                        // then set this to FALSE
-                        'system'    => FALSE,
+                        // then set this to false
+                        'system'    => false,
                     ),
 
     // Does what it says on the tin
     // Blacklisted files won't be included in code coverage reports
     // If you use a whitelist then the blacklist will be ignored
-    'use_blacklist'        => FALSE,
+    'use_blacklist'        => false,
 
     'blacklist'    =>    array
                     (

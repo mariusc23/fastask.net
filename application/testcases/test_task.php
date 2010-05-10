@@ -305,10 +305,7 @@ class TaskTest extends PHPUnit_Framework_TestCase {
         );
         $json = json_decode($response->response);
         foreach ($pairs as $pair) {
-            $this->assertSame(
-                $json->tasks[0]->$pair[0],
-                $pair[1]
-            );
+            $this->assertSame($json->task->$pair[0], $pair[1]);
         }
     }
 

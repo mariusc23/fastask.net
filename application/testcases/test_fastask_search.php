@@ -6,11 +6,13 @@
  * @group fastask
  * @group fastask.search
  */
-class FastaskSearchTest extends PHPUnit_Framework_TestCase {
+class FastaskSearchTest extends PHPUnit_Framework_TestCase
+{
     /**
      * Sets the data for search.
      */
-    function providerSearch() {
+    function providerSearch()
+    {
         /* format for each test:
             array(
                 search term
@@ -25,13 +27,15 @@ class FastaskSearchTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test search.
+     *
+     * @param string $search search term
+     * @param int $status http return status code to expect
+     *
      * @dataProvider providerSearch
      */
-    function testSearch($search, $status) {
-        $_GET = array(
-            'ep' => 1,
-            's'  => $search,
-        );
+    function testSearch($search, $status)
+    {
+        $_GET = array('ep' => 1, 's'  => $search,);
         // Need to reset status because of repeated calls and only one setup.
         $fastask = new Controller_Fastask(new Request('in/t'));
         $fastask->before();
@@ -48,7 +52,7 @@ class FastaskSearchTest extends PHPUnit_Framework_TestCase {
         if ($count > 0) {
             foreach ($json->tasks as $task) {
                 $follower_ids = array();
-                foreach($task->followers as $follower) {
+                foreach ($task->followers as $follower) {
                     $follower_ids[] = $follower->id;
                 }
                 $follower_ids[] = $task->user_id;

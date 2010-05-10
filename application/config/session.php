@@ -3,12 +3,12 @@
 return array(
     'native' => array(
         'name'   => 'fastaskv1',
-        'encrypted' => TRUE,
+        'encrypted' => true,
         'lifetime' => 1209600,
     ),
     'cookie' => array(
         'name'   => 'fastaskv1',
-        'encrypted' => TRUE,
+        'encrypted' => true,
         'lifetime' => 1209600,
     ),
 );

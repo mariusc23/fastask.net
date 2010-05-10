@@ -6,10 +6,15 @@
  * @group fastask
  * @group fastask.general
  */
-class FastaskTest extends PHPUnit_Framework_TestCase {
-    private $fastask = null;
+class FastaskTest extends PHPUnit_Framework_TestCase
+{
+    public $fastask = null;
 
-    protected function setUp() {
+    /**
+     * Set up these for each TestCase.
+     */
+    protected function setUp()
+    {
         $this->fastask = new Controller_Fastask($request =
                                                 new Request('in/t'));
         $request->headers['Content-Type'] = 'text/html; charset=' .
@@ -20,24 +25,21 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
     /**
      * Just test that the page renders.
      */
-    function testIndex() {
+    function testIndex()
+    {
         $this->fastask->action_index();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'text/html; charset=utf-8'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'text/html; charset=utf-8');
+        $this->assertSame($response->status, 200);
     }
 
     /**
      * Sets the data for main lists.
      * Tests # of tasks returned and property values.
      */
-    function providerGetMain() {
+    function providerGetMain()
+    {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
@@ -47,8 +49,8 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
         */
         return array(
             array(array(
-                    'p' => 2,
-                    'ep' => 1,
+                    'p' => '2',
+                    'ep' => '1',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -59,9 +61,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   TASKS_PER_PAGE,
             ),
             array(array(
-                    'p' => 2,
-                    'ep' => 1,
-                    'n' => 1,
+                    'p' => '2',
+                    'ep' => '1',
+                    'n' => '1',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -72,9 +74,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   1,
             ),
             array(array(
-                    't' => 1,
-                    'ep' => 1,
-                    'n' => 1,
+                    't' => '1',
+                    'ep' => '1',
+                    'n' => '1',
                   ),
                   array(
                     array('user_id', 2),
@@ -85,9 +87,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   1
             ),
             array(array(
-                    't' => 2,
-                    'ep' => 1,
-                    'n' => 3,
+                    't' => '2',
+                    'ep' => '1',
+                    'n' => '3',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -98,9 +100,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   3
             ),
             array(array(
-                    't' => 3,
-                    'ep' => 1,
-                    'n' => 5,
+                    't' => '3',
+                    'ep' => '1',
+                    'n' => '5',
                   ),
                   array(
                     array('status', 1),
@@ -114,31 +116,26 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test loading main lists.
+     *
+     * @param array $get passed to global $_GET
+     * @param array $pairs (field, value) to check
+     * @param int $per_page how many tasks per page to expect
+     *
      * @dataProvider providerGetMain
      */
-    function testGetMain($get, $pairs, $per_page) {
+    function testGetMain($get, $pairs, $per_page)
+    {
         $_GET = $get;
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 200);
         $json = json_decode($response->response);
-        $this->assertSame(
-            count($json->tasks),
-            $per_page
-        );
+        $this->assertSame(count($json->tasks), $per_page);
         foreach ($json->tasks as $task) {
             foreach ($pairs as $pair) {
-                $this->assertSame(
-                    $task->$pair[0],
-                    $pair[1]
-                );
+                $this->assertSame($task->$pair[0], $pair[1]);
             }
         }
     }
@@ -146,7 +143,8 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
     /**
      * Sets the data for followers.
      */
-    function providerGetFollowers() {
+    function providerGetFollowers()
+    {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
@@ -156,19 +154,19 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
         */
         return array(
             array(array(
-                    'ep' => 1,
+                    'ep' => '1',
                   ),
                   TEST_USER_ID,
             ),
             array(array(
-                    't' => 1,
-                    'ep' => 1,
+                    't' => '1',
+                    'ep' => '1',
                   ),
                   TEST_USER_ID,
             ),
             array(array(
-                    't' => 3,
-                    'ep' => 1,
+                    't' => '3',
+                    'ep' => '1',
                   ),
                   TEST_USER_ID,
             ),
@@ -177,65 +175,56 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test followers for 3 main tabs (except command center)
+     *
+     * @param array $get passed to global $_GET
+     * @param int $follower_id check the task has this follower
+     *
      * @dataProvider providerGetFollowers
      */
-    function testGetFollowers($get, $follower_id) {
+    function testGetFollowers($get, $follower_id)
+    {
         $_GET = $get;
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 200);
         $json = json_decode($response->response);
         foreach ($json->tasks as $task) {
             $follower_ids = array();
-            foreach($task->followers as $follower) {
+            foreach ($task->followers as $follower) {
                 $follower_ids[] = $follower->id;
             }
-            $this->assertContains(
-                $follower_id,
-                $follower_ids
-            );
+            $this->assertContains($follower_id, $follower_ids);
         }
     }
 
     /**
      * Test followers for command center (tab 3).
      */
-    function testCommandCenter() {
+    function testCommandCenter()
+    {
         $_GET =  array(
-            't' => 2,
-            'ep' => 1,
+            't' => '2',
+            'ep' => '1',
         );
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 200);
         $json = json_decode($response->response);
         foreach ($json->tasks as $task) {
             if (count($task->followers) === 1) {
-                $this->assertNotEquals(
-                    TEST_USER_ID,
-                    $task->followers[0]->id
-                );
+                $this->assertNotEquals(TEST_USER_ID, $task->followers[0]->id);
             }
         }
     }
     /**
      * Test pagination works properly.
      */
-    function testPagination() {
+    function testPagination()
+    {
         $per_page = 3;
         $_GET = array('ep' => 1, 'n' => $per_page);
         $task_ids = array();
@@ -243,22 +232,20 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
             $_GET['p'] = $page + 1;
             $this->fastask->action_t();
             $json = json_decode($this->fastask->request->response);
-            for($i = 0; $i < $per_page; $i++) {
+            for ($i = 0; $i < $per_page; $i++) {
                 $task_ids[] = $json->tasks[$i]->id;
             }
         }
-        $this->assertSame(
-            count($task_ids),
-            count(array_unique($task_ids)),
-            'Duplicate tasks received in pagination'
-        );
+        $this->assertSame(count($task_ids), count(array_unique($task_ids)),
+                          'Duplicate tasks received in pagination');
     }
 
     /**
      * Sets the data for mini lists.
      * Tests # of tasks returned and property values.
      */
-    function providerGetMini() {
+    function providerGetMini()
+    {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
@@ -268,8 +255,8 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
         */
         return array(
             array(array(
-                    'eu' => 1,
-                    'm'  => 2,
+                    'eu' => '1',
+                    'm'  => '2',
                   ),
                   array(
                     array('status', 0),
@@ -279,9 +266,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   2
             ),
             array(array(
-                    'eu' => 1,
-                    'tr' => 2,
-                    'm'  => 4,
+                    'eu' => '1',
+                    'tr' => '2',
+                    'm'  => '4',
                   ),
                   array(
                     array('trash', 1),
@@ -289,10 +276,10 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   4
             ),
             array(array(
-                    'u'  => 2,
-                    'eu' => 1,
-                    'tr' => 2,
-                    'm'  => 1,
+                    'u'  => '2',
+                    'eu' => '1',
+                    'tr' => '2',
+                    'm'  => '1',
                   ),
                   array(
                     array('trash', 1),
@@ -304,49 +291,42 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test loading mini lists.
+     *
+     * @param array $get passed to global $_GET
+     * @param array $pairs (field, value) to check
+     * @param int $per_page how many tasks per page to expect
+     *
      * @dataProvider providerGetMini
      */
-    function testGetMini($get, $pairs, $per_page) {
+    function testGetMini($get, $pairs, $per_page)
+    {
         $_GET = $get;
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 200);
         $json = json_decode($response->response);
-        $this->assertSame(
-            count($json->tasks),
-            $per_page
-        );
+        $this->assertSame(count($json->tasks), $per_page);
         foreach ($json->tasks as $task) {
             foreach ($pairs as $pair) {
-                $this->assertSame(
-                    $task->$pair[0],
-                    $pair[1]
-                );
+                $this->assertSame($task->$pair[0], $pair[1]);
             }
         }
         foreach ($json->tasks as $task) {
             $follower_ids = array();
-            foreach($task->followers as $follower) {
+            foreach ($task->followers as $follower) {
                 $follower_ids[] = $follower->id;
             }
-            $this->assertContains(
-                TEST_USER_ID,
-                $follower_ids
-            );
+            $this->assertContains(TEST_USER_ID, $follower_ids);
         }
     }
 
     /**
      * Sets the data for groups.
      */
-    function providerGroups() {
+    function providerGroups()
+    {
         /* format for each test:
             array(
                 array $_GET - will be assigned to global $_GET,
@@ -356,9 +336,9 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
         */
         return array(
             array(array(
-                    'p' => 1,
-                    'ep' => 1,
-                    'g' => 1,
+                    'p' => '1',
+                    'ep' => '1',
+                    'g' => '1',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -370,10 +350,10 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   TASKS_PER_PAGE,
             ),
             array(array(
-                    'p' => 2,
-                    'ep' => 1,
-                    'n' => 1,
-                    'g' => 2,
+                    'p' => '2',
+                    'ep' => '1',
+                    'n' => '1',
+                    'g' => '2',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -385,10 +365,10 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   1,
             ),
             array(array(
-                    't' => 1,
-                    'ep' => 1,
-                    'n' => 2,
-                    'g' => 8,
+                    't' => '1',
+                    'ep' => '1',
+                    'n' => '2',
+                    'g' => '8',
                   ),
                   array(
                     array('user_id', 2),
@@ -400,10 +380,10 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   2
             ),
             array(array(
-                    't' => 2,
-                    'ep' => 1,
-                    'n' => 3,
-                    'g' => 3,
+                    't' => '2',
+                    'ep' => '1',
+                    'n' => '3',
+                    'g' => '3',
                   ),
                   array(
                     array('user_id', TEST_USER_ID),
@@ -415,10 +395,10 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
                   3
             ),
             array(array(
-                    't' => 3,
-                    'ep' => 1,
-                    'n' => 2,
-                    'g' => 2,
+                    't' => '3',
+                    'ep' => '1',
+                    'n' => '2',
+                    'g' => '2',
                   ),
                   array(
                     array('group_id', 2),
@@ -433,31 +413,26 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test loading main lists.
+     *
+     * @param array $get passed to global $_GET
+     * @param array $pairs (field, value) to check
+     * @param int $per_page how many tasks per page to expect
+     *
      * @dataProvider providerGroups
      */
-    function testGroups($get, $pairs, $per_page) {
+    function testGroups($get, $pairs, $per_page)
+    {
         $_GET = $get;
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            200
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 200);
         $json = json_decode($response->response);
-        $this->assertSame(
-            count($json->tasks),
-            $per_page
-        );
+        $this->assertSame(count($json->tasks), $per_page);
         foreach ($json->tasks as $task) {
             foreach ($pairs as $pair) {
-                $this->assertSame(
-                    $task->$pair[0],
-                    $pair[1]
-                );
+                $this->assertSame($task->$pair[0], $pair[1]);
             }
         }
     }
@@ -465,25 +440,15 @@ class FastaskTest extends PHPUnit_Framework_TestCase {
     /**
      * Just test that content-type is JSON, error set and empty tasks.
      */
-    function testEmptyRequest() {
+    function testEmptyRequest()
+    {
         $this->fastask->action_t();
         $response = $this->fastask->request;
-        $this->assertSame(
-            $response->headers['Content-Type'],
-            'application/json'
-        );
-        $this->assertSame(
-            $response->status,
-            404
-        );
+        $this->assertSame($response->headers['Content-Type'],
+                          'application/json');
+        $this->assertSame($response->status, 404);
         $json = json_decode($response->response);
-        $this->assertSame(
-            $json->error,
-            'No tasks found'
-        );
-        $this->assertSame(
-            $json->tasks,
-            array()
-        );
+        $this->assertSame($json->error, 'No tasks found');
+        $this->assertSame($json->tasks, array());
     }
 }
