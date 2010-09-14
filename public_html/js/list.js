@@ -474,7 +474,8 @@ function List() {
             },
             error: function (response, textStatus, error) {
                 // remember search
-                FASTASK.list_handler.last_search_q = list_handler.search_val;
+                FASTASK.list_handler.last_search_q = FASTASK
+			.list_handler.search_val;
 
                 FASTASK.list_handler.unset_loading(0);
                 $('.search-s', FASTASK.constants.lists[0]).hide();
@@ -495,7 +496,8 @@ function List() {
             },
             success: function (response, textStatus, request) {
                 // remember search
-                FASTASK.list_handler.last_search_q = list_handler.search_val;
+                FASTASK.list_handler.last_search_q = FASTASK
+			.list_handler.search_val;
 
                 $('.search-s', FASTASK.constants.lists[0]).hide();
                 FASTASK.list_handler.unset_loading(0);
