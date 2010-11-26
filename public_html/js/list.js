@@ -219,13 +219,13 @@ function List() {
                     // mini list notifies instead, and fails to switch
                     if (FASTASK.list_handler.expecting[1]) {
                         if (FASTASK.list_handler.expect_what === 1) {
-                            FASTASK.list_handler.notif_handler.add(2,
-                                'No tasks found in '
-                                . FASTASK.constants.titles_plain[5]);
+                            FASTASK.notif_handler.add(2,
+                                'No tasks found in ' +
+                                FASTASK.constants.titles_plain[5]);
                         } else {
-                            FASTASK.list_handler.notif_handler.add(2,
-                                'No tasks found in '
-                                . FASTASK.constants.titles_plain[6]);
+                            FASTASK.notif_handler.add(2,
+                                'No tasks found in ' +
+                                FASTASK.constants.titles_plain[6]);
                         }
                     }
 
